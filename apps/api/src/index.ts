@@ -10,7 +10,9 @@ const port = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => {
+import { Request, Response } from 'express';
+
+app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'API is running successfully on Render!' });
 });
 
