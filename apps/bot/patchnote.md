@@ -5,18 +5,19 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
-## 🟢 Version 1.0.1 (En cours de développement)
+## 🟢 Version 1.1.0 (En cours de développement)
 *Dernière modification : 01 Juillet 2026*
 
 ### 🤖 Bot Discord & ⚙️ API
-- **[Déploiement Render]** Préparation du projet pour un hébergement gratuit sur **Render** (création du fichier `render.yaml`).
-- **[Structure]** Création des points d'entrée de base (`index.ts`) pour l'API Express et le Bot Discord.
-- **[Scripts]** Ajout des scripts `build`, `start` et `dev` (avec `tsc` et `ts-node`) dans les `package.json` respectifs.
-- **[Configuration]** Ajustement des `tsconfig.json` (`rootDir`, `outDir`, et module `commonjs`).
+- **[Architecture]** Mise en place du cœur du Bot : Event Handler et Command Handler dynamiques.
+- **[Intents]** Configuration de l'intent `MessageContent` pour lire les commandes préfixées.
+- **[Esthétique]** Création du système d'Embeds personnalisés (Thème Teal/Emerald exclusif).
+- **[Commandes]** Ajout de la toute première commande `.help`, ultra-premium avec bannière générée par IA.
+- **[Déploiement]** Le bot compile et se déploie de manière 100% autonome sur Render.
 
 ---
 
-## 🟢 Version 1.0.0
+## 🟢 Version 1.0.1
 *Dernière modification : 30 Juin 2026*
 
 ### 🤖 Bot Discord & ⚙️ API
