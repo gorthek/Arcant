@@ -2,6 +2,7 @@ services:
   - type: web
     name: arcant-api
     env: node
+    plan: free
     buildCommand: npm install && npm run build -w apps/api
     startCommand: npm start -w apps/api
     envVars:
@@ -15,6 +16,7 @@ services:
   - type: worker
     name: arcant-bot
     env: node
+    plan: free
     buildCommand: npm install && npm run build -w apps/bot
     startCommand: npm start -w apps/bot
     envVars:
