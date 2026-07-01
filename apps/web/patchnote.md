@@ -1,0 +1,35 @@
+# 🚀 Arcant - Patchnotes (Dashboard Web)
+
+Bienvenue dans le journal des mises à jour du Dashboard Web d'Arcant ! 
+Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du site.
+
+---
+
+## 🟢 Version 1.0.1 (En cours de développement)
+*Dernière modification : 01 Juillet 2026*
+
+### 🌐 Déploiement Vercel
+- **[Hébergement]** Préparation du Dashboard pour le déploiement natif sur **Vercel**.
+- **[Suppression]** Le script `index.js` à la racine n'est plus nécessaire pour le Dashboard, Vercel gère automatiquement le lancement de Next.js.
+
+---
+
+## 🟢 Version 1.0.0
+*Dernière modification : 30 Juin 2026*
+
+### 🌐 Dashboard (Interface Web)
+- **[Page À Propos]** Création de la page `/about` pour présenter l'histoire d'Arcant, nos valeurs et l'équipe.
+- **[Authentification]** Mise en place d'une véritable connexion OAuth2 via Discord avec gestion de session (NextAuth).
+- **[Menu Profil]** Création d'un menu déroulant interactif pour les utilisateurs connectés (Avatar, pseudo, ID unique, déconnexion).
+- **[Refonte Identité]** Changement du nom du projet de *BOT-Velthor* à **Arcant**.
+- **[Nouveau Thème]** Passage d'un thème Violet/Bleu à un thème **Turquoise/Émeraude (Teal/Emerald)** pour matcher le nouveau logo.
+- **[Intégration Logo]** Ajout du logo dans la Navbar (avec une astuce CSS secrète de zoom pour cacher le filigrane Gemini).
+- **[Animations Avancées]** Ajout massif d'animations cachées et visibles :
+  - Particules flottantes en arrière-plan.
+  - "Respiration" du halo lumineux au centre.
+  - Rotation secrète du logo à 360° au survol.
+  - Apparition en cascade "spring" (rebond) des cartes tarifaires et de leurs caractéristiques.
+  - Effet de brillance tournante (spin) continue autour de la carte d'abonnement Premium.
+  - Effet de lumière (sweep) au survol des boutons principaux.
+  - Cartes d'avis 3D avec apparition progressive des étoiles jaunes (staggered).
+- **[Style "Glassed Windows"]** Intégration du Glassmorphism (effets vitrés transparents, flou d'arrière-plan, et bordures très arrondies).

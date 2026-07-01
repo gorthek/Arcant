@@ -1,0 +1,11 @@
+{
+  "name": "arcant-master",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  },
+  "workspaces": [
+    "apps/*"
+  ]
+}
