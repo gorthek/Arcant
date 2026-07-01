@@ -2,7 +2,6 @@ services:
   - type: web
     name: arcant-api
     env: node
-    nodeVersion: 20
     buildCommand: npm install && npm run build -w apps/api
     startCommand: npm start -w apps/api
     envVars:
@@ -10,15 +9,18 @@ services:
         value: 10000
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: "20"
 
   - type: worker
     name: arcant-bot
     env: node
-    nodeVersion: 20
     buildCommand: npm install && npm run build -w apps/bot
     startCommand: npm start -w apps/bot
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: "20"
       - key: DISCORD_TOKEN
         sync: false
