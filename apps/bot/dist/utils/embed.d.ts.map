@@ -1,0 +1,1 @@
+{"version":3,"file":"embed.d.ts","sourceRoot":"","sources":["../../src/utils/embed.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,eAAe,EAAE,MAAM,YAAY,CAAC;AAE3D,eAAO,MAAM,YAAY,EAAE,eAA2B,CAAC;AACvD,eAAO,MAAM,aAAa,uDAAuD,CAAC;AAClF,eAAO,MAAM,aAAa,uCAAkC,CAAC;AAE7D,wBAAgB,eAAe,CAAC,KAAK,EAAE,MAAM,EAAE,WAAW,EAAE,MAAM,gBAQjE;AAED,wBAAgB,gBAAgB,CAAC,WAAW,EAAE,MAAM,gBAOnD"}

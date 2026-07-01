@@ -1,14 +1,22 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import dotenv from 'dotenv';
+import { loadCommands } from './handlers/commandHandler';
+import { loadEvents } from './handlers/eventHandler';
 
 dotenv.config();
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-
-client.once('ready', () => {
-  console.log(`[BOT] Logged in as ${client.user?.tag}!`);
-  console.log('[BOT] Running successfully on Render!');
+const client = new Client({ 
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent, // Nécessaire pour lire le contenu des messages (préfixe)
+  ],
+  partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 });
+
+// Charger les gestionnaires
+loadCommands();
+loadEvents(client);
 
 const token = process.env.DISCORD_TOKEN;
 if (token) {
