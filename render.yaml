@@ -13,7 +13,7 @@ services:
       - key: NODE_VERSION
         value: "20"
 
-  - type: worker
+  - type: web
     name: arcant-bot
     env: node
     plan: free
@@ -26,3 +26,4 @@ services:
         value: "20"
       - key: DISCORD_TOKEN
         sync: false
+# https://stats.uptimerobot.com/5G0MPSdY4o page de stat 
