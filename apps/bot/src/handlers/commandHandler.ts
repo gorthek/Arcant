@@ -16,7 +16,9 @@ export function loadCommands() {
     return;
   }
 
-  const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
+  const commandFiles = fs.readdirSync(commandsPath).filter(file => 
+    (file.endsWith('.ts') || file.endsWith('.js')) && !file.endsWith('.d.ts')
+  );
 
   for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);

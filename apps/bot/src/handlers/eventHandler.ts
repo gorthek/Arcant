@@ -13,7 +13,9 @@ export function loadEvents(client: Client) {
     return;
   }
 
-  const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
+  const eventFiles = fs.readdirSync(eventsPath).filter(file => 
+    (file.endsWith('.ts') || file.endsWith('.js')) && !file.endsWith('.d.ts')
+  );
 
   for (const file of eventFiles) {
     const filePath = path.join(eventsPath, file);
