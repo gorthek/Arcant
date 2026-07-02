@@ -31,10 +31,20 @@ export function Header() {
 
     // Ici on devrait théoriquement vérifier le vrai rôle sur le serveur via l'API Discord
     // Mais pour l'instant, sans point d'API complet, on va simuler.
-    // L'utilisateur est admin ou server_owner s'il voit le serveur (vu qu'on filtre dans page.tsx)
-    // On va simuler "server_owner" pour la démo, ou "admin" de temps en temps
     setRole("server_owner"); // Simulation
   }, [session, serverId]);
+
+  const cycleRole = () => {
+    // @ts-ignore
+    if (session?.user?.id === "1061340110219640905") {
+      setRole((current) => {
+        if (current === "owner") return "admin";
+        if (current === "admin") return "server_owner";
+        if (current === "server_owner") return "member";
+        return "owner";
+      });
+    }
+  };
 
   // @ts-ignore
   const userImage = session?.user?.image;
@@ -55,7 +65,7 @@ export function Header() {
           <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-teal-400 rounded-full shadow-[0_0_12px_rgba(20,184,166,1)] animate-pulse" />
         </button>
         
-        <div className="flex items-center gap-4 pl-6 border-l border-white/10 cursor-pointer group relative">
+        <div onClick={cycleRole} className="flex items-center gap-4 pl-6 border-l border-white/10 cursor-pointer group relative" title="Cliquez pour tester les différents grades">
           <div className="text-right hidden sm:flex flex-col items-end">
             <div className="text-sm font-extrabold text-gray-200 group-hover:text-white transition-colors tracking-wide">
               {userName}
