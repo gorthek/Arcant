@@ -77,7 +77,7 @@ export default function DashboardSelection() {
 
         const guildsWithBotState = managedGuilds.map(g => ({
           ...g,
-          hasBot: dbServers.some(dbS => dbS.serverId === g.id) || ["Arcant", "Les Wølf | RushPvP"].includes(g.name) // Fallback temporaire visuel
+          hasBot: dbServers.some(dbS => dbS.serverId === g.id)
         }));
 
         // 3. Trier : Les serveurs AVEC le bot en premier, puis ceux SANS le bot
