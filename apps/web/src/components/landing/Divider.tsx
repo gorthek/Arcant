@@ -5,9 +5,17 @@ import { useId } from "react";
 
 interface DividerProps {
   bottomColorHex?: string;
+  wave1Color?: string;
+  wave2Color?: string;
+  wave3Color?: string;
 }
 
-export function Divider({ bottomColorHex = "#09090b" }: DividerProps) {
+export function Divider({ 
+  bottomColorHex = "#09090b",
+  wave1Color = "#0f766e",
+  wave2Color = "#0d9488",
+  wave3Color = "#14b8a6"
+}: DividerProps) {
   // Gorthek, j'ai compris à 100%. On oublie les agents.
   // Tu veux le style Draftbot exact : de VRAIES vagues maritimes (plus courtes, plus hautes)
   // qui se chevauchent de façon distincte avec une ombre pour donner de la profondeur,
@@ -35,7 +43,7 @@ export function Divider({ bottomColorHex = "#09090b" }: DividerProps) {
         {/* Vague Arrière (Sombre, Lente) */}
         <motion.path 
           d={wavePath}
-          fill="#0f766e" // Teal 700
+          fill={wave1Color}
           initial={{ x: 0, y: 70 }}
           animate={{ x: [0, -600], y: [70, 70] }}
           transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
@@ -44,7 +52,7 @@ export function Divider({ bottomColorHex = "#09090b" }: DividerProps) {
         {/* Vague Milieu (Moyenne, Vitesse normale) - Ombrée */}
         <motion.path 
           d={wavePath}
-          fill="#0d9488" // Teal 600
+          fill={wave2Color}
           filter={`url(#${shadowId})`}
           initial={{ x: -150, y: 110 }} // Décalage de départ (phase)
           animate={{ x: [-150, -750], y: [110, 110] }}
@@ -54,7 +62,7 @@ export function Divider({ bottomColorHex = "#09090b" }: DividerProps) {
         {/* Vague Avant (Claire, Rapide) - Ombrée */}
         <motion.path 
           d={wavePath}
-          fill="#14b8a6" // Teal 500
+          fill={wave3Color}
           filter={`url(#${shadowId})`}
           initial={{ x: -300, y: 150 }}
           animate={{ x: [-300, -900], y: [150, 150] }}

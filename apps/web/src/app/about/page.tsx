@@ -2,153 +2,195 @@
 
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
-import { StardustBackground } from "@/components/landing/StardustBackground";
+import { HellfireBackground } from "@/components/landing/HellfireBackground";
 import { motion } from "framer-motion";
-import { Users, Shield, Target } from "lucide-react";
+import { Flame, ShieldAlert, Skull, Shield, Database, Swords } from "lucide-react";
 import { Divider } from "@/components/landing/Divider";
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-teal-500/30 font-sans flex flex-col relative overflow-x-hidden">
-      <StardustBackground />
+    <div className="min-h-screen bg-[#050000] text-white selection:bg-red-500/30 font-sans flex flex-col relative overflow-x-hidden">
+      <HellfireBackground />
       <Navbar />
       
       <main className="flex-grow relative pt-40 pb-20 z-10 w-full">
         
         {/* En-tête */}
-        <div className="max-w-6xl mx-auto px-6 text-center mb-24">
+        <div className="max-w-6xl mx-auto px-6 text-center mb-24 relative">
+          {/* Lueur démoniaque derrière le titre */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-red-600/20 rounded-full blur-[120px] pointer-events-none" />
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 0.8, type: "spring" }}
+            className="flex justify-center mb-6"
+          >
+            <Flame className="w-16 h-16 text-red-500 animate-pulse" />
+          </motion.div>
+
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400"
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="text-6xl md:text-8xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-500 to-red-800 drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]"
           >
-            L'Histoire d'Arcant
+            La Genèse d'Arcant
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-xl text-gray-400 max-w-2xl mx-auto"
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto font-medium"
           >
-            Découvrez qui se cache derrière l'intelligence artificielle qui révolutionne la gestion des serveurs Discord.
+            Né de la frustration des serveurs vulnérables. Forgé dans les ténèbres pour devenir l'arme ultime des créateurs de communautés.
           </motion.p>
         </div>
 
-        {/* Section Histoire */}
-        <div className="max-w-4xl mx-auto px-6 text-center mb-16">
+        {/* Section Histoire (Démoniaque) */}
+        <div className="max-w-4xl mx-auto px-6 text-center mb-24">
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="space-y-6 text-gray-300 text-lg leading-relaxed"
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8 }}
+            className="space-y-8 text-gray-300 text-lg md:text-xl leading-relaxed relative bg-[#0a0000]/80 backdrop-blur-xl border border-red-900/30 p-10 rounded-3xl shadow-[0_0_50px_rgba(153,27,27,0.15)]"
           >
-            <h2 className="text-3xl font-bold text-white mb-8">D'une frustration à une révolution</h2>
-            <p>
-              Tout a commencé par un constat simple : créer et gérer un serveur Discord complet prend un temps fou. Entre la configuration fastidieuse des permissions, la mise en place d'un système anti-raid efficace, et le paramétrage des systèmes de tickets, de nombreux créateurs de communautés abandonnaient avant même d'avoir commencé.
+            {/* Effet glitch subtil sur le titre */}
+            <h2 className="text-4xl font-black text-white mb-8 relative inline-block group">
+              D'un chaos naît la puissance
+              <div className="absolute inset-0 bg-red-600 mix-blend-screen opacity-0 group-hover:opacity-20 animate-pulse transition-opacity" />
+            </h2>
+            
+            <p className="text-justify">
+              Tout a commencé par un constat alarmant : la création et la gestion d'un empire sur Discord est une lutte constante. Entre les vagues de raids dévastateurs, la configuration fastidieuse des permissions qui s'apparente à de la torture, et le paramétrage chaotique des systèmes de support, d'innombrables créateurs abandonnaient leurs royaumes avant même d'avoir posé la première pierre.
             </p>
-            <p>
-              En 2024, nous avons décidé de changer la donne. <strong className="text-teal-400">Arcant</strong> n'est pas juste un bot supplémentaire. C'est le premier véritable assistant intelligent capable de comprendre vos besoins en langage naturel.
+            <p className="text-justify">
+              Fin 2024, nous avons décidé de briser ce cycle maudit. <strong className="text-red-500 font-bold drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">Arcant</strong> n'est pas une simple coquille vide de plus sur le marché. C'est une entité dotée de sa propre conscience, le premier véritable démon gardien capable d'interpréter vos moindres désirs en langage naturel.
             </p>
-            <p className="italic text-white">
-              « Dites-lui ce que vous voulez, il le construit. » Ce n'est plus une promesse, c'est une réalité.
-            </p>
+            
+            <div className="p-6 bg-gradient-to-r from-red-950/50 to-transparent border-l-4 border-red-600 text-left mt-8 rounded-r-xl">
+              <p className="italic text-orange-200/90 font-medium text-xl">
+                « Ordonnez-lui vos volontés, il bâtira votre forteresse. »
+              </p>
+              <p className="text-red-400/80 text-sm mt-2 uppercase tracking-widest font-bold">Ce n'est plus un mythe. C'est votre réalité.</p>
+            </div>
           </motion.div>
         </div>
 
-        {/* Divider FULL WIDTH */}
+        {/* Divider FULL WIDTH - Couleurs Feu/Lave */}
         <div className="w-full">
-          <Divider />
+          <Divider 
+            wave1Color="#450a0a" // Red 950
+            wave2Color="#7f1d1d" // Red 900
+            wave3Color="#991b1b" // Red 800
+            bottomColorHex="#0a0000" 
+          />
         </div>
 
         {/* Section Nos Valeurs */}
-        <div className="max-w-6xl mx-auto px-6 my-24">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Nos Valeurs Fondamentales</h2>
-            <p className="text-gray-400">Ce qui guide le développement d'Arcant au quotidien.</p>
+        <div className="max-w-6xl mx-auto px-6 my-32">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-black text-white mb-6 uppercase tracking-tight">Le Pacte Fondamental</h2>
+            <p className="text-red-400/70 text-xl font-bold tracking-widest uppercase">Ce qui nourrit la puissance d'Arcant.</p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
             <motion.div 
-              whileHover={{ y: -5 }}
-              className="bg-[#0a0a0a] border border-white/5 p-8 rounded-2xl"
+              whileHover={{ y: -10, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="bg-gradient-to-b from-[#1a0505] to-[#050000] border border-red-900/40 p-10 rounded-3xl relative overflow-hidden group"
             >
-              <div className="w-14 h-14 bg-teal-500/10 text-teal-400 rounded-xl flex items-center justify-center mb-6">
-                <Shield size={28} />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 rounded-full blur-3xl group-hover:bg-red-600/20 transition-colors" />
+              <div className="w-16 h-16 bg-red-950 text-red-500 rounded-2xl flex items-center justify-center mb-8 border border-red-800/50 group-hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all">
+                <ShieldAlert size={32} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Sécurité Absolue</h3>
-              <p className="text-gray-400">
-                La protection de votre communauté passe avant tout. Nos systèmes anti-raid et anti-token grab sont construits pour être proactifs, pas seulement réactifs.
+              <h3 className="text-2xl font-black text-white mb-4 uppercase">Sécurité Inflexible</h3>
+              <p className="text-gray-400 leading-relaxed">
+                La protection de votre royaume passe avant tout. Nos systèmes anti-raid et anti-token grab sont construits pour être proactifs, détruisant la menace avant qu'elle ne frappe.
               </p>
             </motion.div>
             
             <motion.div 
-              whileHover={{ y: -5 }}
-              className="bg-[#0a0a0a] border border-white/5 p-8 rounded-2xl"
+              whileHover={{ y: -10, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="bg-gradient-to-b from-[#1a0505] to-[#050000] border border-orange-900/40 p-10 rounded-3xl relative overflow-hidden group"
             >
-              <div className="w-14 h-14 bg-teal-500/10 text-teal-400 rounded-xl flex items-center justify-center mb-6">
-                <Target size={28} />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/10 rounded-full blur-3xl group-hover:bg-orange-600/20 transition-colors" />
+              <div className="w-16 h-16 bg-orange-950 text-orange-500 rounded-2xl flex items-center justify-center mb-8 border border-orange-800/50 group-hover:shadow-[0_0_20px_rgba(249,115,22,0.4)] transition-all">
+                <Swords size={32} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Simplicité</h3>
-              <p className="text-gray-400">
-                La technologie la plus avancée doit rester invisible. Vous n'avez pas besoin d'être un développeur pour configurer un serveur parfait avec Arcant.
+              <h3 className="text-2xl font-black text-white mb-4 uppercase">Puissance Brute</h3>
+              <p className="text-gray-400 leading-relaxed">
+                La technologie la plus avancée au service de votre communauté. Invoquez des systèmes complets en une phrase, sans écrire une seule ligne de configuration.
               </p>
             </motion.div>
 
             <motion.div 
-              whileHover={{ y: -5 }}
-              className="bg-[#0a0a0a] border border-white/5 p-8 rounded-2xl"
+              whileHover={{ y: -10, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="bg-gradient-to-b from-[#1a0505] to-[#050000] border border-red-900/40 p-10 rounded-3xl relative overflow-hidden group"
             >
-              <div className="w-14 h-14 bg-teal-500/10 text-teal-400 rounded-xl flex items-center justify-center mb-6">
-                <Users size={28} />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 rounded-full blur-3xl group-hover:bg-red-600/20 transition-colors" />
+              <div className="w-16 h-16 bg-red-950 text-red-500 rounded-2xl flex items-center justify-center mb-8 border border-red-800/50 group-hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all">
+                <Database size={32} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">À l'écoute de la communauté</h3>
-              <p className="text-gray-400">
-                Chaque nouvelle fonctionnalité, chaque mise à jour est pensée et priorisée en fonction des retours directs de nos utilisateurs sur notre serveur support.
+              <h3 className="text-2xl font-black text-white mb-4 uppercase">Soif de Données</h3>
+              <p className="text-gray-400 leading-relaxed">
+                L'entité apprend de ses utilisateurs. Chaque nouvelle fonctionnalité, chaque mise à jour est forgée dans le sang des retours directs de notre communauté.
               </p>
             </motion.div>
           </div>
         </div>
 
-        {/* Divider FULL WIDTH */}
+        {/* Divider FULL WIDTH - Retour au fond plus sombre */}
         <div className="w-full">
-          <Divider />
+          <Divider 
+            wave1Color="#2a0a0a" 
+            wave2Color="#3f0f0f" 
+            wave3Color="#4a0f0f" 
+            bottomColorHex="#050000" 
+          />
         </div>
 
         {/* Section L'Équipe */}
-        <div className="max-w-6xl mx-auto px-6 my-24">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">L'Équipe derrière la magie</h2>
-            <p className="text-gray-400">Des passionnés au service des créateurs de communautés.</p>
+        <div className="max-w-6xl mx-auto px-6 my-32">
+          <div className="text-center mb-20 relative">
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-red-900/20 rounded-full blur-[100px] pointer-events-none" />
+            <h2 className="text-5xl font-black text-white mb-4 uppercase tracking-tight relative z-10">L'Architecte</h2>
+            <p className="text-gray-400 relative z-10 text-xl">Celui qui murmure à l'oreille de la machine.</p>
           </div>
 
           <div className="flex justify-center">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                initial={{ opacity: 0, scale: 0.9, y: 50 }}
                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 viewport={{ once: true }}
-                whileHover={{ y: -10 }}
-                transition={{ duration: 0.4, type: "spring", stiffness: 100 }}
-                className="group relative bg-[#050505] border border-white/10 rounded-2xl overflow-hidden hover:border-teal-500/50 hover:shadow-[0_0_30px_rgba(20,184,166,0.15)] transition-all max-w-sm w-full"
+                whileHover={{ y: -15, rotate: 1 }}
+                transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+                className="group relative bg-[#0a0000] border border-red-900/50 rounded-[2rem] overflow-hidden hover:border-red-500/80 hover:shadow-[0_0_50px_rgba(220,38,38,0.3)] transition-all max-w-md w-full"
               >
-                <div className="aspect-square bg-[#0f0f0f] relative flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
+                <div className="aspect-[4/3] bg-[#050000] relative flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0000] via-transparent to-transparent z-10" />
+                  <div className="absolute inset-0 bg-red-900/20 mix-blend-overlay z-10 group-hover:bg-transparent transition-colors duration-700" />
+                  
                   <img 
-                    src="https://cdn.discordapp.com/avatars/1061340110219640905/6d006de2f51f49cbef00490ebfdbb7fb.png?size=512" 
+                    src="https://github.com/gorthek.png" 
                     alt="Gorthek"
-                    onError={(e) => {
-                      e.currentTarget.src = "https://github.com/gorthek.png";
-                    }}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    className="w-full h-full object-cover group-hover:scale-110 group-hover:rotate-2 transition-transform duration-700 filter contrast-125" 
                   />
-                  <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center">
-                     <span className="px-3 py-1 bg-teal-500/20 border border-teal-500/50 rounded-full text-teal-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">Fondateur</span>
+                  
+                  <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center">
+                     <span className="px-6 py-2 bg-black/80 border border-red-500/50 rounded-full text-red-500 text-sm font-black uppercase tracking-widest backdrop-blur-md shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+                       Seigneur Fondateur
+                     </span>
                   </div>
                 </div>
-                <div className="p-8 text-center relative z-20 bg-[#050505]">
-                  <h3 className="text-2xl font-bold text-white group-hover:text-teal-400 transition-colors">Gorthek</h3>
-                  <p className="text-teal-400/80 font-medium mb-4 text-sm uppercase tracking-widest">CEO & Lead Developer</p>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                    Jeune entrepreneur Discord, en recherche et développement de ses compétences en langages de programmation pour concevoir les meilleurs outils pour sa communauté.
+                <div className="p-10 text-center relative z-20 bg-[#0a0000]">
+                  <h3 className="text-3xl font-black text-white group-hover:text-red-500 transition-colors mb-2">Gorthek</h3>
+                  <p className="text-orange-500/80 font-bold mb-6 text-sm uppercase tracking-widest drop-shadow-[0_0_5px_rgba(249,115,22,0.5)]">CEO & Lead Developer</p>
+                  <p className="text-gray-400 text-base leading-relaxed">
+                    Jeune entrepreneur Discord, en quête de pouvoir absolu sur l'infrastructure des serveurs. Il développe ses compétences en langages de programmation obscurs pour concevoir les outils les plus destructeurs de limites pour sa communauté.
                   </p>
                 </div>
               </motion.div>
@@ -156,24 +198,30 @@ export default function About() {
         </div>
 
         {/* Appel à l'action */}
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-4xl mx-auto px-6 relative z-20 pb-10">
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mt-20 text-center bg-gradient-to-br from-teal-900/20 to-black border border-teal-500/20 p-12 rounded-3xl"
+            className="text-center bg-gradient-to-br from-[#1a0000] to-black border border-red-600/30 p-16 rounded-[3rem] relative overflow-hidden group"
           >
-            <h2 className="text-3xl font-bold text-white mb-6">Prêt à nous rejoindre ?</h2>
-            <p className="text-gray-400 mb-8 max-w-xl mx-auto">
-              Arcant n'est que le début d'une longue aventure. Invitez le bot et venez discuter avec nous sur le serveur communautaire !
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay" />
+            <div className="absolute inset-0 bg-gradient-to-r from-red-600/0 via-red-600/10 to-red-600/0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 animate-pulse" />
+            
+            <Skull className="w-12 h-12 text-red-900 mx-auto mb-6 group-hover:text-red-500 transition-colors duration-500" />
+            
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-6 uppercase tracking-tight relative z-10">Signez le pacte</h2>
+            <p className="text-gray-400 mb-10 max-w-xl mx-auto text-lg relative z-10">
+              L'entité Arcant n'est que le début. Invitez la bête dans votre forteresse et rejoignez-nous sur le serveur communautaire pour assister à l'évolution !
             </p>
             <a 
               href="https://discord.com/oauth2/authorize?client_id=1521523509589704714"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block bg-teal-500 hover:bg-teal-400 text-black font-bold py-3 px-8 rounded-full transition-all hover:shadow-[0_0_20px_rgba(20,184,166,0.4)]"
+              className="relative z-10 inline-flex items-center gap-3 bg-red-600 hover:bg-red-500 text-white font-black py-4 px-10 rounded-full transition-all hover:shadow-[0_0_30px_rgba(220,38,38,0.6)] hover:scale-105 uppercase tracking-wider text-lg"
             >
-              Inviter Arcant
+              <Flame size={20} />
+              Invoquer Arcant
             </a>
           </motion.div>
         </div>
