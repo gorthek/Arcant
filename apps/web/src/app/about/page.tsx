@@ -13,10 +13,10 @@ export default function About() {
       <StardustBackground />
       <Navbar />
       
-      <main className="flex-grow relative pt-40 pb-20 px-6 max-w-6xl mx-auto z-10 w-full">
+      <main className="flex-grow relative pt-40 pb-20 z-10 w-full">
         
         {/* En-tête */}
-        <div className="text-center mb-24">
+        <div className="max-w-6xl mx-auto px-6 text-center mb-24">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -35,7 +35,7 @@ export default function About() {
         </div>
 
         {/* Section Histoire */}
-        <div className="mb-16 max-w-4xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto px-6 text-center mb-16">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -55,10 +55,13 @@ export default function About() {
           </motion.div>
         </div>
 
-        <Divider />
+        {/* Divider FULL WIDTH */}
+        <div className="w-full">
+          <Divider />
+        </div>
 
         {/* Section Nos Valeurs */}
-        <div className="my-24">
+        <div className="max-w-6xl mx-auto px-6 my-24">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">Nos Valeurs Fondamentales</h2>
             <p className="text-gray-400">Ce qui guide le développement d'Arcant au quotidien.</p>
@@ -106,10 +109,13 @@ export default function About() {
           </div>
         </div>
 
-        <Divider />
+        {/* Divider FULL WIDTH */}
+        <div className="w-full">
+          <Divider />
+        </div>
 
         {/* Section L'Équipe */}
-        <div className="my-24">
+        <div className="max-w-6xl mx-auto px-6 my-24">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">L'Équipe derrière la magie</h2>
             <p className="text-gray-400">Des passionnés au service des créateurs de communautés.</p>
@@ -147,25 +153,27 @@ export default function About() {
         </div>
 
         {/* Appel à l'action */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-20 text-center bg-gradient-to-br from-teal-900/20 to-black border border-teal-500/20 p-12 rounded-3xl"
-        >
-          <h2 className="text-3xl font-bold text-white mb-6">Prêt à nous rejoindre ?</h2>
-          <p className="text-gray-400 mb-8 max-w-xl mx-auto">
-            Arcant n'est que le début d'une longue aventure. Invitez le bot et venez discuter avec nous sur le serveur communautaire !
-          </p>
-          <a 
-            href="https://discord.com/oauth2/authorize?client_id=1521523509589704714"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-teal-500 hover:bg-teal-400 text-black font-bold py-3 px-8 rounded-full transition-all hover:shadow-[0_0_20px_rgba(20,184,166,0.4)]"
+        <div className="max-w-6xl mx-auto px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-20 text-center bg-gradient-to-br from-teal-900/20 to-black border border-teal-500/20 p-12 rounded-3xl"
           >
-            Inviter Arcant
-          </a>
-        </motion.div>
+            <h2 className="text-3xl font-bold text-white mb-6">Prêt à nous rejoindre ?</h2>
+            <p className="text-gray-400 mb-8 max-w-xl mx-auto">
+              Arcant n'est que le début d'une longue aventure. Invitez le bot et venez discuter avec nous sur le serveur communautaire !
+            </p>
+            <a 
+              href="https://discord.com/oauth2/authorize?client_id=1521523509589704714"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-teal-500 hover:bg-teal-400 text-black font-bold py-3 px-8 rounded-full transition-all hover:shadow-[0_0_20px_rgba(20,184,166,0.4)]"
+            >
+              Inviter Arcant
+            </a>
+          </motion.div>
+        </div>
 
       </main>
       
