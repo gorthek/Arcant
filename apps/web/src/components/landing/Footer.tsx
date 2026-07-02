@@ -49,9 +49,9 @@ export function Footer({ theme = "default" }: FooterProps) {
         <div>
           <h4 className="font-bold text-white mb-6 uppercase tracking-wider text-sm">Produit</h4>
           <ul className="space-y-4">
-            <li><Link href="/features" className={`text-gray-400 ${hoverText} transition-colors text-sm`}>Fonctionnalités</Link></li>
+            <li><Link href="/#features" className={`text-gray-400 ${hoverText} transition-colors text-sm`}>Fonctionnalités</Link></li>
             <li><Link href="/pricing" className={`text-gray-400 ${hoverText} transition-colors text-sm`}>Boutique (Tarifs & Crédits)</Link></li>
-            <li><Link href="/faq" className={`text-gray-400 ${hoverText} transition-colors text-sm`}>FAQ</Link></li>
+            <li><Link href="/#faq" className={`text-gray-400 ${hoverText} transition-colors text-sm`}>FAQ</Link></li>
             <li><Link href="/about" className={`text-gray-400 ${hoverText} transition-colors text-sm`}>Qui sommes-nous</Link></li>
             <li>
               <Link href="/patchnotes" className={`text-gray-400 ${hoverText} transition-colors text-sm inline-flex items-center gap-2`}>

@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useServerRole } from "@/hooks/useServerRole";
 
 const GhostParticles = () => {
   return (
@@ -92,30 +93,13 @@ export function Header() {
   const params = useParams();
   const serverId = params?.id as string | undefined;
 
-  // Grade state
-  const [role, setRole] = useState<"owner" | "admin" | "server_owner" | "member">("member");
+  // Utilisation du hook externe pour déterminer le vrai rôle
+  const { role, cycleRole } = useServerRole(serverId);
+
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // ID du propriétaire du bot
-    const BOT_OWNER_ID = "1061340110219640905";
-
-    // @ts-ignore
-    if (session?.user?.id === BOT_OWNER_ID) {
-      setRole("owner");
-      return;
-    }
-
-    if (!serverId) {
-      setRole("member");
-      return;
-    }
-
-    setRole("server_owner"); // Simulation par défaut
-  }, [session, serverId]);
 
   // Fermer les menus quand on clique ailleurs
   useEffect(() => {
@@ -130,18 +114,6 @@ export function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const cycleRole = () => {
-    // @ts-ignore
-    if (session?.user?.id === "1061340110219640905") {
-      setRole((current) => {
-        if (current === "owner") return "admin";
-        if (current === "admin") return "server_owner";
-        if (current === "server_owner") return "member";
-        return "owner";
-      });
-    }
-  };
 
   // @ts-ignore
   const userImage = session?.user?.image;

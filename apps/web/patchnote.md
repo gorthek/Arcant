@@ -5,6 +5,18 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 1.1.2
+*Dernière modification : 03 Juillet 2026*
+
+### 🌐 Dashboard (Rôles & Permissions)
+- **[Permissions Dynamiques]** Le dashboard lit désormais les véritables permissions depuis l'API Discord au lieu de simuler un accès. Il différencie automatiquement : le Propriétaire du Bot (CEO), le Créateur du Serveur (Owner Serveur), l'Administrateur (Admin), et le simple Membre.
+- **[Séparation par Rôle]** Création de 3 expériences totalement distinctes selon le rôle de l'utilisateur :
+  - **Owner Serveur (Thème Émeraude)** : Accès intégral, génération IA, configuration globale. Thème luxueux avec animations vertes.
+  - **Admin (Thème Démoniaque/Rouge)** : Interface de sécurité et modération. L'IA est verrouillée en "Lecture Seule" pour empêcher l'utilisation des crédits. Design agressif avec lueurs rouges.
+  - **Membre (Thème Spatial/Bleu)** : Dashboard public d'informations. Impossible de modifier les paramètres, mais possibilité de voir ses statistiques, messages et XP sur le serveur avec des animations fluides bleutées.
+
+---
+
 ## 🟢 Version 1.1.1
 *Dernière modification : 02 Juillet 2026*
 
