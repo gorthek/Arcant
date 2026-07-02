@@ -6,7 +6,8 @@
     "start": "node index.js"
   },
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "dependencies": {
     "@vercel/speed-insights": "^2.0.0"

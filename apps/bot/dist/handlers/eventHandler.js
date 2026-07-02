@@ -14,7 +14,7 @@ function loadEvents(client) {
         console.log('[HANDLER] Created events directory.');
         return;
     }
-    const eventFiles = fs_1.default.readdirSync(eventsPath).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
+    const eventFiles = fs_1.default.readdirSync(eventsPath).filter(file => (file.endsWith('.ts') || file.endsWith('.js')) && !file.endsWith('.d.ts'));
     for (const file of eventFiles) {
         const filePath = path_1.default.join(eventsPath, file);
         const event = require(filePath).default;

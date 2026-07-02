@@ -40,7 +40,7 @@ export function Pricing({ isFullPage = false }: PricingProps) {
             transition={{ delay: 0.2 }}
             className="text-gray-400 text-lg max-w-xl mx-auto"
         >
-          L'abonnement débloque les fonctionnalités avancées et vous offre un petit bonus de crédits de bienvenue. Pour utiliser l'IA sans limite, rechargez depuis la <span className="text-teal-400 font-semibold">Boutique de Crédits</span>.
+          L'abonnement Arcant Premium débloque les fonctionnalités avancées et vous offre un <span className="text-teal-400 font-semibold">accès illimité à l'intelligence artificielle</span> pour gérer et configurer vos serveurs.
         </motion.p>
       </div>
 
@@ -61,10 +61,10 @@ export function Pricing({ isFullPage = false }: PricingProps) {
           <div className="text-4xl font-extrabold mb-1">Gratuit</div>
           <div className="text-sm text-gray-500 mb-6">Pour toujours</div>
           <div className="bg-teal-500/10 border border-teal-400/20 rounded-2xl px-4 py-2 mb-6 text-sm text-teal-300 font-medium text-center">
-            🎁 50 crédits offerts à l'inscription
+            Accès basique à l'IA
           </div>
           <motion.ul variants={listContainer} initial="hidden" whileInView="show" viewport={{ once: true }} className="space-y-3 mb-8 flex-grow text-sm">
-            {['Modération basique', 'Anti-Spam', '1 Système de Ticket', 'Accès à la boutique de crédits'].map(text => (
+            {['Modération basique', 'Anti-Spam', '1 Système de Ticket', 'Assistant IA limité'].map(text => (
               <motion.li key={text} variants={listItem} className="flex items-center gap-3 text-gray-300">
                 <Check className="text-teal-400 shrink-0" size={16}/> {text}
               </motion.li>
@@ -96,10 +96,10 @@ export function Pricing({ isFullPage = false }: PricingProps) {
             <div className="text-4xl font-extrabold mb-1">9.99€</div>
             <div className="text-sm text-gray-500 mb-6">/mois · sans engagement</div>
             <div className="bg-teal-500/10 border border-teal-400/30 rounded-2xl px-4 py-2 mb-6 text-sm text-teal-300 font-medium text-center">
-              🎁 100 crédits offerts / mois
+              ✨ Accès IA Illimité (Génération & Chat)
             </div>
             <motion.ul variants={listContainer} initial="hidden" whileInView="show" viewport={{ once: true }} className="space-y-3 mb-8 flex-grow text-sm">
-              {["Tout de l'offre Communauté", 'Anti-Token Grab', 'Anti-Link & Anti-Spam avancé', 'Backups automatiques', 'Système de tickets multi-catégories', 'Réduction de 10% sur les crédits', 'Support prioritaire'].map(text => (
+              {["Tout de l'offre Communauté", 'Anti-Token Grab & Anti-Link', 'Backups automatiques', 'Système de tickets multi-catégories', 'Génération de serveurs illimitée', 'Support prioritaire'].map(text => (
                 <motion.li key={text} variants={listItem} className="flex items-center gap-3 text-gray-300">
                   <Check className="text-teal-400 shrink-0" size={16}/> {text}
                 </motion.li>
@@ -126,10 +126,10 @@ export function Pricing({ isFullPage = false }: PricingProps) {
           <div className="text-4xl font-extrabold mb-1">19.99€</div>
           <div className="text-sm text-gray-500 mb-6">/mois · sans engagement</div>
           <div className="bg-teal-500/10 border border-teal-400/20 rounded-2xl px-4 py-2 mb-6 text-sm text-teal-300 font-medium text-center">
-            🎁 250 crédits offerts / mois
+            🚀 Configuration multi-serveurs
           </div>
           <motion.ul variants={listContainer} initial="hidden" whileInView="show" viewport={{ once: true }} className="space-y-3 mb-8 flex-grow text-sm">
-            {["Tout de l'offre Premium", 'Modules RP & Gaming avancés', 'Configuration multi-serveurs', 'Réduction de 20% sur les crédits', 'Accès anticipé aux nouvelles fonctions', 'Support dédié 24/7'].map(text => (
+            {["Tout de l'offre Premium", 'Modules RP & Gaming avancés', 'Applicable sur 3 serveurs', 'Priorité de traitement IA', 'Accès anticipé aux nouvelles fonctions', 'Support dédié 24/7'].map(text => (
               <motion.li key={text} variants={listItem} className="flex items-center gap-3 text-gray-300">
                 <Check className="text-teal-400 shrink-0" size={16}/> {text}
               </motion.li>
@@ -141,76 +141,7 @@ export function Pricing({ isFullPage = false }: PricingProps) {
         </motion.div>
       </div>
 
-      {/* Boutique de Crédits — Section Principale */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7 }}
-        className="relative mt-8 rounded-[2.5rem] overflow-hidden border border-teal-400/20 bg-white/5 backdrop-blur-xl p-10 md:p-14"
-      >
-        {/* Glow fond boutique */}
-        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-teal-500/10 rounded-full blur-[100px] pointer-events-none" />
-        
-        <div className="relative z-10 text-center mb-10">
-          <div className="inline-block px-5 py-2 rounded-full bg-teal-500/10 border border-teal-400/30 text-teal-300 text-sm font-bold uppercase tracking-widest mb-4">
-            ⚡ Boutique de Crédits IA
-          </div>
-          <h3 className="text-3xl md:text-4xl font-extrabold mb-3">
-            Rechargez quand vous en avez besoin
-          </h3>
-          <p className="text-gray-400 max-w-lg mx-auto">
-            Les crédits sont la monnaie de l'IA d'Arcant. Utilisez-les pour générer des serveurs Discord, des templates, des embeds personnalisés et bien plus. <span className="text-teal-400">Aucune expiration.</span>
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 relative z-10">
-          {[
-            { credits: "250", price: "2.49€", label: "Starter", bonus: "" },
-            { credits: "600", price: "4.99€", label: "Standard", bonus: "" },
-            { credits: "1 400", price: "9.99€", label: "Pro", bonus: "+100 offerts" },
-            { credits: "3 200", price: "19.99€", label: "Elite", bonus: "+400 offerts" },
-          ].map((pack, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              whileHover={{ scale: 1.05, boxShadow: "0 10px 40px rgba(20,184,166,0.2)" }}
-              className={`relative bg-white/5 border backdrop-blur-md p-5 rounded-[1.5rem] text-center cursor-pointer group transition-all ${i === 2 ? 'border-teal-400/50 bg-teal-500/10' : 'border-white/10 hover:border-teal-400/30'}`}
-            >
-              {pack.bonus && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full text-[10px] font-bold text-black whitespace-nowrap">
-                  {pack.bonus}
-                </div>
-              )}
-              <div className="text-xs text-gray-500 uppercase tracking-widest font-medium mb-2">{pack.label}</div>
-              <div className="text-2xl font-extrabold text-white mb-1">{pack.credits}</div>
-              <div className="text-xs text-teal-400 font-medium mb-3">crédits</div>
-              <div className="text-xl font-bold text-white">{pack.price}</div>
-              <div className="mt-3 w-full py-2 rounded-full bg-white/10 group-hover:bg-teal-500/20 border border-white/10 group-hover:border-teal-400/30 transition-all text-sm font-bold">
-                Acheter
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {!isFullPage && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            whileHover={{ scale: 1.02 }}
-            className="flex justify-center mt-12 relative z-10"
-          >
-            <a href="/pricing" className="relative overflow-hidden inline-flex items-center justify-center px-10 py-5 rounded-[2rem] bg-gradient-to-r from-teal-500 to-emerald-600 shadow-[0_0_40px_rgba(20,184,166,0.3)] transition-all text-lg font-bold group hover:scale-105">
-              <span className="relative z-10">Voir la Boutique Complète (Offres & Crédits)</span>
-              <span className="relative z-10 ml-3 group-hover:translate-x-2 transition-transform">→</span>
-            </a>
-          </motion.div>
-        )}
-      </motion.div>
+      {/* Remove Boutique de Crédits section entirely */}
     </section>
   );
 }

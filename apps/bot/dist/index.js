@@ -8,6 +8,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const http_1 = __importDefault(require("http"));
 const commandHandler_1 = require("./handlers/commandHandler");
 const eventHandler_1 = require("./handlers/eventHandler");
+const database_1 = require("@arcant/database");
 dotenv_1.default.config();
 const client = new discord_js_1.Client({
     intents: [
@@ -22,7 +23,13 @@ const client = new discord_js_1.Client({
 (0, eventHandler_1.loadEvents)(client);
 const token = process.env.DISCORD_TOKEN;
 if (token) {
-    client.login(token);
+    // Connect to DB before logging in
+    (0, database_1.dbConnect)().then(() => {
+        client.login(token);
+    }).catch(err => {
+        console.warn('[BOT] MongoDB connection failed. Bot will start anyway, but DB features will be disabled.', err);
+        client.login(token);
+    });
 }
 else {
     console.warn('[BOT] No DISCORD_TOKEN provided, skipping login.');

@@ -17,7 +17,7 @@ function loadCommands() {
         console.log('[HANDLER] Created commands directory.');
         return;
     }
-    const commandFiles = fs_1.default.readdirSync(commandsPath).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
+    const commandFiles = fs_1.default.readdirSync(commandsPath).filter(file => (file.endsWith('.ts') || file.endsWith('.js')) && !file.endsWith('.d.ts'));
     for (const file of commandFiles) {
         const filePath = path_1.default.join(commandsPath, file);
         const command = require(filePath).default;

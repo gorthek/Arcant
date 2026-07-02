@@ -58,11 +58,26 @@ export default function DashboardSelection() {
           }
         });
 
-        // 2. Simuler la présence du bot de façon déterministe (stable au refresh)
-        // TODO: A remplacer par un vrai call à l'API du bot pour vérifier sa présence
+        // 2. Vérifier la présence du bot via notre propre API (qui lit MongoDB)
+        let dbServers: any[] = [];
+        try {
+          const serverIds = managedGuilds.map(g => g.id);
+          const dbRes = await fetch('/api/bot/servers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ serverIds })
+          });
+          if (dbRes.ok) {
+            const dbData = await dbRes.json();
+            dbServers = dbData.servers || [];
+          }
+        } catch (e) {
+          console.error("Erreur lors de la vérification DB:", e);
+        }
+
         const guildsWithBotState = managedGuilds.map(g => ({
           ...g,
-          hasBot: ["Arcant", "Les Wølf | RushPvP"].includes(g.name) || parseInt(g.id.slice(-1)) > 5
+          hasBot: dbServers.some(dbS => dbS.serverId === g.id) || ["Arcant", "Les Wølf | RushPvP"].includes(g.name) // Fallback temporaire visuel
         }));
 
         // 3. Trier : Les serveurs AVEC le bot en premier, puis ceux SANS le bot

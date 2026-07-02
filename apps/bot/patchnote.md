@@ -5,8 +5,18 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
-## 🟢 Version 1.1.0 (En cours de développement)
-*Dernière modification : 01 Juillet 2026*
+## 🟢 Version 1.2.0
+*Dernière modification : 03 Juillet 2026*
+
+### 🤖 Bot Discord & ⚙️ Base de Données
+- **[Connexion MongoDB]** Le bot se connecte désormais de manière asynchrone à MongoDB (Mongoose) dès son lancement via le package partagé `@arcant/database`.
+- **[Event: GuildCreate]** Le bot détecte son ajout sur un nouveau serveur et l'inscrit automatiquement (ou le met à jour) dans la base de données avec l'Owner ID.
+- **[Event: GuildDelete]** À son départ, le bot nettoie la base de données s'il n'y a pas d'abonnement Premium actif.
+- **[Sécurisation au démarrage]** Le bot démarrera même sans base de données (`MONGO_URI` manquant) pour éviter de crash en local le temps de la configuration.
+
+---
+
+## 🟢 Version 1.1.0
 
 ### 🤖 Bot Discord & ⚙️ API
 - **[Architecture]** Mise en place du cœur du Bot : Event Handler et Command Handler dynamiques.

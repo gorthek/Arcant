@@ -1,0 +1,13 @@
+{
+  "name": "@arcant/database",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "mongoose": "^8.4.0"
+  },
+  "devDependencies": {
+    "@types/mongoose": "^5.11.97",
+    "typescript": "^5.4.5"
+  }
+}

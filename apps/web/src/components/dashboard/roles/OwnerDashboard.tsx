@@ -128,20 +128,21 @@ function ModuleIA() {
 
       <div className={`space-y-10 transition-opacity duration-300 ${!enabled ? 'opacity-30 pointer-events-none grayscale' : ''}`}>
         
-        {/* COMPACT LIMITES PRO (Lien vers Settings) */}
         <div className="flex flex-col md:flex-row items-center justify-between bg-teal-900/20 border border-teal-500/20 rounded-xl p-4 gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-teal-500/20 flex items-center justify-center">
               <Zap className="text-teal-400" size={20} />
             </div>
-            <div>
-              <h4 className="text-white font-bold text-sm">Crédits Gratuits : 1 / 3 utilisés</h4>
-              <p className="text-xs text-teal-400/80">L'IA de création avancée consomme 1 crédit par utilisation.</p>
+            <div className="flex-1">
+              <h4 className="text-white font-bold text-sm flex items-center gap-2">
+                Abonnement Actuel : <span className="bg-white/10 px-2 py-0.5 rounded text-xs">Gratuit</span>
+              </h4>
+              <p className="text-xs text-teal-400/80">Passez en Premium pour un accès illimité à l'IA.</p>
             </div>
+            <Link href="/pricing" className="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-black shadow-[0_0_15px_rgba(20,184,166,0.4)] text-xs font-bold rounded-xl border border-teal-500/30 hover:scale-105 transition-transform">
+              Découvrir Premium
+            </Link>
           </div>
-          <Link href="/settings" className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-bold transition-colors whitespace-nowrap">
-            Gérer mes crédits (PRO)
-          </Link>
         </div>
 
         {/* MODE DE FONCTIONNEMENT IA */}
@@ -296,7 +297,7 @@ function ModuleIA() {
 
                 <div className="flex justify-end pt-4">
                   <button className="flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)]">
-                    <Sparkles size={18} /> Générer le serveur (1 Crédit)
+                    <Sparkles size={18} /> Générer le serveur (Premium Requis)
                   </button>
                 </div>
               </div>

@@ -5,6 +5,18 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 1.2.0
+*Dernière modification : 03 Juillet 2026*
+
+### 🌐 Base de données & Abonnements
+- **[Base de données Partagée]** Création du package `@arcant/database` (Mongoose) commun à toute l'architecture (Site Web, API, Bot Discord).
+- **[Suppression des Crédits]** Le système de crédits obsolète a été totalement supprimé des dashboards Owner et Admin.
+- **[Nouveau Modèle Premium]** Remplacement des Crédits par un Statut d'Abonnement (Gratuit ou Arcant Premium) avec accès illimité à l'IA.
+- **[Abonnement Animé]** Refonte de la page Boutique (`/pricing`). Suppression de la boutique de crédits et ajout de cartes d'abonnement stylisées et animées.
+- **[API de synchronisation]** Le dashboard vérifie désormais de manière fiable si le Bot est réellement sur les serveurs en interrogeant la vraie base de données.
+
+---
+
 ## 🟢 Version 1.1.2
 *Dernière modification : 03 Juillet 2026*
 

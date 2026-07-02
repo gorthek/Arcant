@@ -120,7 +120,7 @@ function ModuleIA() {
           <h3 className="text-2xl font-bold mb-1 flex items-center gap-2 text-white">
             <Bot className="text-red-400"/> Intelligence Artificielle <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded-md border border-red-500/30 ml-2">Lecture Seule</span>
           </h3>
-          <p className="text-gray-400 text-sm">Seul le propriétaire du serveur peut modifier l'IA et utiliser les crédits.</p>
+          <p className="text-gray-400 text-sm">Seul le propriétaire du serveur peut modifier l'IA et gérer l'abonnement.</p>
         </div>
         <div className="flex items-center gap-3 bg-zinc-900/80 px-4 py-2 rounded-xl border border-white/5 opacity-50 cursor-not-allowed">
           <span className="text-sm font-bold text-gray-300">Activer l'IA</span>
@@ -131,16 +131,21 @@ function ModuleIA() {
       <div className={`space-y-10 transition-opacity duration-300 ${!enabled ? 'opacity-30 pointer-events-none grayscale' : ''}`}>
         
         {/* COMPACT LIMITES PRO (Lien vers Settings) */}
-        <div className="flex flex-col md:flex-row items-center justify-between bg-zinc-900/50 border border-white/10 rounded-xl p-4 gap-4 opacity-50">
+        <div className="flex flex-col md:flex-row items-center justify-between bg-zinc-900/50 border border-white/10 rounded-xl p-4 gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
               <Lock className="text-gray-400" size={20} />
             </div>
-            <div>
-              <h4 className="text-white font-bold text-sm">Crédits Gratuits : Masqué</h4>
-              <p className="text-xs text-gray-400">Vous n'avez pas accès à la facturation de ce serveur.</p>
+            <div className="flex-1 opacity-50 pointer-events-none">
+              <h4 className="text-white font-bold text-sm flex items-center gap-2">
+                Abonnement Serveur : <span className="bg-white/10 px-2 py-0.5 rounded text-xs">Gratuit</span>
+              </h4>
+              <p className="text-xs text-red-400/80">Premium requis pour l'IA illimitée.</p>
             </div>
           </div>
+          <button disabled className="px-4 py-2 bg-red-500/10 text-red-500/50 text-xs font-bold rounded-xl border border-red-500/10 cursor-not-allowed">
+              Gérer l'abonnement
+          </button>
         </div>
 
         {/* MODE DE FONCTIONNEMENT IA */}

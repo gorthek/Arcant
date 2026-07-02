@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import http from 'http';
 import { loadCommands } from './handlers/commandHandler';
 import { loadEvents } from './handlers/eventHandler';
+import { dbConnect } from '@arcant/database';
 
 dotenv.config();
 
@@ -21,7 +22,13 @@ loadEvents(client);
 
 const token = process.env.DISCORD_TOKEN;
 if (token) {
-  client.login(token);
+  // Connect to DB before logging in
+  dbConnect().then(() => {
+    client.login(token);
+  }).catch(err => {
+    console.warn('[BOT] MongoDB connection failed. Bot will start anyway, but DB features will be disabled.', err);
+    client.login(token);
+  });
 } else {
   console.warn('[BOT] No DISCORD_TOKEN provided, skipping login.');
 }
