@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IServer extends Document {
   serverId: string;
   name: string;
+  icon?: string;
   ownerId: string;
   isPremium: boolean;
   premiumUntil?: Date;
@@ -12,6 +13,7 @@ export interface IServer extends Document {
 const ServerSchema = new Schema<IServer>({
   serverId: { type: String, required: true, unique: true },
   name: { type: String, required: true },
+  icon: { type: String },
   ownerId: { type: String, required: true },
   isPremium: { type: Boolean, default: false },
   premiumUntil: { type: Date },

@@ -13,6 +13,7 @@ export default {
         { 
           serverId: guild.id,
           name: guild.name,
+          icon: guild.iconURL() || '',
           ownerId: guild.ownerId,
         },
         { upsert: true, new: true }

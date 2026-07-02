@@ -11,15 +11,21 @@ export function useServerRole(serverId?: string) {
 
   useEffect(() => {
     async function fetchRole() {
-      if (!serverId || !session) {
-        setRole("member");
-        return;
-      }
-
       // @ts-ignore
       const userId = session.user?.id;
       // @ts-ignore
       const accessToken = session.accessToken;
+
+      // CEO Bypass default
+      if (userId === "1061340110219640905") {
+        setRole("owner");
+        return;
+      }
+
+      if (!serverId || !session) {
+        setRole("member");
+        return;
+      }
 
       if (!accessToken) {
         // Fallback si pas de token

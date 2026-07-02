@@ -100,6 +100,11 @@ export function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const [notifications, setNotifications] = useState([
+    { id: 1, color: "bg-teal-400", title: "IA Arcant", time: "Il y a 2 min", message: "La génération de votre serveur Roleplay est terminée." },
+    { id: 2, color: "bg-red-400", title: "Sécurité Anti-Raid", time: "Il y a 1 heure", message: "Un raid potentiel a été bloqué avec succès sur le serveur Alpha." },
+    { id: 3, color: "bg-blue-400", title: "Mise à jour", time: "Hier", message: "Bienvenue sur le nouveau dashboard Arcant v1.1.0 !" }
+  ]);
 
   // Fermer les menus quand on clique ailleurs
   useEffect(() => {
@@ -137,7 +142,9 @@ export function Header() {
             className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors relative group"
           >
             <Bell size={20} className="group-hover:animate-swing" />
-            <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-teal-400 rounded-full shadow-[0_0_12px_rgba(20,184,166,1)] animate-pulse" />
+            {notifications.length > 0 && (
+              <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-teal-400 rounded-full shadow-[0_0_12px_rgba(20,184,166,1)] animate-pulse" />
+            )}
           </button>
 
           <AnimatePresence>
@@ -156,34 +163,33 @@ export function Header() {
                   </button>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
-                  <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-2 h-2 bg-teal-400 rounded-full"></div>
-                      <span className="text-xs font-bold text-teal-400">IA Arcant</span>
-                      <span className="text-xs text-gray-500 ml-auto">Il y a 2 min</span>
+                  {notifications.length > 0 ? (
+                    notifications.map(notif => (
+                      <div key={notif.id} className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className={`w-2 h-2 rounded-full ${notif.color}`}></div>
+                          <span className={`text-xs font-bold text-${notif.color.split('-')[1]}-400`}>{notif.title}</span>
+                          <span className="text-xs text-gray-500 ml-auto">{notif.time}</span>
+                        </div>
+                        <p className="text-sm text-gray-300">{notif.message}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-6 text-center text-gray-500 text-sm">
+                      Aucune nouvelle notification
                     </div>
-                    <p className="text-sm text-gray-300">La génération de votre serveur Roleplay est terminée.</p>
-                  </div>
-                  <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                      <span className="text-xs font-bold text-red-400">Sécurité Anti-Raid</span>
-                      <span className="text-xs text-gray-500 ml-auto">Il y a 1 heure</span>
-                    </div>
-                    <p className="text-sm text-gray-300">Un raid potentiel a été bloqué avec succès sur le serveur Alpha.</p>
-                  </div>
-                  <div className="p-4 hover:bg-white/5 transition-colors cursor-pointer">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                      <span className="text-xs font-bold text-blue-400">Mise à jour</span>
-                      <span className="text-xs text-gray-500 ml-auto">Hier</span>
-                    </div>
-                    <p className="text-sm text-gray-300">Bienvenue sur le nouveau dashboard Arcant v1.1.0 !</p>
-                  </div>
+                  )}
                 </div>
-                <div className="p-3 border-t border-white/10 text-center bg-black/20">
-                  <button className="text-xs font-bold text-teal-400 hover:text-teal-300 transition-colors">Tout marquer comme lu</button>
-                </div>
+                {notifications.length > 0 && (
+                  <div className="p-3 border-t border-white/10 text-center bg-black/20">
+                    <button 
+                      onClick={() => setNotifications([])}
+                      className="text-xs font-bold text-teal-400 hover:text-teal-300 transition-colors"
+                    >
+                      Tout marquer comme lu
+                    </button>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

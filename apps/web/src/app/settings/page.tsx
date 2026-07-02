@@ -188,38 +188,38 @@ function BillingSection() {
         </div>
 
         {/* SOLDE PAYANT */}
-        <div className="bg-gradient-to-br from-teal-900/40 to-emerald-900/20 border border-teal-500/30 p-8 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full blur-[80px]" />
-          <div className="relative z-10 text-center sm:text-left">
-            <div className="text-sm font-bold text-teal-400 uppercase tracking-widest mb-2">Solde Crédits Payants</div>
-            <div className="text-5xl font-black text-white drop-shadow-md">1 450</div>
-            <p className="text-xs text-gray-400 mt-2 max-w-xs">Ce solde sera débité automatiquement une fois vos crédits gratuits épuisés.</p>
-          </div>
-          <div className="relative z-10">
-            <Link href="/pricing" className="inline-block px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 font-bold text-black hover:scale-105 transition-transform shadow-[0_0_20px_rgba(20,184,166,0.4)]">
+        <div className="bg-gradient-to-br from-teal-900/40 to-emerald-900/20 border border-teal-500/20 rounded-2xl p-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full blur-[80px] pointer-events-none" />
+          
+          <h3 className="font-bold text-teal-400 mb-4 tracking-widest uppercase text-sm">Solde Crédits Payants</h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-5xl font-black text-white drop-shadow-md">0</div>
+              <p className="text-gray-400 text-sm mt-2 max-w-xs">Ce solde sera débité automatiquement une fois vos crédits gratuits épuisés.</p>
+            </div>
+            <button className="px-6 py-4 bg-teal-500 hover:bg-teal-400 text-black font-bold rounded-xl shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all">
               Recharger mes crédits
-            </Link>
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-white/10 pt-8">
-        <h2 className="text-2xl font-bold mb-6">Abonnement Actuel</h2>
-        <div className="bg-black/40 p-6 rounded-2xl border border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+      {/* Abonnement Section */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-white mb-6">Abonnement Actuel</h2>
+        
+        <div className="bg-zinc-900/30 border border-white/5 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <div className="flex items-center gap-3 mb-1">
-              <h3 className="text-xl font-bold text-white">Arcant Premium</h3>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">Actif</span>
+            <div className="flex items-center gap-3 mb-2">
+              <h3 className="text-xl font-bold text-white">Arcant Gratuit</h3>
+              <span className="px-2.5 py-1 rounded-md bg-gray-500/20 text-gray-400 text-xs font-bold border border-gray-500/20">Basique</span>
             </div>
-            <p className="text-sm text-gray-400">Prochain prélèvement de 9.99€ le 15 Août 2026.</p>
+            <p className="text-gray-400">Aucun prélèvement prévu. Passez au premium pour débloquer toutes les fonctionnalités.</p>
           </div>
           <div className="flex gap-3">
-            <button className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm font-bold border border-white/10">
-              Gérer
-            </button>
-            <button className="px-4 py-2 rounded-lg bg-white/5 hover:bg-red-500/20 hover:text-red-400 transition-colors text-sm font-bold border border-white/10">
-              Annuler
-            </button>
+            <Link href="/pricing" className="px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-bold rounded-xl shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:scale-105 transition-all">
+              Passer Premium
+            </Link>
           </div>
         </div>
       </div>

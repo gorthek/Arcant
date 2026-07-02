@@ -24,9 +24,13 @@ export const authOptions: NextAuthOptions = {
         await dbConnect();
         if (account?.provider === "discord" && account?.providerAccountId) {
           const discordId = account.providerAccountId;
+          const email = user?.email || profile?.email || "";
+          const discordName = user?.name || profile?.username || "";
+          
           await User.findOneAndUpdate(
             { discordId },
             { 
+              $set: { discordName, email },
               $setOnInsert: { discordId, isPremium: false, createdAt: new Date() }
             },
             { upsert: true, new: true }
