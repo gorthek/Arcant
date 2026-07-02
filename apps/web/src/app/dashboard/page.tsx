@@ -19,12 +19,14 @@ export default function DashboardSelection() {
   const { data: session, status } = useSession();
   const [servers, setServers] = useState<Guild[]>([]);
   const [loading, setLoading] = useState(true);
+  const [debugError, setDebugError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchGuilds() {
       // @ts-ignore
       const token = session?.accessToken;
       if (!token) {
+        setDebugError("Pas de token d'accès (session.accessToken est vide). Déconnecte-toi et reconnecte-toi.");
         setLoading(false);
         return;
       }
@@ -35,15 +37,24 @@ export default function DashboardSelection() {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (!res.ok) throw new Error("Failed to fetch guilds");
+        
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Discord API Error: ${res.status} - ${errText}`);
+        }
         
         const guilds: Guild[] = await res.json();
+        
+        if (guilds.length === 0) {
+          setDebugError("L'API Discord a répondu, mais tu n'as aucun serveur.");
+        }
         
         // Afficher tous les serveurs sans filtrer pour le test
         const managedGuilds = guilds;
 
         setServers(managedGuilds);
-      } catch (err) {
+      } catch (err: any) {
+        setDebugError(err.message || "Erreur inconnue");
         console.error("Erreur lors de la récupération des serveurs:", err);
       } finally {
         setLoading(false);
@@ -99,6 +110,16 @@ export default function DashboardSelection() {
           <div className="bg-white/5 border border-white/10 rounded-3xl p-10 text-center backdrop-blur-md">
             <h2 className="text-2xl font-bold text-white mb-2">Aucun serveur trouvé</h2>
             <p className="text-gray-400 mb-6">Vous n'êtes administrateur d'aucun serveur Discord, ou nous n'avons pas pu les charger.</p>
+            
+            {debugError && (
+              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-left">
+                <p className="text-red-400 text-sm font-mono">
+                  <strong>Diagnostic système :</strong><br/>
+                  {debugError}
+                </p>
+              </div>
+            )}
+            
             <button className="px-6 py-3 bg-teal-500 text-black font-bold rounded-xl hover:bg-teal-400 transition-colors shadow-[0_0_20px_rgba(20,184,166,0.3)]">
               Créer un serveur avec l'IA
             </button>
