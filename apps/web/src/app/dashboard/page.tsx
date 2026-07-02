@@ -39,19 +39,8 @@ export default function DashboardSelection() {
         
         const guilds: Guild[] = await res.json();
         
-        // Filtrer les serveurs où l'utilisateur est admin ou a la permission de gérer le serveur (MANAGE_GUILD = 0x20)
-        // Les permissions de Discord sont retournées sous forme de string (BigInt)
-        const managedGuilds = guilds.filter(g => {
-          if (g.owner) return true;
-          try {
-            const perms = BigInt(g.permissions);
-            const manageGuild = (perms & BigInt(0x20)) === BigInt(0x20);
-            const administrator = (perms & BigInt(0x8)) === BigInt(0x8);
-            return manageGuild || administrator;
-          } catch (e) {
-            return false;
-          }
-        });
+        // Afficher tous les serveurs sans filtrer pour le test
+        const managedGuilds = guilds;
 
         setServers(managedGuilds);
       } catch (err) {
