@@ -7,8 +7,12 @@ import { MemberDashboard } from "@/components/dashboard/roles/MemberDashboard";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
-export default function ServerSettings({ params }: { params: { id: string } }) {
-  const { role } = useServerRole(params.id);
+import { useParams } from "next/navigation";
+
+export default function ServerSettings() {
+  const params = useParams();
+  const serverId = params?.id as string | undefined;
+  const { role } = useServerRole(serverId);
 
   if (role === "loading") {
     return (
@@ -27,11 +31,11 @@ export default function ServerSettings({ params }: { params: { id: string } }) {
       transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
     >
       {role === "owner" || role === "server_owner" ? (
-        <OwnerDashboard serverId={params.id} />
+        <OwnerDashboard serverId={serverId!} />
       ) : role === "admin" ? (
-        <AdminDashboard serverId={params.id} />
+        <AdminDashboard serverId={serverId!} />
       ) : (
-        <MemberDashboard serverId={params.id} />
+        <MemberDashboard serverId={serverId!} />
       )}
     </motion.div>
   );
