@@ -119,7 +119,7 @@ export function Hero() {
               className="absolute -bottom-2 left-0 w-full h-[4px] bg-teal-400 rounded-full"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ delay: 1, duration: 0.8 }}
+              transition={{ delay: 1, duration: 1.5 }}
             />
           </span>
         </motion.h1>
