@@ -10,8 +10,16 @@ import { Divider } from "@/components/landing/Divider";
 export default function About() {
   return (
     <div className="min-h-screen bg-[#050000] text-white selection:bg-red-500/30 font-sans flex flex-col relative overflow-x-hidden">
+      
+      {/* Background Castle */}
+      <div 
+        className="absolute inset-0 z-0 bg-[url('/hell_castle.png')] bg-cover bg-center bg-no-repeat opacity-20"
+        style={{ mixBlendMode: 'luminosity' }}
+      />
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#050000]/80 via-transparent to-[#050000] pointer-events-none" />
+
       <HellfireBackground />
-      <Navbar />
+      <Navbar theme="demonic" />
       
       <main className="flex-grow relative pt-40 pb-20 z-10 w-full">
         
@@ -20,6 +28,22 @@ export default function About() {
           {/* Lueur démoniaque derrière le titre */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-red-600/20 rounded-full blur-[120px] pointer-events-none" />
           
+          {/* Flammes décoratives à gauche et à droite */}
+          <motion.div 
+            className="absolute top-1/2 -left-10 md:left-20 -translate-y-1/2 text-orange-500/40 blur-[2px]"
+            animate={{ y: [0, -20, 0], scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Flame size={120} />
+          </motion.div>
+          <motion.div 
+            className="absolute top-1/2 -right-10 md:right-20 -translate-y-1/2 text-red-500/40 blur-[2px]"
+            animate={{ y: [0, -30, 0], scale: [1, 1.3, 1], opacity: [0.2, 0.7, 0.2] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          >
+            <Flame size={100} />
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
@@ -228,7 +252,7 @@ export default function About() {
 
       </main>
       
-      <Footer />
+      <Footer theme="demonic" />
     </div>
   );
 }
