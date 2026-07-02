@@ -133,8 +133,11 @@ export default function About() {
                 <div className="aspect-square bg-[#0f0f0f] relative flex items-center justify-center overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
                   <img 
-                    src="https://github.com/gorthek.png" 
+                    src="https://cdn.discordapp.com/avatars/1061340110219640905/6d006de2f51f49cbef00490ebfdbb7fb.png?size=512" 
                     alt="Gorthek"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://github.com/gorthek.png";
+                    }}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                   />
                   <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center">
