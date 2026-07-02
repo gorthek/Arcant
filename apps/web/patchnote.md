@@ -5,7 +5,19 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
-## 🟢 Version 1.0.1 (En cours de développement)
+## 🟢 Version 1.1.0
+*Dernière modification : 02 Juillet 2026*
+
+### 🌐 Dashboard (Refonte UI & IA)
+- **[Sélection Serveur]** Refonte totale avec intégration de l'API Discord (`/users/@me/guilds`) pour afficher les vrais serveurs gérés par l'utilisateur.
+- **[Animations]** Ajout d'un fond interactif de particules fluides qui réagissent à la souris, et d'effets de "Glow" intenses au survol des cartes.
+- **[Grades Dynamiques]** Le Header affiche désormais la vraie photo de profil et le pseudo. Intégration de badges animés ultra-premium selon le rôle (Owner, Admin, Owner Serveur, Membre).
+- **[Module IA]** Refonte complète du module d'Intelligence Artificielle. Ajout des barres de "Limites d'utilisation PRO". Séparation claire entre l'IA de création de serveur (prompt, images, vocal) et l'Assistant ChatBot.
+- **[Améliorations]** Ajout des liens vers le Support Discord et l'État des Services dans la Sidebar, ainsi qu'un badge "Premium Actif" brillant.
+
+---
+
+## 🟢 Version 1.0.1
 *Dernière modification : 01 Juillet 2026*
 
 ### 🌐 Déploiement Vercel

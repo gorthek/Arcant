@@ -1,63 +1,185 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Plus, Settings } from "lucide-react";
+import { Plus, Settings, RefreshCw } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { InteractiveBackground } from "@/components/dashboard/InteractiveBackground";
+
+interface Guild {
+  id: string;
+  name: string;
+  icon: string | null;
+  owner: boolean;
+  permissions: string;
+}
 
 export default function DashboardSelection() {
-  const servers = [
-    { id: "123456789", name: "Serveur Communautaire", icon: "SC", hasBot: true },
-    { id: "987654321", name: "Projet Secret", icon: "PS", hasBot: true },
-    { id: "555555555", name: "Gaming Hub", icon: "GH", hasBot: false },
-  ];
+  const { data: session, status } = useSession();
+  const [servers, setServers] = useState<Guild[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchGuilds() {
+      // @ts-ignore
+      const token = session?.accessToken;
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch("https://discord.com/api/users/@me/guilds", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error("Failed to fetch guilds");
+        
+        const guilds: Guild[] = await res.json();
+        
+        // Filtrer les serveurs où l'utilisateur est admin ou a la permission de gérer le serveur (MANAGE_GUILD = 0x20)
+        // Les permissions de Discord sont retournées sous forme de string (BigInt)
+        const managedGuilds = guilds.filter(g => {
+          if (g.owner) return true;
+          try {
+            const perms = BigInt(g.permissions);
+            const manageGuild = (perms & BigInt(0x20)) === BigInt(0x20);
+            const administrator = (perms & BigInt(0x8)) === BigInt(0x8);
+            return manageGuild || administrator;
+          } catch (e) {
+            return false;
+          }
+        });
+
+        setServers(managedGuilds);
+      } catch (err) {
+        console.error("Erreur lors de la récupération des serveurs:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (status === "authenticated") {
+      fetchGuilds();
+    } else if (status === "unauthenticated") {
+      setLoading(false);
+    }
+  }, [session, status]);
+
+  const getInitials = (name: string) => {
+    return name.substring(0, 2).toUpperCase();
+  };
 
   return (
-    <div className="max-w-4xl mx-auto mt-10">
-      <div className="mb-10 text-center md:text-left">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">Sélectionnez un serveur</h1>
-        <p className="text-gray-400">Configurez les modules d'Arcant pour vos différents serveurs Discord.</p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {servers.map((server, i) => (
-          <motion.div
-            key={server.id}
-            initial={{ opacity: 0, y: 20 }}
+    <div className="relative min-h-full">
+      <InteractiveBackground />
+      
+      <motion.div 
+        className="max-w-5xl mx-auto pt-10 px-6 pb-20"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <div className="mb-12 text-center md:text-left">
+          <motion.h1 
+            className="text-4xl md:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-teal-100 to-teal-400"
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
+            transition={{ delay: 0.2 }}
           >
-            {server.hasBot ? (
-              <Link href={`/dashboard/${server.id}`}>
-                <div className="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-teal-500/50 transition-all cursor-pointer h-full flex flex-col items-center text-center">
-                  <div className="absolute inset-0 bg-gradient-to-br from-teal-500/0 to-emerald-500/0 group-hover:from-teal-500/10 group-hover:to-transparent rounded-2xl transition-colors duration-500" />
-                  
-                  <div className="w-20 h-20 rounded-2xl bg-zinc-800 border border-white/10 flex items-center justify-center text-2xl font-bold mb-4 shadow-lg group-hover:shadow-teal-500/20 group-hover:-translate-y-1 transition-all">
-                    {server.icon}
-                  </div>
-                  
-                  <h3 className="font-bold text-lg mb-1">{server.name}</h3>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold mt-auto">
-                    <Settings size={12} /> Configurer
-                  </div>
-                </div>
-              </Link>
-            ) : (
-              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-6 h-full flex flex-col items-center text-center opacity-70 grayscale">
-                <div className="w-20 h-20 rounded-2xl bg-zinc-800 border border-white/10 flex items-center justify-center text-2xl font-bold mb-4">
-                  {server.icon}
-                </div>
-                
-                <h3 className="font-bold text-lg mb-1">{server.name}</h3>
-                <div className="mt-auto">
-                  <button className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-sm font-bold text-gray-300">
-                    <Plus size={16} /> Inviter le bot
-                  </button>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        ))}
-      </div>
+            Sélectionnez un serveur
+          </motion.h1>
+          <motion.p 
+            className="text-gray-400 text-lg max-w-2xl"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            Configurez les modules d'Arcant pour vos différents serveurs Discord sur lesquels vous avez les droits d'administration.
+          </motion.p>
+        </div>
+
+        {loading ? (
+          <div className="flex flex-col items-center justify-center h-64 text-teal-400">
+            <RefreshCw className="animate-spin w-10 h-10 mb-4" />
+            <p className="font-bold">Chargement de vos serveurs...</p>
+          </div>
+        ) : servers.length === 0 ? (
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-10 text-center backdrop-blur-md">
+            <h2 className="text-2xl font-bold text-white mb-2">Aucun serveur trouvé</h2>
+            <p className="text-gray-400 mb-6">Vous n'êtes administrateur d'aucun serveur Discord, ou nous n'avons pas pu les charger.</p>
+            <button className="px-6 py-3 bg-teal-500 text-black font-bold rounded-xl hover:bg-teal-400 transition-colors shadow-[0_0_20px_rgba(20,184,166,0.3)]">
+              Créer un serveur avec l'IA
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {servers.map((server, i) => {
+              // Pour la démo, on simule que certains serveurs ont le bot (1 chance sur 2 ou le premier)
+              // Dans la vraie vie, il faudrait comparer avec la DB ou l'API du bot.
+              const hasBot = i === 0 || Math.random() > 0.5;
+              
+              return (
+                <motion.div
+                  key={server.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + i * 0.05, type: "spring", stiffness: 100 }}
+                  whileHover={{ y: -10, scale: 1.02 }}
+                  className="h-full"
+                >
+                  {hasBot ? (
+                    <Link href={`/dashboard/${server.id}`} className="block h-full">
+                      <div className="group relative bg-zinc-950/50 border border-white/10 rounded-3xl p-6 hover:bg-zinc-900/80 hover:border-teal-500/50 transition-all duration-300 cursor-pointer h-full flex flex-col items-center text-center overflow-hidden backdrop-blur-sm shadow-xl">
+                        {/* Glow effect on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/0 via-teal-500/0 to-emerald-500/0 group-hover:from-teal-500/20 group-hover:via-transparent group-hover:to-transparent rounded-3xl transition-all duration-700 opacity-0 group-hover:opacity-100" />
+                        
+                        <div className="relative w-24 h-24 rounded-2xl bg-zinc-800 border border-white/10 flex items-center justify-center text-3xl font-black mb-5 shadow-lg group-hover:shadow-[0_0_30px_rgba(20,184,166,0.4)] group-hover:border-teal-500/50 transition-all duration-500 overflow-hidden">
+                          {server.icon ? (
+                            <img src={`https://cdn.discordapp.com/icons/${server.id}/${server.icon}.png`} alt={server.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                          ) : (
+                            <span className="bg-clip-text text-transparent bg-gradient-to-br from-white to-gray-500 group-hover:from-teal-300 group-hover:to-emerald-500 transition-colors">{getInitials(server.name)}</span>
+                          )}
+                        </div>
+                        
+                        <h3 className="font-bold text-lg mb-2 text-white group-hover:text-teal-300 transition-colors line-clamp-2">{server.name}</h3>
+                        
+                        <div className="mt-auto pt-4 w-full">
+                          <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 text-sm font-bold group-hover:bg-teal-500 group-hover:text-black transition-all duration-300">
+                            <Settings size={16} className="group-hover:rotate-90 transition-transform duration-500" /> 
+                            <span>Configurer</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="group relative bg-zinc-950/30 border border-white/5 rounded-3xl p-6 h-full flex flex-col items-center text-center backdrop-blur-sm opacity-80 hover:opacity-100 transition-all duration-300">
+                      <div className="relative w-24 h-24 rounded-2xl bg-zinc-900 border border-white/5 flex items-center justify-center text-3xl font-black mb-5 grayscale group-hover:grayscale-0 transition-all duration-500 overflow-hidden">
+                        {server.icon ? (
+                          <img src={`https://cdn.discordapp.com/icons/${server.id}/${server.icon}.png`} alt={server.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-gray-600">{getInitials(server.name)}</span>
+                        )}
+                      </div>
+                      
+                      <h3 className="font-bold text-lg mb-2 text-gray-400 group-hover:text-white transition-colors line-clamp-2">{server.name}</h3>
+                      
+                      <div className="mt-auto pt-4 w-full">
+                        <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-sm font-bold text-gray-300 group-hover:text-white">
+                          <Plus size={16} className="group-hover:rotate-180 transition-transform duration-500" /> 
+                          <span>Inviter le bot</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 }
