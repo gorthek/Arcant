@@ -1,5 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
+import { dbConnect, User } from "@arcant/database";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -17,6 +18,25 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Connect to DB and upsert user
+      try {
+        await dbConnect();
+        if (account?.provider === "discord" && profile?.id) {
+          const discordId = profile.id;
+          await User.findOneAndUpdate(
+            { discordId },
+            { 
+              $setOnInsert: { discordId, isPremium: false, createdAt: new Date() }
+            },
+            { upsert: true, new: true }
+          );
+        }
+      } catch (err) {
+        console.error("Erreur d'enregistrement DB lors de la connexion NextAuth:", err);
+      }
+      return true;
+    },
     async jwt({ token, account }) {
       // account n'est défini qu'à la première connexion
       if (account) {
