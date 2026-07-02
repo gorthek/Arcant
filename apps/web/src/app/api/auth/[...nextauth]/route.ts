@@ -13,8 +13,12 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/login', // Rediriger vers notre belle page au lieu de celle par défaut
   },
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
     async jwt({ token, account }) {
+      // account n'est défini qu'à la première connexion
       if (account) {
         token.accessToken = account.access_token;
       }
@@ -24,8 +28,9 @@ export const authOptions: NextAuthOptions = {
       if (session?.user) {
         // @ts-ignore
         session.user.id = token.sub;
+        // Passe le accessToken à la session client
         // @ts-ignore
-        session.accessToken = token.accessToken;
+        session.accessToken = token.accessToken || null;
       }
       return session;
     },
