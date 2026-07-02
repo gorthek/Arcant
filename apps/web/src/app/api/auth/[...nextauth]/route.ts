@@ -22,8 +22,8 @@ export const authOptions: NextAuthOptions = {
       // Connect to DB and upsert user
       try {
         await dbConnect();
-        if (account?.provider === "discord" && profile?.id) {
-          const discordId = profile.id;
+        if (account?.provider === "discord" && account?.providerAccountId) {
+          const discordId = account.providerAccountId;
           await User.findOneAndUpdate(
             { discordId },
             { 
