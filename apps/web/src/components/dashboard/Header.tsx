@@ -9,32 +9,49 @@ import { motion, AnimatePresence } from "framer-motion";
 const GhostParticles = () => {
   return (
     <>
-      {[...Array(6)].map((_, i) => (
+      {[...Array(8)].map((_, i) => (
         <motion.div
           key={i}
-          initial={{ opacity: 0, y: 0, scale: 0.5, x: 0 }}
+          initial={{ opacity: 0, scale: 0.5 }}
           animate={{
             opacity: [0, 1, 0],
-            y: -40 - Math.random() * 30,
-            x: (Math.random() - 0.5) * 40,
-            scale: [0.5, 1.2, 0.8]
+            y: -60 - Math.random() * 40,
+            x: (Math.random() - 0.5) * 80,
+            scale: [1, 1.8, 1.2],
+            rotate: (Math.random() - 0.5) * 45
           }}
           transition={{
-            duration: 2 + Math.random() * 2,
+            duration: 1.5 + Math.random() * 1.5,
             repeat: Infinity,
             delay: Math.random() * 2,
-            ease: "easeInOut"
+            ease: "easeOut"
           }}
-          className="absolute text-[12px] z-0 pointer-events-none drop-shadow-[0_0_5px_rgba(255,0,0,0.8)]"
+          className="absolute text-[18px] z-30 pointer-events-none drop-shadow-[0_0_10px_rgba(255,0,0,1)]"
           style={{
-            left: "40%",
-            top: "20%",
+            left: `${10 + Math.random() * 80}%`,
+            top: `${60 + Math.random() * 40}%`,
           }}
         >
           👻
         </motion.div>
       ))}
     </>
+  );
+};
+
+const RocketBorder = () => {
+  return (
+    <motion.div 
+      className="absolute -inset-3 z-30 pointer-events-none rounded-full"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+    >
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[18px] drop-shadow-[0_0_10px_rgba(249,115,22,1)]" style={{ transform: 'rotate(45deg)' }}>
+        🚀
+      </div>
+      {/* Traînée de la fusée */}
+      <div className="absolute top-0 left-1/2 -translate-x-full -translate-y-1/2 w-8 h-1 bg-gradient-to-r from-transparent to-orange-500 blur-[2px] rounded-full" style={{ transform: 'rotate(0deg)', transformOrigin: 'right center' }}></div>
+    </motion.div>
   );
 };
 
@@ -235,7 +252,10 @@ export function Header() {
           <div className="relative">
             {/* Animations de contour en fonction du rôle */}
             {role === "owner" && (
-              <div className="absolute -inset-1.5 bg-gradient-to-tr from-orange-500 to-amber-300 rounded-full blur-sm opacity-75 animate-pulse" />
+              <>
+                <div className="absolute -inset-1.5 bg-gradient-to-tr from-orange-500 to-amber-300 rounded-full blur-sm opacity-75 animate-pulse" />
+                <RocketBorder />
+              </>
             )}
             {role === "admin" && (
               <>
