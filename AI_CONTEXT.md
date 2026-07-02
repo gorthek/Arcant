@@ -9,7 +9,20 @@
 
 ## 📂 Arborescence et Modules
 
-Le projet est structuré sous forme de monorepo npm (`apps/*`) :
+Le projet est structuré sous forme de monorepo npm :
+
+```text
+📦Arcant (BOT-Velthor)
+ ┣ 📂apps
+ ┃ ┣ 📂api (Serveur de pont API Express.js)
+ ┃ ┣ 📂bot (Bot Discord en discord.js v14)
+ ┃ ┗ 📂web (Dashboard Web en Next.js 16 App Router)
+ ┣ 📂packages
+ ┃ ┗ 📂database (Package partagé Mongoose & Schemas)
+ ┣ 📜AI_CONTEXT.md
+ ┣ 📜package.json
+ ┗ 📜render.yaml
+```
 
 ### 1. `apps/bot` (Le Bot Discord)
 - **Rôle** : Bot Discord principal avec système de Commandes et Événements dynamiques.

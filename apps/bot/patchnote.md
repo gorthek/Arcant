@@ -5,6 +5,14 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🟢 Version 1.2.1
+*Dernière modification : 03 Juillet 2026*
+
+### 🤖 Bot Discord & ⚙️ Base de Données
+- **[Sauvegarde de l'Icone]** Lors de son arrivée sur un serveur, le bot sauvegarde désormais le lien de l'icône du serveur (`iconURL`) dans la base de données.
+
+---
+
 ## 🟢 Version 1.2.0
 *Dernière modification : 03 Juillet 2026*
 

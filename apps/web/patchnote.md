@@ -5,6 +5,17 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 1.2.1
+*Dernière modification : 03 Juillet 2026*
+
+### 🌐 Dashboard (Correctifs & Améliorations DB)
+- **[Abonnement & Crédits]** Nettoyage des anciennes données codées en dur ("1450 crédits", "Premium Actif"). L'interface affiche maintenant le vrai statut (Arcant Gratuit, 0 crédits).
+- **[NextAuth & MongoDB]** La connexion Discord sauvegarde désormais automatiquement l'adresse e-mail et le pseudo Discord de l'utilisateur dans MongoDB. Correction des conflits de typage stricts avec Next.js 16 (`Profile.id` et `Profile.username`).
+- **[Notifications]** Le bouton `Tout marquer comme lu` fonctionne et vide correctement la liste animée.
+- **[Grade CEO]** Correction du système de vérification des permissions pour garantir que le statut "Owner Bot" écrase automatiquement le statut "Membre" sans nécessiter d'action manuelle, même en cas de bug de l'URL (`params.id`).
+
+---
+
 ## 🟢 Version 1.2.0
 *Dernière modification : 03 Juillet 2026*
 
