@@ -233,9 +233,8 @@ export default function About() {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0000] via-transparent to-transparent z-10" />
                   <div className="absolute inset-0 bg-orange-900/20 mix-blend-overlay z-10 group-hover:bg-transparent transition-colors duration-700" />
                   
-                  {/* C'est ici que tu mettras le nom exact de ton image (ex: investor.png) */}
                   <img 
-                    src="/team/investor.png" 
+                    src="/team/c9d88444f43843446209d94cb7779e89.png" 
                     alt="CEO & Investisseur"
                     className="w-full h-full object-cover group-hover:scale-110 group-hover:-rotate-2 transition-transform duration-700 filter contrast-125" 
                     onError={(e) => { 
@@ -251,7 +250,7 @@ export default function About() {
                   </div>
                 </div>
                 <div className="p-10 text-center relative z-20 bg-[#0a0000] flex-grow">
-                  <h3 className="text-3xl font-black text-white group-hover:text-orange-500 transition-colors mb-2">Inconnu</h3>
+                  <h3 className="text-3xl font-black text-white group-hover:text-orange-500 transition-colors mb-2">Marvin</h3>
                   <p className="text-red-500/80 font-bold mb-6 text-sm uppercase tracking-widest drop-shadow-[0_0_5px_rgba(220,38,38,0.5)]">CEO & Investisseur</p>
                   <p className="text-gray-400 text-base leading-relaxed">
                     Visionnaire et pilier financier du projet. Il insuffle l'énergie et les ressources nécessaires pour transformer ce démon d'IA en un véritable empire incontournable sur Discord.
