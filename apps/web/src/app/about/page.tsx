@@ -180,12 +180,13 @@ export default function About() {
         {/* Section L'Équipe */}
         <div className="max-w-6xl mx-auto px-6 my-32">
           <div className="text-center mb-20 relative">
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-red-900/20 rounded-full blur-[100px] pointer-events-none" />
-            <h2 className="text-5xl font-black text-white mb-4 uppercase tracking-tight relative z-10">L'Architecte</h2>
-            <p className="text-gray-400 relative z-10 text-xl">Celui qui murmure à l'oreille de la machine.</p>
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[300px] bg-red-900/20 rounded-full blur-[100px] pointer-events-none" />
+            <h2 className="text-5xl font-black text-white mb-4 uppercase tracking-tight relative z-10">Les Seigneurs Fondateurs</h2>
+            <p className="text-gray-400 relative z-10 text-xl">Ceux qui tirent les ficelles dans l'ombre.</p>
           </div>
 
-          <div className="flex justify-center">
+          <div className="grid md:grid-cols-2 gap-12 justify-center items-stretch max-w-5xl mx-auto">
+              {/* Carte Gorthek */}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9, y: 50 }}
                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
@@ -215,6 +216,45 @@ export default function About() {
                   <p className="text-orange-500/80 font-bold mb-6 text-sm uppercase tracking-widest drop-shadow-[0_0_5px_rgba(249,115,22,0.5)]">CEO & Lead Developer</p>
                   <p className="text-gray-400 text-base leading-relaxed">
                     Jeune entrepreneur Discord, en quête de pouvoir absolu sur l'infrastructure des serveurs. Il développe ses compétences en langages de programmation obscurs pour concevoir les outils les plus destructeurs de limites pour sa communauté.
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Carte Investisseur */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 50 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -15, rotate: -1 }}
+                transition={{ duration: 0.5, delay: 0.2, type: "spring", stiffness: 100 }}
+                className="group relative bg-[#0a0000] border border-red-900/50 rounded-[2rem] overflow-hidden hover:border-orange-500/80 hover:shadow-[0_0_50px_rgba(249,115,22,0.3)] transition-all w-full flex flex-col"
+              >
+                <div className="aspect-[4/3] bg-[#050000] relative flex items-center justify-center overflow-hidden shrink-0">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0000] via-transparent to-transparent z-10" />
+                  <div className="absolute inset-0 bg-orange-900/20 mix-blend-overlay z-10 group-hover:bg-transparent transition-colors duration-700" />
+                  
+                  {/* C'est ici que tu mettras le nom exact de ton image (ex: investor.png) */}
+                  <img 
+                    src="/team/investor.png" 
+                    alt="CEO & Investisseur"
+                    className="w-full h-full object-cover group-hover:scale-110 group-hover:-rotate-2 transition-transform duration-700 filter contrast-125" 
+                    onError={(e) => { 
+                      // Fallback visuel si l'image n'est pas encore là
+                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1618331835717-801e976710b2?q=80&w=1000&auto=format&fit=crop"; 
+                    }}
+                  />
+                  
+                  <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center">
+                     <span className="px-6 py-2 bg-black/80 border border-orange-500/50 rounded-full text-orange-500 text-sm font-black uppercase tracking-widest backdrop-blur-md shadow-[0_0_15px_rgba(249,115,22,0.5)]">
+                       Maître des Trésors
+                     </span>
+                  </div>
+                </div>
+                <div className="p-10 text-center relative z-20 bg-[#0a0000] flex-grow">
+                  <h3 className="text-3xl font-black text-white group-hover:text-orange-500 transition-colors mb-2">Inconnu</h3>
+                  <p className="text-red-500/80 font-bold mb-6 text-sm uppercase tracking-widest drop-shadow-[0_0_5px_rgba(220,38,38,0.5)]">CEO & Investisseur</p>
+                  <p className="text-gray-400 text-base leading-relaxed">
+                    Visionnaire et pilier financier du projet. Il insuffle l'énergie et les ressources nécessaires pour transformer ce démon d'IA en un véritable empire incontournable sur Discord.
                   </p>
                 </div>
               </motion.div>
