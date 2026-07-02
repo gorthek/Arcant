@@ -1,10 +1,11 @@
 "use client";
 
-import { Bell, User, Star, Shield, Crown, Zap, X } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { Bell, User, Star, Shield, Crown, Zap, X, LogOut, Settings as SettingsIcon, LayoutDashboard, Hash } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 const GhostParticles = () => {
   return (
@@ -94,7 +95,9 @@ export function Header() {
   // Grade state
   const [role, setRole] = useState<"owner" | "admin" | "server_owner" | "member">("member");
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // ID du propriétaire du bot
@@ -114,11 +117,14 @@ export function Header() {
     setRole("server_owner"); // Simulation par défaut
   }, [session, serverId]);
 
-  // Fermer les notifications quand on clique ailleurs
+  // Fermer les menus quand on clique ailleurs
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
         setIsNotifOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -212,9 +218,9 @@ export function Header() {
         </div>
         
         {/* User Profile */}
-        <div onClick={cycleRole} className="flex items-center gap-4 pl-6 border-l border-white/10 cursor-pointer group relative" title="Cliquez pour tester les différents grades">
-          <div className="text-right hidden sm:flex flex-col items-end">
-            <div className="text-sm font-extrabold text-gray-200 group-hover:text-white transition-colors tracking-wide">
+        <div className="flex items-center gap-4 pl-6 border-l border-white/10 relative" ref={profileRef}>
+          <div className="text-right hidden sm:flex flex-col items-end cursor-pointer" onClick={cycleRole} title="Cliquez pour changer de grade">
+            <div className="text-sm font-extrabold text-gray-200 hover:text-white transition-colors tracking-wide">
               {userName}
             </div>
             
@@ -249,7 +255,7 @@ export function Header() {
           </div>
 
           {/* Avatar avec bordure dynamique */}
-          <div className="relative">
+          <div className="relative cursor-pointer" onClick={() => setIsProfileOpen(!isProfileOpen)}>
             {/* Animations de contour en fonction du rôle */}
             {role === "owner" && (
               <>
@@ -273,7 +279,7 @@ export function Header() {
               <div className="absolute -inset-1.5 bg-gradient-to-tr from-blue-500 to-cyan-400 rounded-full blur-sm opacity-70 animate-ping" />
             )}
             
-            <div className={`relative w-12 h-12 rounded-full flex items-center justify-center p-[2px] z-10 
+            <div className={`relative w-12 h-12 rounded-full flex items-center justify-center p-[2px] z-10 hover:scale-105 transition-transform 
               ${role === 'owner' ? 'bg-gradient-to-r from-orange-500 to-amber-300' : 
                 role === 'admin' ? 'bg-gradient-to-r from-red-500 to-white' : 
                 role === 'server_owner' ? 'bg-gradient-to-r from-emerald-500 to-green-300' : 
@@ -288,6 +294,54 @@ export function Header() {
               </div>
             </div>
           </div>
+
+          {/* Menu Déroulant Profile */}
+          <AnimatePresence>
+            {isProfileOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-0 top-16 mt-2 w-64 bg-[#0a0f16] border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl z-50"
+              >
+                <div className="p-4 border-b border-white/10 bg-white/5">
+                  <div className="flex items-center gap-3 mb-2">
+                    <img src={userImage || "https://cdn.discordapp.com/embed/avatars/0.png"} alt="Avatar" className="w-10 h-10 rounded-full border border-teal-500/50" />
+                    <div>
+                      <div className="font-bold text-white leading-tight">{userName}</div>
+                      <div className="text-xs text-gray-400 flex items-center gap-1">
+                        <Hash size={12} /> {/* @ts-ignore */}
+                        {session?.user?.id || "00000000"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-2 flex flex-col gap-1">
+                  <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-teal-500/10 hover:text-teal-400 text-gray-300 text-sm transition-colors group">
+                    <LayoutDashboard size={18} className="text-gray-500 group-hover:text-teal-400 transition-colors" />
+                    Accueil Serveurs
+                  </Link>
+                  
+                  <Link href="/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-teal-500/10 hover:text-teal-400 text-gray-300 text-sm transition-colors group">
+                    <SettingsIcon size={18} className="text-gray-500 group-hover:text-teal-400 transition-colors" />
+                    Paramètres du profil
+                  </Link>
+
+                  <div className="h-px bg-white/10 my-1 mx-2" />
+
+                  <button 
+                    onClick={() => signOut()}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 hover:text-red-400 text-gray-300 text-sm transition-colors group w-full text-left"
+                  >
+                    <LogOut size={18} className="text-gray-500 group-hover:text-red-400 transition-colors" />
+                    Déconnexion
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </header>

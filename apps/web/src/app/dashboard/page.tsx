@@ -45,14 +45,39 @@ export default function DashboardSelection() {
         
         const guilds: Guild[] = await res.json();
         
-        if (guilds.length === 0) {
-          setDebugError("L'API Discord a répondu, mais tu n'as aucun serveur.");
+        // 1. Garder uniquement les serveurs où l'utilisateur est admin / manage_guild
+        const managedGuilds = guilds.filter(g => {
+          if (g.owner) return true;
+          try {
+            const perms = BigInt(g.permissions);
+            const manageGuild = (perms & BigInt(0x20)) === BigInt(0x20);
+            const administrator = (perms & BigInt(0x8)) === BigInt(0x8);
+            return manageGuild || administrator;
+          } catch (e) {
+            return false;
+          }
+        });
+
+        // 2. Simuler la présence du bot (1 chance sur 3 d'avoir le bot, pour la démo)
+        // TODO: A remplacer par un vrai call à votre API backend plus tard
+        const guildsWithBotState = managedGuilds.map(g => ({
+          ...g,
+          hasBot: Math.random() > 0.6 // Simulation
+        }));
+
+        // 3. Trier : Les serveurs AVEC le bot en premier, puis ceux SANS le bot
+        guildsWithBotState.sort((a, b) => {
+          if (a.hasBot && !b.hasBot) return -1;
+          if (!a.hasBot && b.hasBot) return 1;
+          return 0;
+        });
+
+        if (guildsWithBotState.length === 0) {
+          setDebugError("Tu n'es administrateur d'aucun serveur Discord.");
         }
         
-        // Afficher tous les serveurs sans filtrer pour le test
-        const managedGuilds = guilds;
-
-        setServers(managedGuilds);
+        // @ts-ignore
+        setServers(guildsWithBotState);
       } catch (err: any) {
         setDebugError(err.message || "Erreur inconnue");
         console.error("Erreur lors de la récupération des serveurs:", err);
@@ -127,9 +152,8 @@ export default function DashboardSelection() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {servers.map((server, i) => {
-              // Pour la démo, on simule que certains serveurs ont le bot (1 chance sur 2 ou le premier)
-              // Dans la vraie vie, il faudrait comparer avec la DB ou l'API du bot.
-              const hasBot = i === 0 || Math.random() > 0.5;
+              // @ts-ignore
+              const hasBot = server.hasBot;
               
               return (
                 <motion.div
@@ -177,10 +201,15 @@ export default function DashboardSelection() {
                       <h3 className="font-bold text-lg mb-2 text-gray-400 group-hover:text-white transition-colors line-clamp-2">{server.name}</h3>
                       
                       <div className="mt-auto pt-4 w-full">
-                        <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-sm font-bold text-gray-300 group-hover:text-white">
+                        <a 
+                          href={`https://discord.com/oauth2/authorize?client_id=1521523509589704714&permissions=8&integration_type=0&scope=bot+applications.commands`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-sm font-bold text-gray-300 group-hover:text-white"
+                        >
                           <Plus size={16} className="group-hover:rotate-180 transition-transform duration-500" /> 
                           <span>Inviter le bot</span>
-                        </button>
+                        </a>
                       </div>
                     </div>
                   )}
