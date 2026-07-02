@@ -119,7 +119,7 @@ export function Hero() {
               className="absolute -bottom-2 left-0 w-full h-[4px] bg-teal-400 rounded-full"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ delay: 1, duration: 1.5 }}
+              transition={{ delay: 1, duration: 0.8 }}
             />
           </span>
         </motion.h1>
@@ -169,7 +169,7 @@ export function Hero() {
       <div className="w-full overflow-hidden whitespace-nowrap bg-white/5 backdrop-blur-lg border-y border-white/10 py-6 flex z-20 relative shadow-[0_0_50px_rgba(20,184,166,0.1)]">
         <motion.div
           animate={{ x: ["0%", "-50%"] }}
-          transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
+          transition={{ repeat: Infinity, duration: 50, ease: "linear" }}
           className="flex gap-16 text-2xl font-black text-gray-500/30 uppercase tracking-widest hover:text-teal-400/50 transition-colors duration-500"
         >
           {[...Array(10)].map((_, i) => (
