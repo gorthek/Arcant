@@ -58,11 +58,11 @@ export default function DashboardSelection() {
           }
         });
 
-        // 2. Simuler la présence du bot (1 chance sur 3 d'avoir le bot, pour la démo)
-        // TODO: A remplacer par un vrai call à votre API backend plus tard
+        // 2. Simuler la présence du bot de façon déterministe (stable au refresh)
+        // TODO: A remplacer par un vrai call à l'API du bot pour vérifier sa présence
         const guildsWithBotState = managedGuilds.map(g => ({
           ...g,
-          hasBot: Math.random() > 0.6 // Simulation
+          hasBot: ["Arcant", "Les Wølf | RushPvP"].includes(g.name) || parseInt(g.id.slice(-1)) > 5
         }));
 
         // 3. Trier : Les serveurs AVEC le bot en premier, puis ceux SANS le bot

@@ -27,6 +27,12 @@ export function useServerRole(serverId?: string) {
         return;
       }
 
+      // CEO Bypass default
+      if (userId === "1061340110219640905") {
+        setRole("owner");
+        return;
+      }
+
       try {
         const res = await fetch("https://discord.com/api/users/@me/guilds", {
           headers: { Authorization: `Bearer ${accessToken}` }
@@ -47,7 +53,10 @@ export function useServerRole(serverId?: string) {
           setRole("server_owner");
         } else {
           const perms = BigInt(guild.permissions);
-          if ((perms & BigInt(0x8)) === BigInt(0x8)) {
+          const isAdmin = (perms & BigInt(0x8)) === BigInt(0x8);
+          const isManager = (perms & BigInt(0x20)) === BigInt(0x20);
+          
+          if (isAdmin || isManager) {
             setRole("admin");
           } else {
             setRole("member");
