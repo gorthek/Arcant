@@ -24,8 +24,8 @@ export const authOptions: NextAuthOptions = {
         await dbConnect();
         if (account?.provider === "discord" && account?.providerAccountId) {
           const discordId = account.providerAccountId;
-          const email = user?.email || profile?.email || "";
-          const discordName = user?.name || profile?.username || "";
+          const email = user?.email || (profile as any)?.email || "";
+          const discordName = user?.name || (profile as any)?.username || "";
           
           await User.findOneAndUpdate(
             { discordId },
