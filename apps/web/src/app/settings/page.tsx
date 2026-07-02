@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, CreditCard, Bell, Key, AlertTriangle, LogOut, RefreshCw, Copy, CheckCircle2 } from "lucide-react";
+import { User, CreditCard, Bell, Key, AlertTriangle, LogOut, RefreshCw, Copy, CheckCircle2, Zap } from "lucide-react";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { StardustBackground } from "@/components/landing/StardustBackground";
@@ -142,16 +142,58 @@ function ProfileSection({ user }: { user: any }) {
 }
 
 function BillingSection() {
+  const [credits] = useState(1);
+  const maxFreeCredits = 3;
+
   return (
     <div className="space-y-10">
       <div>
-        <h2 className="text-2xl font-bold mb-6">Mon Solde</h2>
+        <h2 className="text-2xl font-bold mb-6">Gestion des Crédits IA</h2>
+        
+        {/* BARRE LIMITES PRO (DEPLACEE DEPUIS L'IA MODULE) */}
+        <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-white/10 rounded-2xl p-6 relative overflow-hidden mb-6 shadow-lg">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px]" />
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 relative z-10">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <h4 className="text-lg font-bold text-white">Limites d'utilisation</h4>
+                <span className="px-2 py-0.5 rounded-md bg-zinc-800 border border-white/10 text-[10px] font-black uppercase text-gray-400 tracking-wider">
+                  Version Gratuite
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 max-w-xl">
+                L'utilisation de modèles avancés Arcant nécessite des crédits. Vous recevez un quota gratuit chaque jour.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-6 relative z-10">
+            <div>
+              <div className="flex justify-between text-sm font-bold mb-2">
+                <span className="text-gray-300 flex items-center gap-2"><Zap size={14} className="text-amber-400"/> Crédits Quotidiens</span>
+                <span className="text-teal-400">{credits} / {maxFreeCredits} utilisés</span>
+              </div>
+              <div className="h-2.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                <motion.div 
+                  className="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(credits / maxFreeCredits) * 100}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                />
+              </div>
+              <p className="text-[10px] text-gray-500 mt-2 text-right">Réinitialisation à minuit</p>
+            </div>
+          </div>
+        </div>
+
+        {/* SOLDE PAYANT */}
         <div className="bg-gradient-to-br from-teal-900/40 to-emerald-900/20 border border-teal-500/30 p-8 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full blur-[80px]" />
           <div className="relative z-10 text-center sm:text-left">
-            <div className="text-sm font-bold text-teal-400 uppercase tracking-widest mb-2">Crédits IA Disponibles</div>
+            <div className="text-sm font-bold text-teal-400 uppercase tracking-widest mb-2">Solde Crédits Payants</div>
             <div className="text-5xl font-black text-white drop-shadow-md">1 450</div>
-            <p className="text-xs text-gray-400 mt-2">Aucune date d'expiration.</p>
+            <p className="text-xs text-gray-400 mt-2 max-w-xs">Ce solde sera débité automatiquement une fois vos crédits gratuits épuisés.</p>
           </div>
           <div className="relative z-10">
             <Link href="/pricing" className="inline-block px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 font-bold text-black hover:scale-105 transition-transform shadow-[0_0_20px_rgba(20,184,166,0.4)]">

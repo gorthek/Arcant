@@ -5,6 +5,17 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 1.1.1
+*Dernière modification : 02 Juillet 2026*
+
+### 🌐 Dashboard (Animations & IA V3)
+- **[Animations Header]** Refonte totale des effets de grades de la barre de navigation. Ajout d'une nuée d'âmes fantomatiques animées pour l'Admin et d'un halo divin d'étincelles pour l'Owner Serveur.
+- **[Notifications]** Création d'un menu déroulant interactif complet et animé pour la cloche de notifications.
+- **[Crédits PRO]** Désengorgement du module IA en déplaçant toute l'interface complexe des forfaits/crédits dans la page des paramètres (`/settings`). 
+- **[IA Générative V3]** Ajout de commandes poussées pour la création IA : Gestion experte des Rôles et Permissions, intégration de typographies spéciales (Fonts), architecture de design des salons (Emojis et Séparateurs), et option d'enregistrement de l'historique de l'IA (Database).
+
+---
+
 ## 🟢 Version 1.1.0
 *Dernière modification : 02 Juillet 2026*
 

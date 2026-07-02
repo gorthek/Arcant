@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap } from "lucide-react";
+import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, History, FileText } from "lucide-react";
+import Link from "next/link";
 
 export default function ServerSettings({ params }: { params: { id: string } }) {
   const [activeTab, setActiveTab] = useState("ia");
@@ -61,10 +62,10 @@ export default function ServerSettings({ params }: { params: { id: string } }) {
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, y: 15, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -15, scale: 0.98 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             className="relative z-10"
           >
             {activeTab === "ia" && <ModuleIA />}
@@ -82,7 +83,7 @@ export default function ServerSettings({ params }: { params: { id: string } }) {
 function ToggleSwitch({ enabled, setEnabled }: { enabled: boolean; setEnabled: (val: boolean) => void }) {
   return (
     <div 
-      className={`w-14 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${enabled ? 'bg-teal-500' : 'bg-zinc-700'}`}
+      className={`w-14 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 shrink-0 ${enabled ? 'bg-teal-500' : 'bg-zinc-700'}`}
       onClick={() => setEnabled(!enabled)}
     >
       <motion.div 
@@ -98,9 +99,15 @@ function ModuleIA() {
   const [enabled, setEnabled] = useState(true);
   const [iaMode, setIaMode] = useState<"server_creation" | "channel_assistant">("server_creation");
   
-  // States pour la config IA (Mock)
-  const [credits] = useState(1);
-  const maxFreeCredits = 3;
+  // Toggles pour la création de serveur
+  const [createRoles, setCreateRoles] = useState(true);
+  const [managePerms, setManagePerms] = useState(true);
+  const [customFonts, setCustomFonts] = useState(false);
+  const [customShapes, setCustomShapes] = useState(false);
+  const [useDatabase, setUseDatabase] = useState(false);
+
+  // Toggles pour l'assistant
+  const [saveHistory, setSaveHistory] = useState(true);
 
   return (
     <div className="space-y-10">
@@ -121,54 +128,20 @@ function ModuleIA() {
 
       <div className={`space-y-10 transition-opacity duration-300 ${!enabled ? 'opacity-30 pointer-events-none grayscale' : ''}`}>
         
-        {/* LIMITES D'UTILISATION PRO */}
-        <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-white/10 rounded-2xl p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px]" />
-          
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+        {/* COMPACT LIMITES PRO (Lien vers Settings) */}
+        <div className="flex flex-col md:flex-row items-center justify-between bg-teal-900/20 border border-teal-500/20 rounded-xl p-4 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-teal-500/20 flex items-center justify-center">
+              <Zap className="text-teal-400" size={20} />
+            </div>
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h4 className="text-lg font-bold text-white">Limites d'utilisation</h4>
-                <span className="px-2 py-0.5 rounded-md bg-zinc-800 border border-white/10 text-[10px] font-black uppercase text-gray-400 tracking-wider">
-                  Version Gratuite
-                </span>
-              </div>
-              <p className="text-xs text-gray-400 max-w-xl">
-                Les limites de votre forfait déterminent la durée et la fréquence auxquelles vous pouvez utiliser l'IA Arcant. L'utilisation de modèles avancés consomme des crédits.
-              </p>
+              <h4 className="text-white font-bold text-sm">Crédits Gratuits : 1 / 3 utilisés</h4>
+              <p className="text-xs text-teal-400/80">L'IA de création avancée consomme 1 crédit par utilisation.</p>
             </div>
           </div>
-
-          <div className="space-y-6">
-            <div>
-              <div className="flex justify-between text-sm font-bold mb-2">
-                <span className="text-gray-300 flex items-center gap-2"><Zap size={14} className="text-amber-400"/> Crédits Quotidiens</span>
-                <span className="text-teal-400">{credits} / {maxFreeCredits} utilisés</span>
-              </div>
-              <div className="h-2.5 w-full bg-zinc-800 rounded-full overflow-hidden">
-                <motion.div 
-                  className="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(credits / maxFreeCredits) * 100}%` }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                />
-              </div>
-              <p className="text-[10px] text-gray-500 mt-2 text-right">Réinitialisation à minuit</p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between bg-black/40 border border-teal-500/20 p-4 rounded-xl gap-4">
-              <div>
-                <h5 className="font-bold text-white text-sm flex items-center gap-2">
-                  <Sparkles size={16} className="text-teal-400" />
-                  Profitez de limites d'utilisation illimitées avec PRO
-                </h5>
-                <p className="text-teal-400/80 text-xs mt-1">Accédez à l'IA la plus performante, avec des requêtes étendues.</p>
-              </div>
-              <button className="whitespace-nowrap px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black text-sm rounded-lg hover:shadow-[0_0_20px_rgba(20,184,166,0.4)] hover:scale-105 transition-all">
-                Mettre à niveau (PRO)
-              </button>
-            </div>
-          </div>
+          <Link href="/settings" className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-bold transition-colors whitespace-nowrap">
+            Gérer mes crédits (PRO)
+          </Link>
         </div>
 
         {/* MODE DE FONCTIONNEMENT IA */}
@@ -187,8 +160,8 @@ function ModuleIA() {
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${iaMode === "server_creation" ? "bg-teal-500 text-black" : "bg-zinc-800 text-gray-400"}`}>
                 <Server size={20} />
               </div>
-              <h5 className={`font-bold mb-2 ${iaMode === "server_creation" ? "text-teal-400" : "text-gray-300"}`}>Création de Serveur IA</h5>
-              <p className="text-xs text-gray-400 leading-relaxed">L'IA génère et configure un serveur Discord complet sur mesure en se basant sur des templates, des images, et vos consignes (texte/vocal).</p>
+              <h5 className={`font-bold mb-2 ${iaMode === "server_creation" ? "text-teal-400" : "text-gray-300"}`}>Création & Gestion Serveur</h5>
+              <p className="text-xs text-gray-400 leading-relaxed">Génère et configure l'architecture du serveur (rôles, permissions, salons, design).</p>
             </button>
 
             <button 
@@ -203,7 +176,7 @@ function ModuleIA() {
                 <MessageSquare size={20} />
               </div>
               <h5 className={`font-bold mb-2 ${iaMode === "channel_assistant" ? "text-teal-400" : "text-gray-300"}`}>Assistant de Salon (ChatBot)</h5>
-              <p className="text-xs text-gray-400 leading-relaxed">L'IA s'intègre dans un salon précis et répond aux questions des membres en prenant en compte le contexte global du serveur (ex: RP FiveM).</p>
+              <p className="text-xs text-gray-400 leading-relaxed">S'intègre dans un salon pour répondre aux membres selon le contexte du serveur.</p>
             </button>
           </div>
         </div>
@@ -218,42 +191,113 @@ function ModuleIA() {
             transition={{ duration: 0.2 }}
           >
             {iaMode === "server_creation" ? (
-              <div className="bg-zinc-900/30 border border-white/5 rounded-2xl p-6 space-y-6">
+              <div className="bg-zinc-900/30 border border-white/5 rounded-2xl p-6 space-y-8">
                 
                 {/* PREVENT WARNING */}
                 <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
                   <AlertTriangle size={20} className="text-amber-500 shrink-0 mt-0.5" />
                   <div>
-                    <h6 className="text-amber-500 text-sm font-bold mb-1">Attention concernant les templates</h6>
-                    <p className="text-amber-500/80 text-xs">Les templates proposés ne sont qu'une aide ou une base. L'IA n'étant pas parfaite, elle se basera avant tout sur les attentes du demandeur. Soyez extrêmement précis dans ce que vous souhaitez (rôles, salons, permissions).</p>
+                    <h6 className="text-amber-500 text-sm font-bold mb-1">Information importante</h6>
+                    <p className="text-amber-500/80 text-xs leading-relaxed">
+                      L'IA utilise les templates comme point de départ. Pour un résultat optimal, soyez extrêmement précis dans votre prompt (noms des rôles, hiérarchie, catégories voulues). L'IA adaptera les permissions en conséquence.
+                    </p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <label className="text-sm font-bold text-gray-300">Prompt / Consigne détaillée</label>
                   <textarea 
-                    className="w-full h-32 bg-zinc-950 border border-white/10 rounded-xl p-4 text-white focus:border-teal-500 focus:outline-none transition-colors resize-none placeholder:text-gray-600"
-                    placeholder="Ex: Crée-moi un serveur Discord pour une communauté RP GTA V (FiveM). Il me faut des salons pour la police, les EMS, les gangs..."
+                    className="w-full h-32 bg-zinc-950 border border-white/10 rounded-xl p-4 text-white focus:border-teal-500 focus:outline-none transition-colors resize-none placeholder:text-gray-600 shadow-inner"
+                    placeholder="Ex: Crée un serveur Roleplay FiveM de style LSPD. Il me faut des grades Hiérarchiques pour la police, des salons vocaux avec formes stylisées (ex: 🚔・Patrouille), et des permissions bloquées pour les civils."
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 hover:border-teal-500/50 transition-all text-sm font-bold text-gray-300">
-                    <ImageIcon size={18} /> Ajouter des images d'inspiration
+                  <button className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 hover:border-teal-500/50 transition-all text-sm font-bold text-gray-300 group">
+                    <ImageIcon size={18} className="group-hover:text-teal-400 transition-colors" /> Uploader une image de structure (Inspi)
                   </button>
-                  <button className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 hover:border-teal-500/50 transition-all text-sm font-bold text-gray-300">
-                    <Mic size={18} /> Dicter la consigne vocalement
+                  <button className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 hover:border-teal-500/50 transition-all text-sm font-bold text-gray-300 group">
+                    <Mic size={18} className="group-hover:text-teal-400 transition-colors" /> Dicter la consigne vocalement
                   </button>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-300">Modèles de base (Templates d'aide)</label>
+                  <label className="text-sm font-bold text-gray-300">Template de base (Optionnel)</label>
                   <select className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors">
-                    <option value="">Sélectionnez un modèle optionnel...</option>
-                    <option value="gaming">Serveur Gaming Classique</option>
+                    <option value="">Aucun (Création vierge basée sur le prompt)</option>
+                    <option value="gaming">Serveur Gaming Classique / Esport</option>
                     <option value="rp">Serveur RolePlay (FiveM / Garry's Mod)</option>
-                    <option value="community">Communauté / Streamer</option>
+                    <option value="community">Communauté / Streamer / Influenceur</option>
                   </select>
+                </div>
+
+                {/* ADVANCED AI SETTINGS */}
+                <div className="pt-6 border-t border-white/10">
+                  <h4 className="font-bold text-white mb-4">Fonctionnalités génératives</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
+                      <div className="flex items-center gap-3">
+                        <ShieldAlert size={16} className="text-gray-400" />
+                        <div>
+                          <div className="text-sm font-bold text-white">Générer les Rôles</div>
+                          <div className="text-[10px] text-gray-500">L'IA crée et attribue les couleurs.</div>
+                        </div>
+                      </div>
+                      <ToggleSwitch enabled={createRoles} setEnabled={setCreateRoles} />
+                    </div>
+
+                    <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
+                      <div className="flex items-center gap-3">
+                        <PenTool size={16} className="text-gray-400" />
+                        <div>
+                          <div className="text-sm font-bold text-white">Ajuster Permissions</div>
+                          <div className="text-[10px] text-gray-500">Logique d'accès (Admin, Vocal, Textuel).</div>
+                        </div>
+                      </div>
+                      <ToggleSwitch enabled={managePerms} setEnabled={setManagePerms} />
+                    </div>
+
+                    <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
+                      <div className="flex items-center gap-3">
+                        <Type size={16} className="text-gray-400" />
+                        <div>
+                          <div className="text-sm font-bold text-white">Styles & Polices</div>
+                          <div className="text-[10px] text-gray-500">Ex: 𝕲𝖊𝖓𝖊𝖗𝖆𝖑, 𝓡𝓸𝓵𝓮𝓹𝓵𝓪𝔂, etc.</div>
+                        </div>
+                      </div>
+                      <ToggleSwitch enabled={customFonts} setEnabled={setCustomFonts} />
+                    </div>
+
+                    <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
+                      <div className="flex items-center gap-3">
+                        <Layout size={16} className="text-gray-400" />
+                        <div>
+                          <div className="text-sm font-bold text-white">Formes de Salons</div>
+                          <div className="text-[10px] text-gray-500">Emojis et séparateurs structurés.</div>
+                        </div>
+                      </div>
+                      <ToggleSwitch enabled={customShapes} setEnabled={setCustomShapes} />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between bg-gradient-to-r from-blue-900/20 to-teal-900/20 p-4 rounded-xl border border-blue-500/20">
+                    <div className="flex items-center gap-3">
+                      <Database size={20} className="text-blue-400" />
+                      <div>
+                        <div className="text-sm font-bold text-white">Synchronisation Base de Données (Avancé)</div>
+                        <div className="text-[11px] text-gray-400">L'IA relie la création des rôles avec votre DB externe.</div>
+                      </div>
+                    </div>
+                    <ToggleSwitch enabled={useDatabase} setEnabled={setUseDatabase} />
+                  </div>
+
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <button className="flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)]">
+                    <Sparkles size={18} /> Générer le serveur (1 Crédit)
+                  </button>
                 </div>
               </div>
             ) : (
@@ -280,13 +324,30 @@ function ModuleIA() {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5 gap-4">
-                  <div>
-                    <div className="font-bold text-sm text-white mb-1">Création de Threads automatiques</div>
-                    <div className="text-xs text-gray-400">L'IA crée un fil de discussion (thread) pour chaque question afin d'éviter le spam dans le salon principal.</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
+                    <div className="flex items-center gap-3">
+                      <FileText size={18} className="text-gray-400" />
+                      <div>
+                        <div className="font-bold text-sm text-white mb-1">Création de Threads automatiques</div>
+                        <div className="text-[10px] text-gray-400">Évite le spam dans le salon principal.</div>
+                      </div>
+                    </div>
+                    <ToggleSwitch enabled={false} setEnabled={() => {}} />
                   </div>
-                  <ToggleSwitch enabled={false} setEnabled={() => {}} />
+
+                  <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
+                    <div className="flex items-center gap-3">
+                      <History size={18} className="text-gray-400" />
+                      <div>
+                        <div className="font-bold text-sm text-white mb-1">Historique des requêtes (DB)</div>
+                        <div className="text-[10px] text-gray-400">Enregistre les questions pour analyse et audit.</div>
+                      </div>
+                    </div>
+                    <ToggleSwitch enabled={saveHistory} setEnabled={setSaveHistory} />
+                  </div>
                 </div>
+                
               </div>
             )}
           </motion.div>
