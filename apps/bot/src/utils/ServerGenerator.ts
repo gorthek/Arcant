@@ -1,29 +1,32 @@
 import { Client, ChannelType, ColorResolvable, PermissionFlagsBits, OverwriteResolvable, Guild } from 'discord.js';
 import { localAI } from './LocalAIClient';
+import { AITemplate } from '@arcant/database';
 
 export class ServerGenerator {
-  static async generate(
+
+  // Étape 1 : Générer le JSON sans l'appliquer
+  static async generatePreview(
     client: Client,
-    serverId: string,
     prompt: string,
-    template: string,
+    templateUrl: string, // Lien éventuel discord.new
     options: {
       createRoles?: boolean;
       managePerms?: boolean;
-      customFonts?: boolean;
-      customShapes?: boolean;
     }
   ) {
     try {
-      console.log(`[ServerGenerator] Démarrage pour le serveur ${serverId}`);
-      const guild = await client.guilds.fetch(serverId).catch(() => null);
-      if (!guild) {
-        throw new Error(`Serveur ${serverId} introuvable ou bot non présent.`);
+      // 1. Récupérer des templates depuis la DB pour éduquer l'IA
+      const allTemplates = await AITemplate.find().limit(5); // On prend qq templates pour l'inspiration
+      let knowledgeBase = '';
+      if (allTemplates.length > 0) {
+        knowledgeBase = `Voici des exemples de structures communautaires dont tu DOIS t'inspirer pour le réalisme :\n` + 
+          allTemplates.map(t => `- Modèle "${t.name}" : ` + JSON.stringify(t.structure?.channels || {}).substring(0, 300) + '...').join('\n');
       }
 
-      // 1. Construire le Super Prompt pour forcer la sortie JSON complexe
       const systemPrompt = `Tu es Arcant, un architecte Discord expert.
 Ta mission est de générer une architecture complète de serveur Discord au format JSON pur (sans markdown).
+${knowledgeBase}
+
 Règles strictes :
 - Réponds UNIQUEMENT avec un objet JSON valide.
 - Assigne les permissions intelligemment (ex: annonces en lecture seule, salons staff privés).
@@ -42,7 +45,7 @@ Règles strictes :
       "channels": [
         { 
           "name": "string", 
-          "type": "text" | "voice",
+          "type": "text" | "voice" | "forum",
           "permissions": [
              { "roleName": "NomDuRole (ou @everyone)", "allow": ["Permission"], "deny": ["Permission"] }
           ]
@@ -58,7 +61,7 @@ Options demandées :
 Prompt : "${prompt}"
 Génère une architecture riche avec des règles de sécurité logiques.`;
 
-      console.log(`[ServerGenerator] Appel de l'IA pour structurer le serveur...`);
+      console.log(`[ServerGenerator] Génération Preview demandée...`);
       let jsonResponse = await localAI.generateResponse(prompt, systemPrompt);
       
       jsonResponse = jsonResponse.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -71,7 +74,30 @@ Génère une architecture riche avec des règles de sécurité logiques.`;
         throw new Error("L'IA n'a pas réussi à générer une structure valide.");
       }
 
-      console.log(`[ServerGenerator] Architecture générée, début de la construction...`);
+      return structure; // On retourne le JSON pour le Dashboard Web
+    } catch (error) {
+      console.error(`[ServerGenerator] Erreur preview:`, error);
+      throw error;
+    }
+  }
+
+  // Étape 2 : Appliquer le JSON final sur Discord (Synchronisation)
+  static async applyStructure(
+    client: Client,
+    serverId: string,
+    structure: any,
+    options: {
+      createRoles?: boolean;
+      managePerms?: boolean;
+    }
+  ) {
+    try {
+      const guild = await client.guilds.fetch(serverId).catch(() => null);
+      if (!guild) {
+        throw new Error(`Serveur ${serverId} introuvable ou bot non présent.`);
+      }
+
+      console.log(`[ServerGenerator] Début de la synchronisation pour le serveur ${serverId}...`);
 
       const createdRoles = new Map<string, string>();
 
@@ -79,60 +105,115 @@ Génère une architecture riche avec des règles de sécurité logiques.`;
       if (options.createRoles && structure.roles && Array.isArray(structure.roles)) {
         for (const roleDef of structure.roles) {
           try {
-            const roleOptions: any = {
-              name: roleDef.name,
-              reason: 'Création via Arcant IA',
-            };
-            if (roleDef.color?.startsWith('#')) {
-              roleOptions.color = roleDef.color as ColorResolvable;
+            // Vérifier si le rôle existe déjà
+            let role = guild.roles.cache.find(r => r.name.toLowerCase() === roleDef.name.toLowerCase());
+            if (!role) {
+              const roleOptions: any = {
+                name: roleDef.name,
+                reason: 'Création via Arcant IA / Sync',
+              };
+              if (roleDef.color?.startsWith('#')) {
+                roleOptions.color = roleDef.color as ColorResolvable;
+              }
+              role = await guild.roles.create(roleOptions);
+              await this.sleep(300);
             }
-            const role = await guild.roles.create(roleOptions);
             createdRoles.set(roleDef.name, role.id);
-            await this.sleep(300);
           } catch (e) {
             console.warn(`[ServerGenerator] Impossible de créer le rôle ${roleDef.name}:`, e);
           }
         }
       }
 
-      // 4. Création des Catégories et Salons
+      // 4. Création des Catégories et Salons (Simplifié pour l'instant : on crée si ça n'existe pas)
+      // Une vraie synchro bidirectionnelle parfaite comparerait et supprimerait l'excédent.
       if (structure.categories && Array.isArray(structure.categories)) {
         for (const catDef of structure.categories) {
           try {
+            let category = guild.channels.cache.find(c => c.name.toLowerCase() === catDef.name.toLowerCase() && c.type === ChannelType.GuildCategory);
             const catOverwrites = options.managePerms ? this.parsePermissions(catDef.permissions, createdRoles, guild) : [];
-            const category = await guild.channels.create({
-              name: catDef.name,
-              type: ChannelType.GuildCategory,
-              permissionOverwrites: catOverwrites,
-              reason: 'Création via Arcant IA',
-            });
-            await this.sleep(500);
+            
+            if (!category) {
+              category = await guild.channels.create({
+                name: catDef.name,
+                type: ChannelType.GuildCategory,
+                permissionOverwrites: catOverwrites,
+                reason: 'Création via Arcant IA',
+              });
+              await this.sleep(500);
+            } else {
+              // Update perms si existant
+              await category.edit({ permissionOverwrites: catOverwrites });
+            }
 
-            if (catDef.channels && Array.isArray(catDef.channels)) {
+            if (category && catDef.channels && Array.isArray(catDef.channels)) {
               for (const chanDef of catDef.channels) {
                 const chanOverwrites = options.managePerms ? this.parsePermissions(chanDef.permissions, createdRoles, guild) : [];
-                await guild.channels.create({
-                  name: chanDef.name,
-                  type: chanDef.type === 'voice' ? ChannelType.GuildVoice : ChannelType.GuildText,
-                  parent: category.id,
-                  permissionOverwrites: chanOverwrites,
-                  reason: 'Création via Arcant IA',
-                });
-                await this.sleep(300);
+                
+                let chanType = ChannelType.GuildText;
+                if (chanDef.type === 'voice') chanType = ChannelType.GuildVoice;
+                else if (chanDef.type === 'forum') chanType = ChannelType.GuildForum;
+
+                let channel = guild.channels.cache.find(c => c.name.toLowerCase() === chanDef.name.toLowerCase() && c.parentId === category?.id);
+                
+                if (!channel) {
+                  await guild.channels.create({
+                    name: chanDef.name,
+                    type: chanType,
+                    parent: category.id,
+                    permissionOverwrites: chanOverwrites,
+                    reason: 'Création via Arcant IA',
+                  });
+                  await this.sleep(300);
+                } else {
+                  await channel.edit({ permissionOverwrites: chanOverwrites });
+                }
               }
             }
           } catch (e) {
-            console.warn(`[ServerGenerator] Erreur lors de la création de la catégorie ${catDef.name}:`, e);
+            console.warn(`[ServerGenerator] Erreur lors de la synchro de la catégorie ${catDef.name}:`, e);
           }
         }
       }
 
-      console.log(`[ServerGenerator] Succès ! Le serveur ${serverId} a été bâti avec permissions.`);
+      console.log(`[ServerGenerator] Succès ! Le serveur ${serverId} a été synchronisé.`);
+      return { success: true };
       
     } catch (error) {
-      console.error(`[ServerGenerator] Erreur globale:`, error);
+      console.error(`[ServerGenerator] Erreur synchro:`, error);
       throw error;
     }
+  }
+
+  // Permet au Dashboard de LIRE l'état actuel du serveur
+  static async readServerStructure(client: Client, serverId: string) {
+    const guild = await client.guilds.fetch(serverId).catch(() => null);
+    if (!guild) throw new Error("Server not found");
+
+    const roles = guild.roles.cache.map(r => ({
+      id: r.id,
+      name: r.name,
+      color: r.hexColor
+    }));
+
+    const categories = guild.channels.cache
+      .filter(c => c.type === ChannelType.GuildCategory)
+      .map(cat => {
+        const children = guild.channels.cache
+          .filter(c => c.parentId === cat.id)
+          .map(c => ({
+            id: c.id,
+            name: c.name,
+            type: c.type === ChannelType.GuildVoice ? 'voice' : c.type === ChannelType.GuildForum ? 'forum' : 'text',
+          }));
+        return {
+          id: cat.id,
+          name: cat.name,
+          channels: children
+        };
+      });
+
+    return { roles, categories };
   }
 
   private static parsePermissions(permsArray: any[], createdRoles: Map<string, string>, guild: Guild): OverwriteResolvable[] {

@@ -83,7 +83,7 @@ http.createServer(async (req, res) => {
         res.end(JSON.stringify({ error: 'Internal server error' }));
       }
     });
-  } else if (req.method === 'POST' && req.url === '/build-server') {
+  } else if (req.method === 'POST' && req.url === '/generate-preview') {
     let body = '';
     req.on('data', chunk => {
       body += chunk.toString();
@@ -91,28 +91,72 @@ http.createServer(async (req, res) => {
     req.on('end', async () => {
       try {
         const payload = JSON.parse(body);
-        const { serverId, prompt, template, options } = payload;
+        const { prompt, templateUrl, options } = payload;
         
-        if (!serverId || !prompt) {
+        if (!prompt) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Missing serverId or prompt' }));
+          res.end(JSON.stringify({ error: 'Missing prompt' }));
           return;
         }
 
         const { ServerGenerator } = require('./utils/ServerGenerator');
-        // On lance la génération de manière asynchrone pour ne pas bloquer la requête
-        ServerGenerator.generate(client, serverId, prompt, template, options)
-          .then(() => console.log(`[ServerGenerator] Generation finished for ${serverId}`))
-          .catch((err: any) => console.error(`[ServerGenerator] Error generating server ${serverId}:`, err));
+        const structure = await ServerGenerator.generatePreview(client, prompt, templateUrl, options);
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Generation started' }));
+        res.end(JSON.stringify({ message: 'Preview generated', structure }));
       } catch (e) {
-        console.error('[API] /build-server error:', e);
+        console.error('[API] /generate-preview error:', e);
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Internal server error' }));
       }
     });
+  } else if (req.method === 'POST' && req.url === '/sync-server') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', async () => {
+      try {
+        const payload = JSON.parse(body);
+        const { serverId, structure, options } = payload;
+        
+        if (!serverId || !structure) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Missing serverId or structure' }));
+          return;
+        }
+
+        const { ServerGenerator } = require('./utils/ServerGenerator');
+        // Synchronisation asynchrone
+        ServerGenerator.applyStructure(client, serverId, structure, options)
+          .then(() => console.log(`[ServerGenerator] Sync finished for ${serverId}`))
+          .catch((err: any) => console.error(`[ServerGenerator] Error syncing server ${serverId}:`, err));
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Sync started' }));
+      } catch (e) {
+        console.error('[API] /sync-server error:', e);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Internal server error' }));
+      }
+    });
+  } else if (req.method === 'GET' && req.url?.startsWith('/server-structure/')) {
+    const serverId = req.url.split('/')[2];
+    if (!serverId) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Missing serverId' }));
+      return;
+    }
+    try {
+      const { ServerGenerator } = require('./utils/ServerGenerator');
+      const structure = await ServerGenerator.readServerStructure(client, serverId);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ structure }));
+    } catch (e) {
+      console.error('[API] /server-structure error:', e);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Internal server error' }));
+    }
   } else if (req.method === 'POST' && req.url === '/copilot') {
     let body = '';
     req.on('data', chunk => {

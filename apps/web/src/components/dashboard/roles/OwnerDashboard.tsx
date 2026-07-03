@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, History, FileText, User } from "lucide-react";
 import Link from "next/link";
+import ServerVisualEditor from './ServerVisualEditor';
 
 export function OwnerDashboard({ serverId }: { serverId: string }) {
   const [activeTab, setActiveTab] = useState("overview");
@@ -228,6 +229,24 @@ function ModuleIA({ serverId }: { serverId: string }) {
   const [serverPrompt, setServerPrompt] = useState("");
   const [serverTemplate, setServerTemplate] = useState("");
   const [isGeneratingServer, setIsGeneratingServer] = useState(false);
+  const [serverStructure, setServerStructure] = useState<any>(null);
+  const [isVisualEditorActive, setIsVisualEditorActive] = useState(false);
+
+  // Charger la structure actuelle depuis le serveur Discord
+  const handleLoadCurrentServer = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/server/${serverId}/structure`);
+      if (res.ok) {
+        const data = await res.json();
+        setServerStructure(data.structure);
+        setIsVisualEditorActive(true);
+      } else {
+        alert("Erreur lors de la lecture du serveur.");
+      }
+    } catch (e) {
+      alert("Erreur de connexion à l'API.");
+    }
+  };
 
   const handleDeployBot = async () => {
     if (!botName || !botToken) return alert("Le nom et le token sont obligatoires pour l'instant !");
@@ -254,25 +273,72 @@ function ModuleIA({ serverId }: { serverId: string }) {
   };
 
   const handleGenerateServer = async () => {
-    if (!serverPrompt) return alert("Veuillez entrer un prompt.");
+    if (!serverPrompt && !serverTemplate) return alert("Veuillez entrer un prompt ou un lien template.");
     setIsGeneratingServer(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/server/generate`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/server/generate-preview`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          serverId: serverId,
           prompt: serverPrompt,
-          template: serverTemplate,
+          templateUrl: serverTemplate,
           options: { createRoles, managePerms, customFonts, customShapes, useDatabase }
         }),
       });
-      if (res.ok) alert("Génération du serveur lancée ! Patientez.");
-      else alert("Erreur lors de la génération.");
+      if (res.ok) {
+        const data = await res.json();
+        setServerStructure(data.structure);
+        setIsVisualEditorActive(true);
+      }
+      else alert("Erreur lors de la génération (Preview).");
     } catch (e) {
       alert("Erreur de connexion à l'API.");
     }
     setIsGeneratingServer(false);
+  };
+
+  const handleSyncServer = async () => {
+    setIsGeneratingServer(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/server/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serverId: serverId,
+          structure: serverStructure,
+          options: { createRoles, managePerms, customFonts, customShapes, useDatabase }
+        }),
+      });
+      if (res.ok) {
+        alert("Synchronisation lancée sur Discord !");
+        setIsVisualEditorActive(false);
+      }
+      else alert("Erreur lors de la synchronisation.");
+    } catch (e) {
+      alert("Erreur de connexion à l'API.");
+    }
+    setIsGeneratingServer(false);
+  };
+
+  const handleFeedAI = async () => {
+    if (!serverTemplate) return alert("Veuillez coller un lien de template (ex: discord.new/...)");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/templates/import`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: serverTemplate,
+          userId: "mock_user_id"
+        }),
+      });
+      if (res.ok) {
+        alert("Succès ! L'IA a mémorisé ce template dans sa base de données.");
+        setServerTemplate("");
+      }
+      else alert("Erreur lors de l'aspiration du template.");
+    } catch (e) {
+      alert("Erreur de connexion à l'API.");
+    }
   };
 
   const handleCopilotChat = async () => {
@@ -394,6 +460,23 @@ function ModuleIA({ serverId }: { serverId: string }) {
             {iaMode === "server_creation" ? (
               <div className="bg-zinc-900/30 border border-white/5 rounded-2xl p-6 space-y-8">
                 
+                {isVisualEditorActive && serverStructure ? (
+                  <ServerVisualEditor 
+                    structure={serverStructure} 
+                    setStructure={setServerStructure}
+                    onDeploy={handleSyncServer}
+                    onCancel={() => setIsVisualEditorActive(false)}
+                  />
+                ) : (
+                  <>
+                    <div className="flex justify-end mb-4">
+                      <button 
+                        onClick={handleLoadCurrentServer}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition shadow-lg"
+                      >
+                        <Server size={16} /> Éditer le serveur actuel
+                      </button>
+                    </div>
                 {/* PREVENT WARNING */}
                 <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
                   <AlertTriangle size={20} className="text-amber-500 shrink-0 mt-0.5" />
@@ -426,16 +509,21 @@ function ModuleIA({ serverId }: { serverId: string }) {
 
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-gray-300">Template de base (Optionnel)</label>
-                  <select 
-                    value={serverTemplate}
-                    onChange={(e) => setServerTemplate(e.target.value)}
-                    className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors"
-                  >
-                    <option value="">Aucun (Création vierge basée sur le prompt)</option>
-                    <option value="gaming">Serveur Gaming Classique / Esport</option>
-                    <option value="rp">Serveur RolePlay (FiveM / Garry's Mod)</option>
-                    <option value="community">Communauté / Streamer / Influenceur</option>
-                  </select>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text"
+                      value={serverTemplate}
+                      onChange={(e) => setServerTemplate(e.target.value)}
+                      className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors"
+                      placeholder="Collez un lien https://discord.new/..."
+                    />
+                    <button 
+                      onClick={handleFeedAI}
+                      className="px-4 py-3 bg-indigo-500/20 text-indigo-400 font-bold text-xs rounded-xl hover:bg-indigo-500/30 transition-colors border border-indigo-500/30 whitespace-nowrap"
+                    >
+                      🧠 Nourrir l'IA
+                    </button>
+                  </div>
                 </div>
 
                 {/* ADVANCED AI SETTINGS */}
@@ -507,9 +595,11 @@ function ModuleIA({ serverId }: { serverId: string }) {
                     disabled={isGeneratingServer}
                     className="flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)] disabled:opacity-50"
                   >
-                    <Sparkles size={18} /> {isGeneratingServer ? "Génération en cours..." : "Générer le serveur (Premium Requis)"}
+                    <Sparkles size={18} /> {isGeneratingServer ? "Génération en cours..." : "Générer & Prévisualiser l'architecture"}
                   </button>
                 </div>
+                  </>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-zinc-900/30 border border-white/5 rounded-2xl p-6">

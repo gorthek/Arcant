@@ -1,11 +1,32 @@
 import { Client } from 'discord.js';
 export declare class ServerGenerator {
-    static generate(client: Client, serverId: string, prompt: string, template: string, options: {
+    static generatePreview(client: Client, prompt: string, templateUrl: string, // Lien éventuel discord.new
+    options: {
         createRoles?: boolean;
         managePerms?: boolean;
-        customFonts?: boolean;
-        customShapes?: boolean;
-    }): Promise<void>;
+    }): Promise<any>;
+    static applyStructure(client: Client, serverId: string, structure: any, options: {
+        createRoles?: boolean;
+        managePerms?: boolean;
+    }): Promise<{
+        success: boolean;
+    }>;
+    static readServerStructure(client: Client, serverId: string): Promise<{
+        roles: {
+            id: string;
+            name: string;
+            color: `#${string}`;
+        }[];
+        categories: {
+            id: string;
+            name: string;
+            channels: {
+                id: string;
+                name: string;
+                type: string;
+            }[];
+        }[];
+    }>;
     private static parsePermissions;
     private static sleep;
 }
