@@ -1,131 +1,156 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef, useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Float, Points, PointMaterial, Environment, Sparkles } from "@react-three/drei";
+import * as THREE from "three";
 import { ServerRole } from "@/contexts/ServerContext";
+
+function OwnerScene() {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.x = state.clock.elapsedTime * 0.2;
+      meshRef.current.rotation.y = state.clock.elapsedTime * 0.3;
+    }
+  });
+
+  return (
+    <>
+      <ambientLight intensity={1.5} color="#fbbf24" />
+      <directionalLight position={[10, 10, 5]} intensity={2} color="#f59e0b" />
+      <directionalLight position={[-10, -10, -5]} intensity={1} color="#10b981" />
+      
+      <Float speed={2} rotationIntensity={1.5} floatIntensity={2}>
+        <mesh ref={meshRef} position={[0, 0, -2]}>
+          <icosahedronGeometry args={[2.5, 0]} />
+          <meshPhysicalMaterial 
+            color="#fbbf24" 
+            metalness={0.9} 
+            roughness={0.1} 
+            transmission={0.5} 
+            thickness={2} 
+            emissive="#b45309"
+            emissiveIntensity={0.2}
+          />
+        </mesh>
+      </Float>
+      
+      <Sparkles count={150} scale={12} size={4} speed={0.4} color="#fcd34d" />
+      <Environment preset="city" />
+    </>
+  );
+}
+
+function ServerOwnerScene() {
+  const meshRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.z = state.clock.elapsedTime * 0.1;
+      meshRef.current.rotation.x = state.clock.elapsedTime * 0.15;
+    }
+  });
+
+  return (
+    <>
+      <ambientLight intensity={1} color="#14b8a6" />
+      <directionalLight position={[0, 10, 0]} intensity={3} color="#10b981" />
+      
+      <Float speed={1.5} rotationIntensity={2} floatIntensity={1.5}>
+        <mesh ref={meshRef} position={[0, 0, -3]}>
+          <octahedronGeometry args={[3, 0]} />
+          <meshPhysicalMaterial 
+            color="#14b8a6" 
+            wireframe={true} 
+            emissive="#10b981" 
+            emissiveIntensity={0.5} 
+          />
+        </mesh>
+      </Float>
+      
+      <Sparkles count={200} scale={15} size={2} speed={0.8} color="#34d399" />
+    </>
+  );
+}
+
+function AdminScene() {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.5;
+    }
+  });
+
+  return (
+    <>
+      <ambientLight intensity={0.5} color="#ef4444" />
+      <pointLight position={[0, 0, 0]} intensity={5} color="#dc2626" distance={10} />
+      
+      <group ref={groupRef} position={[0, 0, -4]}>
+        {[...Array(3)].map((_, i) => (
+          <mesh key={i} rotation={[Math.random() * Math.PI, Math.random() * Math.PI, 0]}>
+            <torusGeometry args={[3 + i, 0.1, 16, 100]} />
+            <meshStandardMaterial color="#ef4444" emissive="#991b1b" emissiveIntensity={0.8} />
+          </mesh>
+        ))}
+      </group>
+      
+      <Sparkles count={300} scale={15} size={3} speed={1.5} color="#fca5a5" />
+    </>
+  );
+}
+
+function MemberScene() {
+  const meshRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.x = state.clock.elapsedTime * 0.1;
+      meshRef.current.rotation.y = state.clock.elapsedTime * 0.05;
+    }
+  });
+
+  return (
+    <>
+      <ambientLight intensity={1.5} color="#3b82f6" />
+      <directionalLight position={[5, 5, 5]} intensity={2} color="#06b6d4" />
+      
+      <Float speed={1} rotationIntensity={0.5} floatIntensity={1}>
+        <mesh ref={meshRef} position={[0, 0, -2]}>
+          <sphereGeometry args={[2.5, 64, 64]} />
+          <meshPhysicalMaterial 
+            color="#3b82f6" 
+            metalness={0.1} 
+            roughness={0.1} 
+            transmission={0.9} 
+            ior={1.5}
+            thickness={1}
+            emissive="#1d4ed8"
+            emissiveIntensity={0.2}
+          />
+        </mesh>
+      </Float>
+      
+      <Sparkles count={100} scale={10} size={5} speed={0.2} color="#93c5fd" />
+      <Environment preset="night" />
+    </>
+  );
+}
 
 export function RoleBackground({ role }: { role: ServerRole }) {
   if (role === "loading") return null;
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      {/* OWNER (OR / EMERAUDE) : Ambiance Luxueuse et Puissante */}
-      {role === "owner" && (
-        <>
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 via-amber-900/10 to-transparent" />
-          <motion.div
-            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-0 right-0 w-[800px] h-[800px] bg-orange-500/20 rounded-full blur-[150px]"
-          />
-          <motion.div
-            animate={{ scale: [1, 1.5, 1], opacity: [0.2, 0.5, 0.2] }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-[120px]"
-          />
-          {/* Particules Dorées Ascendantes */}
-          {[...Array(15)].map((_, i) => (
-            <motion.div
-              key={`owner-particle-${i}`}
-              initial={{ y: "110%", x: `${Math.random() * 100}%`, opacity: 0, scale: Math.random() * 0.5 + 0.5 }}
-              animate={{ y: "-10%", opacity: [0, 1, 0], rotate: 360 }}
-              transition={{ duration: 10 + Math.random() * 10, repeat: Infinity, delay: Math.random() * 5, ease: "linear" }}
-              className="absolute w-2 h-2 bg-amber-400 rounded-full shadow-[0_0_10px_rgba(251,191,36,0.8)]"
-              style={{ left: `${Math.random() * 100}%` }}
-            />
-          ))}
-        </>
-      )}
-
-      {/* SERVER OWNER (EMERAUDE) : Ambiance Matrix / Créateur */}
-      {role === "server_owner" && (
-        <>
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-900/20 via-emerald-900/10 to-transparent" />
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-[20%] -right-[10%] w-[1000px] h-[1000px] border-[1px] border-teal-500/10 rounded-full border-dashed opacity-50"
-          />
-          <motion.div
-            animate={{ rotate: -360 }}
-            transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-            className="absolute -bottom-[20%] -left-[10%] w-[800px] h-[800px] border-[2px] border-emerald-500/5 rounded-full opacity-50"
-          />
-          {/* Faisceaux Lumineux Verticaux */}
-          {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={`so-beam-${i}`}
-              initial={{ y: "100%", opacity: 0 }}
-              animate={{ y: "-100%", opacity: [0, 0.5, 0] }}
-              transition={{ duration: 5 + Math.random() * 5, repeat: Infinity, delay: Math.random() * 5, ease: "easeInOut" }}
-              className="absolute w-[2px] h-[300px] bg-gradient-to-t from-transparent via-teal-400 to-transparent"
-              style={{ left: `${20 + i * 15}%` }}
-            />
-          ))}
-        </>
-      )}
-
-      {/* ADMIN (ROUGE) : Ambiance Salle de Contrôle / Sécurité */}
-      {role === "admin" && (
-        <>
-          <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 via-black to-black" />
-          <motion.div
-            animate={{ opacity: [0.1, 0.3, 0.1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-0 left-0 w-full h-[2px] bg-red-600 shadow-[0_0_20px_rgba(220,38,38,1)]"
-          />
-          <motion.div
-            animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-red-600/10 rounded-full blur-[100px]"
-          />
-          {/* Scanlines agressives */}
-          <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px] opacity-20 pointer-events-none mix-blend-overlay" />
-          {/* Particules de Braise */}
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={`admin-spark-${i}`}
-              initial={{ y: "100%", x: `${Math.random() * 100}%`, opacity: 0 }}
-              animate={{ 
-                y: `${Math.random() * -50}%`, 
-                x: `${Math.random() * 100}%`, 
-                opacity: [0, 1, 0],
-                scale: [0, Math.random() * 1.5, 0]
-              }}
-              transition={{ duration: 3 + Math.random() * 4, repeat: Infinity, delay: Math.random() * 2, ease: "easeOut" }}
-              className="absolute w-1 h-1 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,1)]"
-              style={{ left: `${Math.random() * 100}%` }}
-            />
-          ))}
-        </>
-      )}
-
-      {/* MEMBER (BLEU) : Ambiance Calme / Nébuleuse */}
-      {role === "member" && (
-        <>
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-indigo-900/10 to-transparent" />
-          <motion.div
-            animate={{ x: [-20, 20, -20], y: [-20, 20, -20] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/3 left-1/3 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[150px]"
-          />
-          <motion.div
-            animate={{ x: [20, -20, 20], y: [20, -20, 20] }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px]"
-          />
-          {/* Petites bulles d'info lentes */}
-          {[...Array(8)].map((_, i) => (
-            <motion.div
-              key={`member-bubble-${i}`}
-              initial={{ y: "110%", x: `${Math.random() * 100}%`, opacity: 0 }}
-              animate={{ y: "-10%", opacity: [0, 0.3, 0] }}
-              transition={{ duration: 20 + Math.random() * 20, repeat: Infinity, delay: Math.random() * 10, ease: "easeInOut" }}
-              className="absolute w-8 h-8 border border-blue-400/20 rounded-full bg-blue-500/5 backdrop-blur-sm"
-              style={{ left: `${Math.random() * 100}%` }}
-            />
-          ))}
-        </>
-      )}
+    <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-screen">
+      <Canvas camera={{ position: [0, 0, 5], fov: 60 }}>
+        {role === "owner" && <OwnerScene />}
+        {role === "server_owner" && <ServerOwnerScene />}
+        {role === "admin" && <AdminScene />}
+        {role === "member" && <MemberScene />}
+      </Canvas>
     </div>
   );
 }
