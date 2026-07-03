@@ -153,9 +153,9 @@ function ModuleOverview({ serverId }: { serverId: string }) {
       {/* 3D Grid Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-white/10">
         {[
-          { label: "Requêtes IA / Mois", value: "1,240", icon: <Bot className="text-teal-400" /> },
-          { label: "Membres protégés", value: "842", icon: <User className="text-emerald-400" /> },
-          { label: "Modules Actifs", value: "4 / 8", icon: <Settings2 className="text-purple-400" /> },
+          { label: "Requêtes IA / Mois", value: "0", icon: <Bot className="text-teal-400" /> },
+          { label: "Membres protégés", value: "0", icon: <User className="text-emerald-400" /> },
+          { label: "Modules Actifs", value: "1 / 8", icon: <Settings2 className="text-purple-400" /> },
         ].map((stat, i) => (
           <motion.div 
             key={i}
