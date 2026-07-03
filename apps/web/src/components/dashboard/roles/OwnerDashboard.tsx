@@ -114,6 +114,7 @@ function ModuleIA() {
   const [botPrompt, setBotPrompt] = useState("");
   const [botToken, setBotToken] = useState("");
   const [isDeployingBot, setIsDeployingBot] = useState(false);
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
   // Etats pour la génération de serveur
   const [serverPrompt, setServerPrompt] = useState("");
@@ -133,7 +134,7 @@ function ModuleIA() {
           botName,
           botToken,
           systemPrompt: botPrompt,
-          features: ["help"], // Option de test
+          features: selectedFeatures, // Envoi des vrais modules sélectionnés
         }),
       });
       if (res.ok) alert("Bot déployé avec succès !");
@@ -388,6 +389,37 @@ function ModuleIA() {
                       <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-all text-sm font-bold text-gray-300">
                         <ImageIcon size={18} /> Choisir une image
                       </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-gray-300">Modules Rapides (Fonctionnalités natives)</label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { id: 'help', label: 'Menu Help' },
+                        { id: 'mod', label: 'Modération' },
+                        { id: 'tickets', label: 'Tickets' },
+                        { id: 'economy', label: 'Économie' },
+                        { id: 'logs', label: 'Logs' }
+                      ].map(feat => (
+                        <button
+                          key={feat.id}
+                          onClick={() => {
+                            if (selectedFeatures.includes(feat.id)) {
+                              setSelectedFeatures(selectedFeatures.filter(f => f !== feat.id));
+                            } else {
+                              setSelectedFeatures([...selectedFeatures, feat.id]);
+                            }
+                          }}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                            selectedFeatures.includes(feat.id)
+                              ? 'bg-teal-500 text-black shadow-[0_0_10px_rgba(20,184,166,0.3)] border border-teal-400'
+                              : 'bg-zinc-900 border border-white/10 text-gray-400 hover:bg-white/5'
+                          }`}
+                        >
+                          + {feat.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                   
