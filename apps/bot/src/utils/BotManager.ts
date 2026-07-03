@@ -82,6 +82,42 @@ class BotManager {
       console.log(`[BotManager] Stopped bot ${botId}`);
     }
   }
+
+  // Recharger un bot à chaud (sans le déco/reco)
+  public async reloadBot(botId: string, newFeatures: string[], newSystemPrompt: string) {
+    const client = this.bots.get(botId);
+    if (!client) {
+      console.warn(`[BotManager] Cannot reload bot ${botId} because it is not running.`);
+      return;
+    }
+    
+    // On remplace tous les listeners 'messageCreate' pour ce bot
+    client.removeAllListeners('messageCreate');
+    
+    client.on('messageCreate', async (message) => {
+      if (message.author.bot) return;
+      try {
+        if (newFeatures.includes('help') && message.content === '!help') {
+          await message.reply('Bonjour ! Je suis un bot personnalisé hébergé par Arcant.\\n- `!help`: Affiche ce menu\\n- Tu peux me mentionner pour discuter !');
+          return;
+        }
+
+        if (message.mentions.has(client.user!.id)) {
+          const prompt = message.content.replace(`<@${client.user!.id}>`, '').trim();
+          
+          if ('sendTyping' in message.channel) {
+            await message.channel.sendTyping();
+          }
+          const response = await localAI.generateResponse(prompt, newSystemPrompt);
+          await message.reply(response);
+        }
+      } catch (error) {
+        console.error(`[BotManager - ${client.user?.tag}] Commande/Action échouée et ignorée (Anti-Crash):`, error);
+      }
+    });
+
+    console.log(`[BotManager] Bot ${botId} reloaded successfully with new features.`);
+  }
 }
 
 export const botManager = new BotManager();

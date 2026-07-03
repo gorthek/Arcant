@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.2.3
+*Dernière modification : 03 Juillet 2026*
+
+### 🤖 Cœur du Bot (Hébergeur & IA)
+- **[Copilot IA]** Implémentation complète de l'API Copilot (`/copilot`). Le serveur peut maintenant recevoir des requêtes du Dashboard Web, lire l'état du bot dans MongoDB, injecter l'état dans l'IA locale, puis recharger les paramètres du bot à chaud.
+- **[Rechargement à Chaud]** Le `BotManager` intègre désormais une fonction `reloadBot` pour mettre à jour instantanément les permissions et les fonctionnalités d'un bot actif, sans aucune interruption de service.
+- **[Anti-Crash Global]** Mise en place d'un système de `try/catch` robuste sur l'exécution des commandes IA et ajout d'écouteurs globaux (`unhandledRejection` / `uncaughtException`). Si une commande de bot personnalisé plante (ex: manque de permissions), l'erreur est ignorée par le bot pour éviter un crash serveur massif.
+
+---
+
 ## 🔴 Version 1.2.2
 *Dernière modification : 03 Juillet 2026*
 

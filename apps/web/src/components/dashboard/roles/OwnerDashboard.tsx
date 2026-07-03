@@ -115,6 +115,15 @@ function ModuleIA() {
   const [botToken, setBotToken] = useState("");
   const [isDeployingBot, setIsDeployingBot] = useState(false);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  
+  // Nouveaux états pour le Chat Copilot
+  const [chatMessages, setChatMessages] = useState<{role: 'user'|'ai', content: string}[]>([
+    { role: 'ai', content: "Bonjour ! Je suis ton Copilot. Dis-moi comment tu souhaites configurer ton bot Discord (modules, personnalité...)." }
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  // Un "fake" ID pour simuler la base de données (le vrai proviendrait de la session)
+  const [botId] = useState("mock_bot_123");
 
   // Etats pour la génération de serveur
   const [serverPrompt, setServerPrompt] = useState("");
@@ -165,6 +174,40 @@ function ModuleIA() {
       alert("Erreur de connexion à l'API.");
     }
     setIsGeneratingServer(false);
+  };
+
+  const handleCopilotChat = async () => {
+    if (!chatInput.trim()) return;
+    const newMessages = [...chatMessages, { role: 'user' as const, content: chatInput }];
+    setChatMessages(newMessages);
+    setChatInput("");
+    setIsTyping(true);
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/bots/copilot`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          botId,
+          userMessage: chatInput,
+        }),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setChatMessages([...newMessages, { role: 'ai', content: data.reply }]);
+        // Mettre à jour l'état visuel en fonction du retour de l'IA
+        if (data.botState) {
+          if (data.botState.systemPrompt) setBotPrompt(data.botState.systemPrompt);
+          if (data.botState.features) setSelectedFeatures(data.botState.features);
+        }
+      } else {
+        setChatMessages([...newMessages, { role: 'ai', content: "Désolé, j'ai rencontré une erreur de communication avec le serveur." }]);
+      }
+    } catch (e) {
+      setChatMessages([...newMessages, { role: 'ai', content: "Impossible de joindre l'API Arcant." }]);
+    }
+    setIsTyping(false);
   };
 
   return (
@@ -370,90 +413,123 @@ function ModuleIA() {
                 </div>
               </div>
             ) : (
-              <div className="bg-zinc-900/30 border border-white/5 rounded-2xl p-6 space-y-6">
-                <div className="space-y-4">
-                  <h4 className="font-bold text-white mb-2">Configurer votre Bot Personnalisé</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-300">Nom du Bot</label>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-zinc-900/30 border border-white/5 rounded-2xl p-6">
+                {/* PARTIE GAUCHE : CHAT COPILOT */}
+                <div className="flex flex-col h-[500px] border border-white/10 rounded-2xl bg-zinc-950 overflow-hidden relative">
+                  <div className="bg-teal-500/10 border-b border-teal-500/20 p-4 flex items-center gap-3">
+                    <Bot size={20} className="text-teal-400" />
+                    <span className="font-bold text-white text-sm">Copilot IA</span>
+                  </div>
+                  
+                  <div className="flex-1 p-4 overflow-y-auto space-y-4">
+                    {chatMessages.map((msg, idx) => (
+                      <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
+                          msg.role === 'user' 
+                            ? 'bg-teal-500 text-black font-medium rounded-tr-none shadow-[0_0_15px_rgba(20,184,166,0.2)]' 
+                            : 'bg-zinc-800 text-white rounded-tl-none border border-white/5'
+                        }`}>
+                          {msg.content}
+                        </div>
+                      </div>
+                    ))}
+                    {isTyping && (
+                      <div className="flex justify-start">
+                        <div className="bg-zinc-800 text-white rounded-2xl rounded-tl-none border border-white/5 px-4 py-3 text-sm">
+                          <span className="animate-pulse">Je réfléchis et configure le bot...</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-4 border-t border-white/10 bg-zinc-900">
+                    <div className="flex gap-2">
                       <input 
                         type="text"
-                        value={botName}
-                        onChange={(e) => setBotName(e.target.value)}
-                        className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors"
-                        placeholder="Ex: MonSuperBot"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleCopilotChat()}
+                        placeholder="Ex: Ajoute un système d'économie et sois drôle..."
+                        className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:border-teal-500 focus:outline-none"
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-300">Avatar du Bot</label>
-                      <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-all text-sm font-bold text-gray-300">
-                        <ImageIcon size={18} /> Choisir une image
+                      <button 
+                        onClick={handleCopilotChat}
+                        disabled={isTyping || !chatInput.trim()}
+                        className="bg-teal-500 hover:bg-teal-400 text-black rounded-xl px-4 flex items-center justify-center transition-colors disabled:opacity-50"
+                      >
+                        <MessageSquare size={16} />
                       </button>
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-300">Modules Rapides (Fonctionnalités natives)</label>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        { id: 'help', label: 'Menu Help' },
-                        { id: 'mod', label: 'Modération' },
-                        { id: 'tickets', label: 'Tickets' },
-                        { id: 'economy', label: 'Économie' },
-                        { id: 'logs', label: 'Logs' }
-                      ].map(feat => (
-                        <button
-                          key={feat.id}
-                          onClick={() => {
-                            if (selectedFeatures.includes(feat.id)) {
-                              setSelectedFeatures(selectedFeatures.filter(f => f !== feat.id));
-                            } else {
-                              setSelectedFeatures([...selectedFeatures, feat.id]);
-                            }
-                          }}
-                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                            selectedFeatures.includes(feat.id)
-                              ? 'bg-teal-500 text-black shadow-[0_0_10px_rgba(20,184,166,0.3)] border border-teal-400'
-                              : 'bg-zinc-900 border border-white/10 text-gray-400 hover:bg-white/5'
-                          }`}
-                        >
-                          + {feat.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-300">Personnalité / Prompt Système</label>
-                    <textarea 
-                      value={botPrompt}
-                      onChange={(e) => setBotPrompt(e.target.value)}
-                      className="w-full h-24 bg-zinc-950 border border-white/10 rounded-xl p-4 text-white focus:border-teal-500 focus:outline-none transition-colors resize-none"
-                      placeholder="Décrivez comment le bot doit se comporter (ex: 'Tu es un sorcier sarcastique qui répond toujours avec humour...')"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-300">Token Discord (Requis pour l'instant)</label>
-                    <input 
-                      type="password"
-                      value={botToken}
-                      onChange={(e) => setBotToken(e.target.value)}
-                      className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors"
-                      placeholder="Collez le token Discord pour déployer le bot sur votre serveur"
-                    />
-                    <p className="text-[11px] text-gray-500">Le bot sera hébergé sur notre architecture avec votre propre Token.</p>
-                  </div>
                 </div>
 
-                <div className="flex justify-end pt-4 border-t border-white/10">
-                  <button 
-                    onClick={handleDeployBot}
-                    disabled={isDeployingBot}
-                    className="flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)] disabled:opacity-50"
-                  >
-                    <Sparkles size={18} /> {isDeployingBot ? "Déploiement en cours..." : "Créer & Déployer le Bot"}
-                  </button>
+                {/* PARTIE DROITE : ETAT EN DIRECT DU BOT */}
+                <div className="flex flex-col space-y-6">
+                  <div className="bg-zinc-950 border border-white/10 rounded-2xl p-6">
+                    <div className="flex items-center gap-2 mb-4 text-teal-400 border-b border-white/10 pb-2">
+                      <Zap size={18} />
+                      <h4 className="font-bold text-sm">État en Direct du Bot</h4>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Nom du Bot</label>
+                        <input 
+                          type="text"
+                          value={botName}
+                          onChange={(e) => setBotName(e.target.value)}
+                          className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:border-teal-500 focus:outline-none transition-colors"
+                          placeholder="Ex: MonSuperBot"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Token Discord</label>
+                        <input 
+                          type="password"
+                          value={botToken}
+                          onChange={(e) => setBotToken(e.target.value)}
+                          className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:border-teal-500 focus:outline-none transition-colors"
+                          placeholder="Obligatoire pour l'activation"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Personnalité Actuelle</label>
+                        <textarea 
+                          value={botPrompt}
+                          readOnly
+                          className="w-full h-20 bg-zinc-900 border border-white/5 rounded-xl p-3 text-sm text-teal-100 opacity-80 resize-none cursor-default"
+                          placeholder="Aucune personnalité définie..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Modules Installés</label>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedFeatures.length === 0 ? (
+                            <span className="text-sm text-gray-600">Aucun module</span>
+                          ) : (
+                            selectedFeatures.map(feat => (
+                              <span key={feat} className="px-3 py-1 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                                {feat.toUpperCase()}
+                              </span>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end mt-auto">
+                    <button 
+                      onClick={handleDeployBot}
+                      disabled={isDeployingBot}
+                      className="flex items-center gap-2 w-full justify-center py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)] disabled:opacity-50"
+                    >
+                      <Sparkles size={18} /> {isDeployingBot ? "Déploiement en cours..." : "Sauvegarder & Déployer"}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

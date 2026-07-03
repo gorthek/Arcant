@@ -46,4 +46,25 @@ router.post('/deploy', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+router.post('/copilot', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { botId, userMessage } = req.body;
+    if (!botId || !userMessage) {
+      res.status(400).json({ error: 'Missing botId or userMessage' });
+      return;
+    }
+
+    // Proxy the request to the Bot service which has the LocalAI client
+    const response = await axios.post(`${BOT_SERVICE_URL}/copilot`, {
+      botId,
+      userMessage
+    });
+    
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error('[API] Copilot error:', error);
+    res.status(500).json({ error: 'Failed to communicate with AI Copilot' });
+  }
+});
+
 export default router;

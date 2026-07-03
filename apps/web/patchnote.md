@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 1.2.3
+*Dernière modification : 03 Juillet 2026*
+
+### 🌐 Dashboard (Constructeur Copilot IA)
+- **[Copilot Builder]** Remplacement du formulaire statique de création de bot par une véritable interface "Copilot". L'utilisateur discute directement avec l'IA dans un chat interactif pour dicter les modules (économie, tickets, modération) et la personnalité qu'il souhaite.
+- **[Live State Viewer]** Ajout d'un panneau "État en direct" sur la droite du Copilot. Ce panneau écoute l'API et se met à jour en temps réel (sous les yeux de l'utilisateur) chaque fois que le Copilot décide d'installer un module ou de changer le prompt du bot, prouvant que l'action a bien eu lieu.
+- **[Interface Scindée]** Le design a été scindé en deux colonnes (Dashboard IA type IDE) pour offrir une expérience professionnelle "Agentic".
+
+---
+
 ## 🟢 Version 1.2.2
 *Dernière modification : 03 Juillet 2026*
 
