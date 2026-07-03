@@ -12,13 +12,16 @@ export default function PatchnotesPage() {
       version: "v1.5.0",
       date: "03 Juillet 2026",
       title: "Refonte Visuelle 3D & Thèmes de Rôles",
-      type: "feature",
-      changes: [
-        "Nouvel onglet 'Vue d'ensemble' avec carte serveur holographique.",
-        "Le thème global du site (couleurs, lumières) s'adapte automatiquement à votre grade (Owner, Admin, Membre).",
-        "La barre latérale affiche désormais fièrement la vraie icône et le vrai nom du serveur via l'API.",
-      ],
+      type: "Mise à jour Majeure",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
       icon: <Sparkles className="text-teal-400" size={24} />,
+      changes: [
+        { type: "feature", text: "Nouvel onglet 'Vue d'ensemble' avec carte serveur holographique." },
+        { type: "feature", text: "Le thème global du site (couleurs, lumières) s'adapte automatiquement à votre grade (Owner, Admin, Membre)." },
+        { type: "feature", text: "La barre latérale affiche désormais fièrement la vraie icône et le vrai nom du serveur via l'API." }
+      ]
     },
     {
       version: "v1.4.0",
