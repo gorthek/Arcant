@@ -11,6 +11,7 @@ exports.default = {
             await database_1.Server.findOneAndUpdate({ serverId: guild.id }, {
                 serverId: guild.id,
                 name: guild.name,
+                icon: guild.iconURL() || '',
                 ownerId: guild.ownerId,
             }, { upsert: true, new: true });
             console.log(`[DB] Serveur ${guild.name} enregistré/mis à jour.`);

@@ -54,7 +54,9 @@ class BotManager {
         if (message.mentions.has(client.user!.id)) {
           const prompt = message.content.replace(`<@${client.user!.id}>`, '').trim();
           
-          await message.channel.sendTyping();
+          if ('sendTyping' in message.channel) {
+            await message.channel.sendTyping();
+          }
           const response = await localAI.generateResponse(prompt, systemPrompt);
           await message.reply(response);
         }

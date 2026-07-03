@@ -8,8 +8,23 @@ exports.default = {
     name: discord_js_1.Events.MessageCreate,
     once: false,
     async execute(message) {
-        // Ignore les messages de bots ou ceux qui ne commencent pas par le préfixe
-        if (message.author.bot || !message.content.startsWith(PREFIX))
+        if (message.author.bot)
+            return;
+        // Si on mentionne le bot principal, il répond avec l'IA
+        if (message.client.user && message.mentions.has(message.client.user.id)) {
+            const prompt = message.content.replace(`<@${message.client.user.id}>`, '').trim();
+            if (prompt.length > 0) {
+                if ('sendTyping' in message.channel) {
+                    await message.channel.sendTyping();
+                }
+                const { localAI } = require('../utils/LocalAIClient');
+                const response = await localAI.generateResponse(prompt, "Tu es Arcant, l'assistant principal.");
+                await message.reply(response);
+            }
+            return;
+        }
+        // Ignore les messages qui ne commencent pas par le préfixe
+        if (!message.content.startsWith(PREFIX))
             return;
         // Découper la commande et les arguments
         const args = message.content.slice(PREFIX.length).trim().split(/ +/);

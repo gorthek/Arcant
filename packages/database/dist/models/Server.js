@@ -38,6 +38,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const ServerSchema = new mongoose_1.Schema({
     serverId: { type: String, required: true, unique: true },
     name: { type: String, required: true },
+    icon: { type: String },
     ownerId: { type: String, required: true },
     isPremium: { type: Boolean, default: false },
     premiumUntil: { type: Date },

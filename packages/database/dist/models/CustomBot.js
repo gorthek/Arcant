@@ -33,16 +33,18 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
+exports.CustomBot = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const UserSchema = new mongoose_1.Schema({
-    discordId: { type: String, required: true, unique: true },
-    discordName: { type: String },
-    email: { type: String },
-    isPremium: { type: Boolean, default: false },
-    premiumUntil: { type: Date },
-    stripeCustomerId: { type: String },
-    createdAt: { type: Date, default: Date.now }
+const customBotSchema = new mongoose_1.Schema({
+    ownerId: { type: String, required: true },
+    serverId: { type: String, required: false },
+    botName: { type: String, required: true },
+    botToken: { type: String, required: true },
+    systemPrompt: { type: String, default: '' },
+    isActive: { type: Boolean, default: true },
+    features: { type: [String], default: [] },
+}, {
+    timestamps: true,
 });
-// Use existing model if already compiled (Next.js hot reload fix)
-exports.User = mongoose_1.default.models.User || mongoose_1.default.model('User', UserSchema);
+// Pour éviter les soucis de re-compilation de modèle sous Next.js
+exports.CustomBot = mongoose_1.default.models.CustomBot || mongoose_1.default.model('CustomBot', customBotSchema);

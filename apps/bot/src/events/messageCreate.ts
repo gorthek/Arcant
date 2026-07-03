@@ -14,7 +14,9 @@ export default {
     if (message.client.user && message.mentions.has(message.client.user.id)) {
       const prompt = message.content.replace(`<@${message.client.user.id}>`, '').trim();
       if (prompt.length > 0) {
-        await message.channel.sendTyping();
+        if ('sendTyping' in message.channel) {
+          await message.channel.sendTyping();
+        }
         const { localAI } = require('../utils/LocalAIClient');
         const response = await localAI.generateResponse(prompt, "Tu es Arcant, l'assistant principal.");
         await message.reply(response);
