@@ -4,10 +4,26 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { StardustBackground } from "@/components/landing/StardustBackground";
-import { CheckCircle2, Rocket, Wrench, Sparkles, AlertCircle, Settings2, Info, ChevronRight } from "lucide-react";
+import { CheckCircle2, Rocket, Wrench, Sparkles, AlertCircle, Settings2, Info, ChevronRight, Bot } from "lucide-react";
 
 export default function PatchnotesPage() {
   const patches = [
+    {
+      version: "v1.4.0",
+      date: "03 Juillet 2026",
+      title: "IA Copilot & Création de Bots",
+      type: "Mise à jour Majeure",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Bot className="text-teal-400" size={24} />,
+      changes: [
+        { type: "feature", text: "Refonte du générateur de bots en un véritable Agent Copilot IA (Dashboard Scindé en IDE)." },
+        { type: "feature", text: "Ajout du Live State Viewer pour voir le bot se configurer en temps réel." },
+        { type: "improvement", text: "Hot Reload : Le BotManager recharge les bots personnalisés sans aucune coupure serveur." },
+        { type: "fix", text: "Anti-Crash global : les commandes IA ignorées en cas d'erreur pour éviter le plantage des instances." }
+      ]
+    },
     {
       version: "v1.3.0",
       date: "01 Juillet 2026",
