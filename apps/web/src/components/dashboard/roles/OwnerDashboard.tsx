@@ -97,7 +97,7 @@ function ToggleSwitch({ enabled, setEnabled }: { enabled: boolean; setEnabled: (
 
 function ModuleIA() {
   const [enabled, setEnabled] = useState(true);
-  const [iaMode, setIaMode] = useState<"server_creation" | "channel_assistant">("server_creation");
+  const [iaMode, setIaMode] = useState<"server_creation" | "custom_bot">("server_creation");
   
   // Toggles pour la création de serveur
   const [createRoles, setCreateRoles] = useState(true);
@@ -166,18 +166,18 @@ function ModuleIA() {
             </button>
 
             <button 
-              onClick={() => setIaMode("channel_assistant")}
+              onClick={() => setIaMode("custom_bot")}
               className={`p-6 rounded-2xl border text-left transition-all ${
-                iaMode === "channel_assistant" 
+                iaMode === "custom_bot" 
                   ? "bg-teal-500/10 border-teal-500/50 shadow-[0_0_20px_rgba(20,184,166,0.1)]" 
                   : "bg-zinc-900/50 border-white/5 hover:bg-white/5"
               }`}
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${iaMode === "channel_assistant" ? "bg-teal-500 text-black" : "bg-zinc-800 text-gray-400"}`}>
-                <MessageSquare size={20} />
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${iaMode === "custom_bot" ? "bg-teal-500 text-black" : "bg-zinc-800 text-gray-400"}`}>
+                <Bot size={20} />
               </div>
-              <h5 className={`font-bold mb-2 ${iaMode === "channel_assistant" ? "text-teal-400" : "text-gray-300"}`}>Assistant de Salon (ChatBot)</h5>
-              <p className="text-xs text-gray-400 leading-relaxed">S'intègre dans un salon pour répondre aux membres selon le contexte du serveur.</p>
+              <h5 className={`font-bold mb-2 ${iaMode === "custom_bot" ? "text-teal-400" : "text-gray-300"}`}>Création de Bot Perso</h5>
+              <p className="text-xs text-gray-400 leading-relaxed">Déployez votre propre bot Discord propulsé par l'IA.</p>
             </button>
           </div>
         </div>
@@ -303,52 +303,49 @@ function ModuleIA() {
               </div>
             ) : (
               <div className="bg-zinc-900/30 border border-white/5 rounded-2xl p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-bold text-white mb-2">Configurer votre Bot Personnalisé</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-300">Nom du Bot</label>
+                      <input 
+                        type="text"
+                        className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors"
+                        placeholder="Ex: MonSuperBot"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-300">Avatar du Bot</label>
+                      <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-all text-sm font-bold text-gray-300">
+                        <ImageIcon size={18} /> Choisir une image
+                      </button>
+                    </div>
+                  </div>
+                  
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-300">Salon attitré (IA Channel)</label>
-                    <select className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors">
-                      <option value="">Sélectionnez un salon...</option>
-                      <option value="123">#discussion-ia</option>
-                      <option value="456">#général</option>
-                    </select>
-                    <p className="text-xs text-gray-500">Le salon où le bot lira et répondra aux questions.</p>
+                    <label className="text-sm font-bold text-gray-300">Personnalité / Prompt Système</label>
+                    <textarea 
+                      className="w-full h-24 bg-zinc-950 border border-white/10 rounded-xl p-4 text-white focus:border-teal-500 focus:outline-none transition-colors resize-none"
+                      placeholder="Décrivez comment le bot doit se comporter (ex: 'Tu es un sorcier sarcastique qui répond toujours avec humour...')"
+                    />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-300">Contexte du Serveur</label>
-                    <select className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors">
-                      <option value="general">Général / Communautaire</option>
-                      <option value="fivem">RolePlay FiveM (GTA V)</option>
-                      <option value="dev">Développement & Tech</option>
-                    </select>
-                    <p className="text-xs text-gray-500">Aide l'IA à adapter ses réponses au sujet principal de votre serveur.</p>
+                    <label className="text-sm font-bold text-gray-300">Token Discord (Optionnel)</label>
+                    <input 
+                      type="password"
+                      className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors"
+                      placeholder="Collez le token Discord si vous hébergez vous-même l'application"
+                    />
+                    <p className="text-[11px] text-gray-500">Laissez vide si vous voulez qu'Arcant héberge le bot pour vous (Premium Requis).</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
-                    <div className="flex items-center gap-3">
-                      <FileText size={18} className="text-gray-400" />
-                      <div>
-                        <div className="font-bold text-sm text-white mb-1">Création de Threads automatiques</div>
-                        <div className="text-[10px] text-gray-400">Évite le spam dans le salon principal.</div>
-                      </div>
-                    </div>
-                    <ToggleSwitch enabled={false} setEnabled={() => {}} />
-                  </div>
-
-                  <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
-                    <div className="flex items-center gap-3">
-                      <History size={18} className="text-gray-400" />
-                      <div>
-                        <div className="font-bold text-sm text-white mb-1">Historique des requêtes (DB)</div>
-                        <div className="text-[10px] text-gray-400">Enregistre les questions pour analyse et audit.</div>
-                      </div>
-                    </div>
-                    <ToggleSwitch enabled={saveHistory} setEnabled={setSaveHistory} />
-                  </div>
+                <div className="flex justify-end pt-4 border-t border-white/10">
+                  <button className="flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)]">
+                    <Sparkles size={18} /> Créer & Déployer le Bot
+                  </button>
                 </div>
-                
               </div>
             )}
           </motion.div>

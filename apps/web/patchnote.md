@@ -5,6 +5,15 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 1.2.2
+*Dernière modification : 03 Juillet 2026*
+
+### 🌐 Dashboard (Refonte IA V4)
+- **[Commandes Directes IA]** L'IA ne nécessite plus d'être assignée à un salon spécifique (`#discussion-ia`). L'interface a été mise à jour pour indiquer que l'assistant fonctionne désormais de manière globale sur le serveur via des commandes directes (`/ask` ou mention du bot).
+- **[Bots Personnalisés]** Ajout d'une nouvelle interface de configuration pour permettre aux utilisateurs de créer, personnaliser (nom, avatar, personnalité) et déployer leurs propres bots propulsés par Arcant. 
+
+---
+
 ## 🟢 Version 1.2.1
 *Dernière modification : 03 Juillet 2026*
 

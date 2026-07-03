@@ -71,6 +71,8 @@ Le projet est structuré sous forme de monorepo npm :
 1. **Développer l'API** : L'API (`apps/api`) est actuellement une coquille vide. Il faut créer les routes et la logique nécessaires pour faire la passerelle Dashboard ↔ Bot.
 2. **Liaison Web ↔ API ↔ Bot** : Mettre en place les appels de l'API depuis le Dashboard, et la transmission des ordres au Bot.
 3. **Commande `.patchnote`** : Implémenter la commande bot `.patchnote` qui lit et affiche le fichier `patchnote.md` du bot sur Discord.
+4. **Intégration IA (Commandes directes)** : L'IA ne doit pas créer de channel spécifique pour interagir avec elle, l'utilisation de l'IA se fera via une commande directe sur le bot.
+5. **Création de bots personnalisés** : Le système doit permettre à l'IA de créer des bots personnalisés.
 
 ### 🟡 Moins Important (Priorité Moyenne/Basse)
 1. **Nouvelles Commandes Bot** : Ajouter d'autres commandes utiles (modération, utilitaires, économie) une fois la structure de base solide.
