@@ -9,6 +9,18 @@ import { CheckCircle2, Rocket, Wrench, Sparkles, AlertCircle, Settings2, Info, C
 export default function PatchnotesPage() {
   const patches = [
     {
+      version: "v1.5.0",
+      date: "03 Juillet 2026",
+      title: "Refonte Visuelle 3D & Thèmes de Rôles",
+      type: "feature",
+      changes: [
+        "Nouvel onglet 'Vue d'ensemble' avec carte serveur holographique.",
+        "Le thème global du site (couleurs, lumières) s'adapte automatiquement à votre grade (Owner, Admin, Membre).",
+        "La barre latérale affiche désormais fièrement la vraie icône et le vrai nom du serveur via l'API.",
+      ],
+      icon: <Sparkles className="text-teal-400" size={24} />,
+    },
+    {
       version: "v1.4.0",
       date: "03 Juillet 2026",
       title: "IA Copilot & Création de Bots",

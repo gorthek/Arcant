@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, History, FileText } from "lucide-react";
+import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, History, FileText, User } from "lucide-react";
 import Link from "next/link";
 
 export function OwnerDashboard({ serverId }: { serverId: string }) {
-  const [activeTab, setActiveTab] = useState("ia");
+  const [activeTab, setActiveTab] = useState("overview");
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = () => {
@@ -15,6 +15,7 @@ export function OwnerDashboard({ serverId }: { serverId: string }) {
   };
 
   const tabs = [
+    { id: "overview", name: "Vue d'ensemble", icon: <Layout size={18} /> },
     { id: "ia", name: "Configuration IA", icon: <Bot size={18} /> },
     { id: "security", name: "Sécurité & Raid", icon: <ShieldAlert size={18} /> },
     { id: "moderation", name: "Modération", icon: <Settings2 size={18} /> },
@@ -68,6 +69,7 @@ export function OwnerDashboard({ serverId }: { serverId: string }) {
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="relative z-10"
           >
+            {activeTab === "overview" && <ModuleOverview serverId={serverId} />}
             {activeTab === "ia" && <ModuleIA />}
             {activeTab === "security" && <ModuleSecurity />}
             {activeTab === "moderation" && <ModuleModeration />}
@@ -79,6 +81,103 @@ export function OwnerDashboard({ serverId }: { serverId: string }) {
 }
 
 // --- COMPONENTS ---
+
+import { useServerContext } from "@/contexts/ServerContext";
+
+function ModuleOverview({ serverId }: { serverId: string }) {
+  const { guild, role } = useServerContext();
+
+  return (
+    <div className="space-y-8 relative">
+      <div className="flex flex-col md:flex-row items-center gap-8">
+        
+        {/* Holographic Server Card */}
+        <motion.div 
+          initial={{ rotateY: -10, rotateX: 10 }}
+          animate={{ rotateY: [0, -5, 5, 0], rotateX: [0, 5, -5, 0] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          className="relative w-48 h-48 rounded-3xl bg-zinc-900 border-2 border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center overflow-hidden shrink-0 perspective-1000"
+          style={{ transformStyle: 'preserve-3d' }}
+        >
+          {/* Internal Glow */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-teal-500/20 to-emerald-500/10 mix-blend-overlay" />
+          <div className="absolute -inset-4 bg-teal-500/10 blur-xl animate-pulse" />
+          
+          <div className="relative z-10 w-24 h-24 rounded-full border-4 border-zinc-800 shadow-2xl overflow-hidden mb-4">
+            {guild?.icon ? (
+              <img src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`} alt={guild.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-4xl font-black text-gray-500">
+                {guild?.name ? guild.name.substring(0, 2).toUpperCase() : "SR"}
+              </div>
+            )}
+          </div>
+          
+          <div className="relative z-10 bg-teal-500/20 text-teal-300 text-xs font-bold px-3 py-1 rounded-full border border-teal-500/30 shadow-[0_0_10px_rgba(20,184,166,0.3)]">
+            STATUT : EN LIGNE
+          </div>
+        </motion.div>
+
+        <div className="flex-1 space-y-4 text-center md:text-left">
+          <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+            {guild?.name || "Serveur Non Identifié"}
+          </h2>
+          <p className="text-gray-400 max-w-lg leading-relaxed">
+            Bienvenue sur le tableau de bord de votre serveur. Arcant surveille l'activité, gère la sécurité et maintient votre écosystème à jour en temps réel.
+          </p>
+          
+          <div className="flex flex-wrap gap-4 justify-center md:justify-start pt-2">
+            <div className="bg-zinc-900/50 border border-white/5 rounded-xl px-4 py-3 flex items-center gap-3 backdrop-blur-sm">
+              <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+                <Database size={16} />
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 font-bold uppercase">Latence API</div>
+                <div className="font-bold text-white text-sm">24 ms</div>
+              </div>
+            </div>
+            
+            <div className="bg-zinc-900/50 border border-white/5 rounded-xl px-4 py-3 flex items-center gap-3 backdrop-blur-sm">
+              <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <ShieldAlert size={16} />
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 font-bold uppercase">Bouclier Raid</div>
+                <div className="font-bold text-white text-sm">ACTIF</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* 3D Grid Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-white/10">
+        {[
+          { label: "Requêtes IA / Mois", value: "1,240", icon: <Bot className="text-teal-400" /> },
+          { label: "Membres protégés", value: "842", icon: <User className="text-emerald-400" /> },
+          { label: "Modules Actifs", value: "4 / 8", icon: <Settings2 className="text-purple-400" /> },
+        ].map((stat, i) => (
+          <motion.div 
+            key={i}
+            whileHover={{ scale: 1.05, y: -5 }}
+            className="bg-zinc-900/40 border border-white/5 p-6 rounded-2xl relative overflow-hidden group"
+          >
+            <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 group-hover:scale-150 transition-all duration-700">
+              {stat.icon}
+            </div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                {stat.icon}
+              </div>
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{stat.label}</span>
+            </div>
+            <div className="text-3xl font-black text-white">{stat.value}</div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function ToggleSwitch({ enabled, setEnabled }: { enabled: boolean; setEnabled: (val: boolean) => void }) {
   return (

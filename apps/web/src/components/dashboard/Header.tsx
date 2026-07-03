@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useServerRole } from "@/hooks/useServerRole";
+import { useServerContext } from "@/contexts/ServerContext";
 
 const GhostParticles = () => {
   return (
@@ -90,11 +90,9 @@ const SparklesHalo = () => {
 
 export function Header() {
   const { data: session } = useSession();
-  const params = useParams();
-  const serverId = params?.id as string | undefined;
-
-  // Utilisation du hook externe pour déterminer le vrai rôle
-  const { role, cycleRole } = useServerRole(serverId);
+  
+  // Utilisation du contexte global au lieu du hook isolé
+  const { role, cycleRole } = useServerContext();
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);

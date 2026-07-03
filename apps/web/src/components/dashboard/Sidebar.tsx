@@ -2,22 +2,31 @@
 
 import { usePathname, useParams } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Settings2, ShieldAlert, Bot, ArrowLeft, ExternalLink, Activity } from "lucide-react";
+import { LayoutDashboard, Settings2, ShieldAlert, Bot, ArrowLeft, ExternalLink, Activity, Image as ImageIcon } from "lucide-react";
 import { motion } from "framer-motion";
+import { useServerContext } from "@/contexts/ServerContext";
 
 export function Sidebar() {
   const pathname = usePathname();
   const params = useParams();
   const serverId = params?.id as string | undefined;
+  
+  // Utiliser le contexte pour récupérer le guild (s'il y en a un)
+  // Attention: si on est juste sur /dashboard, on n'a peut-être pas de ServerProvider au-dessus.
+  // Wait, DashboardLayoutClient is rendered at /dashboard too.
+  const context = useServerContext();
+  const guild = context?.guild;
 
   // Si on est juste sur /dashboard (sélection du serveur), on affiche un sidebar basique
   if (!serverId) {
     return (
-      <aside className="w-64 bg-zinc-950 border-r border-white/10 h-screen hidden md:flex flex-col">
-        <div className="h-16 flex items-center px-6 border-b border-white/10 shrink-0">
-          <Link href="/" className="flex items-center gap-2 group">
-            <ArrowLeft size={20} className="text-gray-400 group-hover:text-teal-400 transition-colors" />
-            <span className="font-bold text-gray-300 group-hover:text-white transition-colors">Retour à l'accueil</span>
+      <aside className="w-64 bg-zinc-950/80 backdrop-blur-md border-r border-white/5 h-screen hidden md:flex flex-col z-20">
+        <div className="h-20 flex items-center px-6 border-b border-white/5 shrink-0 bg-black/20">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-teal-500/20 group-hover:scale-110 transition-all duration-300 border border-white/10 group-hover:border-teal-500/50">
+              <ArrowLeft size={16} className="text-gray-400 group-hover:text-teal-400 transition-colors" />
+            </div>
+            <span className="font-bold text-gray-300 group-hover:text-white transition-colors text-sm uppercase tracking-wider">Accueil Site</span>
           </Link>
         </div>
         <div className="flex-1 p-6">
@@ -44,19 +53,30 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-zinc-950 border-r border-white/10 h-screen hidden md:flex flex-col sticky top-0">
-      <div className="h-16 flex items-center px-6 border-b border-white/10 shrink-0">
-        <Link href="/dashboard" className="flex items-center gap-2 group">
-          <ArrowLeft size={16} className="text-gray-400 group-hover:text-teal-400 transition-colors" />
-          <span className="font-bold text-gray-300 group-hover:text-white transition-colors text-sm">Changer de serveur</span>
+    <aside className="w-64 bg-zinc-950/80 backdrop-blur-md border-r border-white/5 h-screen hidden md:flex flex-col sticky top-0 z-20 shadow-2xl">
+      <div className="h-20 flex items-center px-6 border-b border-white/5 shrink-0 bg-black/20">
+        <Link href="/dashboard" className="flex items-center gap-3 group w-full">
+          <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-teal-500/20 group-hover:scale-110 transition-all duration-300 border border-white/10 group-hover:border-teal-500/50 shrink-0">
+            <ArrowLeft size={16} className="text-gray-400 group-hover:text-teal-400 transition-colors" />
+          </div>
+          <span className="font-bold text-gray-300 group-hover:text-white transition-colors text-xs uppercase tracking-wider truncate">Changer de serveur</span>
         </Link>
       </div>
       
-      <div className="p-6 shrink-0 border-b border-white/5">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500/20 to-emerald-500/20 border border-teal-500/30 flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(20,184,166,0.2)]">
-          <span className="text-teal-400 font-black text-xl">{serverId.substring(0, 2).toUpperCase()}</span>
+      <div className="p-6 shrink-0 border-b border-white/5 relative overflow-hidden">
+        {/* Glow behind server icon */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-teal-500/10 blur-2xl rounded-full pointer-events-none" />
+        
+        <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center mb-4 shadow-xl overflow-hidden relative z-10 group">
+          {guild?.icon ? (
+            <img src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`} alt={guild.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          ) : (
+            <span className="text-gray-500 font-black text-xl">{guild?.name ? guild.name.substring(0, 2).toUpperCase() : serverId.substring(0, 2).toUpperCase()}</span>
+          )}
         </div>
-        <h2 className="font-bold text-lg truncate text-white">Serveur {serverId}</h2>
+        <h2 className="font-bold text-lg text-white leading-tight break-words line-clamp-2 relative z-10">
+          {guild?.name || `Serveur ${serverId}`}
+        </h2>
         
         {/* Badge Premium Dynamique */}
         <div className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded-md bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
