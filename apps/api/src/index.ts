@@ -16,6 +16,10 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'API is running successfully on Render!' });
 });
 
+import botRoutes from './routes/bot.routes';
+app.use('/api/bots', botRoutes);
+
+
 app.listen(port, () => {
   console.log(`[API] Server is listening on port ${port}`);
 });

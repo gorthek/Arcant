@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.2.2
+*Dernière modification : 03 Juillet 2026*
+
+### 🤖 Cœur du Bot (Hébergeur)
+- **[Architecture Multi-Bots]** L'application a été restructurée avec un `BotManager`. Elle peut désormais héberger dynamiquement de multiples instances de bots Discord (`CustomBots`) simultanément en se basant sur une base de données MongoDB.
+- **[API Interne]** Le serveur HTTP du Bot agit désormais comme une API interne (`/spawn-bot`) pour écouter les ordres de déploiement venant du Dashboard Web, permettant le déploiement instantané d'un bot sans redémarrer le serveur.
+- **[IA Locale]** Intégration d'un module d'Intelligence Artificielle "Maison" (`LocalAIClient`). Fin de la dépendance au cloud : le bot gère l'IA en local et y répond de manière autonome, que ce soit via la commande globale `/ask` ou en le mentionnant directement (`@Arcant`).
+
+---
+
 ## 🟢 Version 1.2.1
 *Dernière modification : 03 Juillet 2026*
 
