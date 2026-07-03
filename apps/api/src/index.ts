@@ -17,7 +17,10 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 import botRoutes from './routes/bot.routes';
+import serverRoutes from './routes/server.routes';
+
 app.use('/api/bots', botRoutes);
+app.use('/api/server', serverRoutes);
 
 
 app.listen(port, () => {

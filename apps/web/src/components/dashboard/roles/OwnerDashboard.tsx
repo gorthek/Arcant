@@ -109,6 +109,63 @@ function ModuleIA() {
   // Toggles pour l'assistant
   const [saveHistory, setSaveHistory] = useState(true);
 
+  // Etats pour la création de bot
+  const [botName, setBotName] = useState("");
+  const [botPrompt, setBotPrompt] = useState("");
+  const [botToken, setBotToken] = useState("");
+  const [isDeployingBot, setIsDeployingBot] = useState(false);
+
+  // Etats pour la génération de serveur
+  const [serverPrompt, setServerPrompt] = useState("");
+  const [serverTemplate, setServerTemplate] = useState("");
+  const [isGeneratingServer, setIsGeneratingServer] = useState(false);
+
+  const handleDeployBot = async () => {
+    if (!botName || !botToken) return alert("Le nom et le token sont obligatoires pour l'instant !");
+    setIsDeployingBot(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/bots/deploy`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ownerId: "mock_user_id", // À remplacer par le vrai ID via session
+          serverId: "mock_server_id",
+          botName,
+          botToken,
+          systemPrompt: botPrompt,
+          features: ["help"], // Option de test
+        }),
+      });
+      if (res.ok) alert("Bot déployé avec succès !");
+      else alert("Erreur lors du déploiement.");
+    } catch (e) {
+      alert("Erreur de connexion à l'API.");
+    }
+    setIsDeployingBot(false);
+  };
+
+  const handleGenerateServer = async () => {
+    if (!serverPrompt) return alert("Veuillez entrer un prompt.");
+    setIsGeneratingServer(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/server/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serverId: "mock_server_id",
+          prompt: serverPrompt,
+          template: serverTemplate,
+          options: { createRoles, managePerms, customFonts, customShapes, useDatabase }
+        }),
+      });
+      if (res.ok) alert("Génération du serveur lancée ! Patientez.");
+      else alert("Erreur lors de la génération.");
+    } catch (e) {
+      alert("Erreur de connexion à l'API.");
+    }
+    setIsGeneratingServer(false);
+  };
+
   return (
     <div className="space-y-10">
       
@@ -208,6 +265,8 @@ function ModuleIA() {
                 <div className="space-y-4">
                   <label className="text-sm font-bold text-gray-300">Prompt / Consigne détaillée</label>
                   <textarea 
+                    value={serverPrompt}
+                    onChange={(e) => setServerPrompt(e.target.value)}
                     className="w-full h-32 bg-zinc-950 border border-white/10 rounded-xl p-4 text-white focus:border-teal-500 focus:outline-none transition-colors resize-none placeholder:text-gray-600 shadow-inner"
                     placeholder="Ex: Crée un serveur Roleplay FiveM de style LSPD. Il me faut des grades Hiérarchiques pour la police, des salons vocaux avec formes stylisées (ex: 🚔・Patrouille), et des permissions bloquées pour les civils."
                   />
@@ -224,7 +283,11 @@ function ModuleIA() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-gray-300">Template de base (Optionnel)</label>
-                  <select className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors">
+                  <select 
+                    value={serverTemplate}
+                    onChange={(e) => setServerTemplate(e.target.value)}
+                    className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors"
+                  >
                     <option value="">Aucun (Création vierge basée sur le prompt)</option>
                     <option value="gaming">Serveur Gaming Classique / Esport</option>
                     <option value="rp">Serveur RolePlay (FiveM / Garry's Mod)</option>
@@ -296,8 +359,12 @@ function ModuleIA() {
                 </div>
 
                 <div className="flex justify-end pt-4">
-                  <button className="flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)]">
-                    <Sparkles size={18} /> Générer le serveur (Premium Requis)
+                  <button 
+                    onClick={handleGenerateServer}
+                    disabled={isGeneratingServer}
+                    className="flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)] disabled:opacity-50"
+                  >
+                    <Sparkles size={18} /> {isGeneratingServer ? "Génération en cours..." : "Générer le serveur (Premium Requis)"}
                   </button>
                 </div>
               </div>
@@ -310,6 +377,8 @@ function ModuleIA() {
                       <label className="text-sm font-bold text-gray-300">Nom du Bot</label>
                       <input 
                         type="text"
+                        value={botName}
+                        onChange={(e) => setBotName(e.target.value)}
                         className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors"
                         placeholder="Ex: MonSuperBot"
                       />
@@ -325,25 +394,33 @@ function ModuleIA() {
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-300">Personnalité / Prompt Système</label>
                     <textarea 
+                      value={botPrompt}
+                      onChange={(e) => setBotPrompt(e.target.value)}
                       className="w-full h-24 bg-zinc-950 border border-white/10 rounded-xl p-4 text-white focus:border-teal-500 focus:outline-none transition-colors resize-none"
                       placeholder="Décrivez comment le bot doit se comporter (ex: 'Tu es un sorcier sarcastique qui répond toujours avec humour...')"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-300">Token Discord (Optionnel)</label>
+                    <label className="text-sm font-bold text-gray-300">Token Discord (Requis pour l'instant)</label>
                     <input 
                       type="password"
+                      value={botToken}
+                      onChange={(e) => setBotToken(e.target.value)}
                       className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-teal-500 focus:outline-none transition-colors"
-                      placeholder="Collez le token Discord si vous hébergez vous-même l'application"
+                      placeholder="Collez le token Discord pour déployer le bot sur votre serveur"
                     />
-                    <p className="text-[11px] text-gray-500">Laissez vide si vous voulez qu'Arcant héberge le bot pour vous (Premium Requis).</p>
+                    <p className="text-[11px] text-gray-500">Le bot sera hébergé sur notre architecture avec votre propre Token.</p>
                   </div>
                 </div>
 
                 <div className="flex justify-end pt-4 border-t border-white/10">
-                  <button className="flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)]">
-                    <Sparkles size={18} /> Créer & Déployer le Bot
+                  <button 
+                    onClick={handleDeployBot}
+                    disabled={isDeployingBot}
+                    className="flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)] disabled:opacity-50"
+                  >
+                    <Sparkles size={18} /> {isDeployingBot ? "Déploiement en cours..." : "Créer & Déployer le Bot"}
                   </button>
                 </div>
               </div>

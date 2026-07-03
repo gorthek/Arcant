@@ -83,6 +83,36 @@ http.createServer(async (req, res) => {
         res.end(JSON.stringify({ error: 'Internal server error' }));
       }
     });
+  } else if (req.method === 'POST' && req.url === '/build-server') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', async () => {
+      try {
+        const payload = JSON.parse(body);
+        const { serverId, prompt, template, options } = payload;
+        
+        if (!serverId || !prompt) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Missing serverId or prompt' }));
+          return;
+        }
+
+        const { ServerGenerator } = require('./utils/ServerGenerator');
+        // On lance la génération de manière asynchrone pour ne pas bloquer la requête
+        ServerGenerator.generate(client, serverId, prompt, template, options)
+          .then(() => console.log(`[ServerGenerator] Generation finished for ${serverId}`))
+          .catch(err => console.error(`[ServerGenerator] Error generating server ${serverId}:`, err));
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Generation started' }));
+      } catch (e) {
+        console.error('[API] /build-server error:', e);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Internal server error' }));
+      }
+    });
   } else {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Arcant Bot Service is alive!\n');
