@@ -71,11 +71,14 @@ Génère une architecture riche et logique.`;
       if (options.createRoles && structure.roles && Array.isArray(structure.roles)) {
         for (const roleDef of structure.roles) {
           try {
-            await guild.roles.create({
+            const roleOptions: any = {
               name: roleDef.name,
-              color: roleDef.color?.startsWith('#') ? (roleDef.color as ColorResolvable) : undefined,
               reason: 'Création via Arcant IA',
-            });
+            };
+            if (roleDef.color?.startsWith('#')) {
+              roleOptions.color = roleDef.color as ColorResolvable;
+            }
+            await guild.roles.create(roleOptions);
             await this.sleep(500); // Eviter le rate-limit
           } catch (e) {
             console.warn(`[ServerGenerator] Impossible de créer le rôle ${roleDef.name}:`, e);

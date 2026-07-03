@@ -103,7 +103,7 @@ http.createServer(async (req, res) => {
         // On lance la génération de manière asynchrone pour ne pas bloquer la requête
         ServerGenerator.generate(client, serverId, prompt, template, options)
           .then(() => console.log(`[ServerGenerator] Generation finished for ${serverId}`))
-          .catch(err => console.error(`[ServerGenerator] Error generating server ${serverId}:`, err));
+          .catch((err: any) => console.error(`[ServerGenerator] Error generating server ${serverId}:`, err));
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'Generation started' }));
