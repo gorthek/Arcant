@@ -6,6 +6,7 @@ export declare class ServerGenerator {
         customFonts?: boolean;
         customShapes?: boolean;
     }): Promise<void>;
+    private static parsePermissions;
     private static sleep;
 }
 //# sourceMappingURL=ServerGenerator.d.ts.map
