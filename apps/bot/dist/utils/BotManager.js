@@ -41,19 +41,24 @@ class BotManager {
             client.on('messageCreate', async (message) => {
                 if (message.author.bot)
                     return;
-                // Fonctionnalité "help" si activée
-                if (features.includes('help') && message.content === '!help') {
-                    await message.reply('Bonjour ! Je suis un bot personnalisé hébergé par Arcant.\\n- `!help`: Affiche ce menu\\n- Tu peux me mentionner pour discuter !');
-                    return;
-                }
-                // Si le bot est mentionné, répondre avec l'IA Locale
-                if (message.mentions.has(client.user.id)) {
-                    const prompt = message.content.replace(`<@${client.user.id}>`, '').trim();
-                    if ('sendTyping' in message.channel) {
-                        await message.channel.sendTyping();
+                try {
+                    // Fonctionnalité "help" si activée
+                    if (features.includes('help') && message.content === '!help') {
+                        await message.reply('Bonjour ! Je suis un bot personnalisé hébergé par Arcant.\\n- `!help`: Affiche ce menu\\n- Tu peux me mentionner pour discuter !');
+                        return;
                     }
-                    const response = await LocalAIClient_1.localAI.generateResponse(prompt, systemPrompt);
-                    await message.reply(response);
+                    // Si le bot est mentionné, répondre avec l'IA Locale
+                    if (message.mentions.has(client.user.id)) {
+                        const prompt = message.content.replace(`<@${client.user.id}>`, '').trim();
+                        if ('sendTyping' in message.channel) {
+                            await message.channel.sendTyping();
+                        }
+                        const response = await LocalAIClient_1.localAI.generateResponse(prompt, systemPrompt);
+                        await message.reply(response);
+                    }
+                }
+                catch (error) {
+                    console.error(`[BotManager - ${client.user?.tag}] Commande/Action échouée et ignorée (Anti-Crash):`, error);
                 }
             });
             await client.login(token);
@@ -71,6 +76,38 @@ class BotManager {
             this.bots.delete(botId);
             console.log(`[BotManager] Stopped bot ${botId}`);
         }
+    }
+    // Recharger un bot à chaud (sans le déco/reco)
+    async reloadBot(botId, newFeatures, newSystemPrompt) {
+        const client = this.bots.get(botId);
+        if (!client) {
+            console.warn(`[BotManager] Cannot reload bot ${botId} because it is not running.`);
+            return;
+        }
+        // On remplace tous les listeners 'messageCreate' pour ce bot
+        client.removeAllListeners('messageCreate');
+        client.on('messageCreate', async (message) => {
+            if (message.author.bot)
+                return;
+            try {
+                if (newFeatures.includes('help') && message.content === '!help') {
+                    await message.reply('Bonjour ! Je suis un bot personnalisé hébergé par Arcant.\\n- `!help`: Affiche ce menu\\n- Tu peux me mentionner pour discuter !');
+                    return;
+                }
+                if (message.mentions.has(client.user.id)) {
+                    const prompt = message.content.replace(`<@${client.user.id}>`, '').trim();
+                    if ('sendTyping' in message.channel) {
+                        await message.channel.sendTyping();
+                    }
+                    const response = await LocalAIClient_1.localAI.generateResponse(prompt, newSystemPrompt);
+                    await message.reply(response);
+                }
+            }
+            catch (error) {
+                console.error(`[BotManager - ${client.user?.tag}] Commande/Action échouée et ignorée (Anti-Crash):`, error);
+            }
+        });
+        console.log(`[BotManager] Bot ${botId} reloaded successfully with new features.`);
     }
 }
 exports.botManager = new BotManager();

@@ -111,11 +111,91 @@ http_1.default.createServer(async (req, res) => {
             }
         });
     }
+    else if (req.method === 'POST' && req.url === '/copilot') {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', async () => {
+            try {
+                const payload = JSON.parse(body);
+                const { botId, userMessage } = payload;
+                if (!botId || !userMessage) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Missing botId or userMessage' }));
+                    return;
+                }
+                const botConfig = await database_2.CustomBot.findById(botId);
+                if (!botConfig) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Bot not found' }));
+                    return;
+                }
+                const { localAI } = require('./utils/LocalAIClient');
+                const systemPrompt = `Tu es l'assistant (Copilot) de configuration de bot Discord.
+Voici l'état actuel du bot de l'utilisateur :
+- Nom : ${botConfig.botName}
+- Personnalité (Prompt) : ${botConfig.systemPrompt || "Aucune"}
+- Modules activés : ${botConfig.features.join(', ') || "Aucun"}
+
+Le propriétaire te dit : "${userMessage}"
+
+Tu dois exécuter sa demande et répondre OBLIGATOIREMENT et UNIQUEMENT avec ce format JSON pur (sans markdown):
+{
+  "reply": "Ton message texte à l'utilisateur pour confirmer ce que tu as fait.",
+  "update": {
+    "systemPrompt": "La nouvelle personnalité du bot (modifie-la si demandé, sinon garde l'ancienne)",
+    "features": ["help", "mod", "tickets", "economy", "logs"] // Choisis les modules pertinents à garder/ajouter
+  }
+}
+Rien d'autre que du JSON.`;
+                let aiResponse = await localAI.generateResponse(userMessage, systemPrompt);
+                aiResponse = aiResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+                try {
+                    const parsed = JSON.parse(aiResponse);
+                    // Mettre à jour la base de données
+                    botConfig.systemPrompt = parsed.update?.systemPrompt || botConfig.systemPrompt;
+                    botConfig.features = parsed.update?.features || botConfig.features;
+                    await botConfig.save();
+                    // Recharger le bot à chaud
+                    await BotManager_1.botManager.reloadBot(botId, botConfig.features, botConfig.systemPrompt);
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({
+                        reply: parsed.reply,
+                        botState: {
+                            systemPrompt: botConfig.systemPrompt,
+                            features: botConfig.features
+                        }
+                    }));
+                }
+                catch (parseErr) {
+                    console.error("Erreur de parsing JSON Copilot:", aiResponse);
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: "L'IA a mal formaté sa réponse JSON." }));
+                }
+            }
+            catch (e) {
+                console.error('[API] /copilot error:', e);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Internal server error' }));
+            }
+        });
+    }
     else {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end('Arcant Bot Service is alive!\n');
     }
 }).listen(port, () => {
     console.log(`[BOT] Internal web server is listening on port ${port} (Required by Render & API)`);
+});
+// --- ANTI-CRASH GLOBAL ---
+process.on('unhandledRejection', (reason, promise) => {
+    console.log('[ANTI-CRASH] Unhandled Rejection:', reason);
+});
+process.on('uncaughtException', (err, origin) => {
+    console.log('[ANTI-CRASH] Uncaught Exception:', err);
+});
+process.on('uncaughtExceptionMonitor', (err, origin) => {
+    console.log('[ANTI-CRASH] Uncaught Exception Monitor:', err);
 });
 //# sourceMappingURL=index.js.map

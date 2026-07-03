@@ -70,7 +70,7 @@ export function AdminDashboard({ serverId }: { serverId: string }) {
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="relative z-10"
           >
-            {activeTab === "ia" && <ModuleIA />}
+            {activeTab === "ia" && <ModuleIA serverId={serverId} />}
             {activeTab === "security" && <ModuleSecurity />}
             {activeTab === "moderation" && <ModuleModeration />}
           </motion.div>
@@ -97,9 +97,11 @@ function ToggleSwitch({ enabled, setEnabled, locked = false }: { enabled: boolea
   );
 }
 
-function ModuleIA() {
+function ModuleIA({ serverId }: { serverId: string }) {
   const [enabled, setEnabled] = useState(true);
   const [iaMode, setIaMode] = useState<"server_creation" | "custom_bot">("server_creation");
+  const [serverPrompt, setServerPrompt] = useState("");
+  const [botName, setBotName] = useState("");
   
   // Toggles pour la création de serveur
   const [createRoles, setCreateRoles] = useState(true);
@@ -110,6 +112,27 @@ function ModuleIA() {
 
   // Toggles pour l'assistant
   const [saveHistory, setSaveHistory] = useState(true);
+
+  const handleGenerateServer = () => {
+    fetch("/api/ia/generate", {
+      method: "POST",
+      body: JSON.stringify({
+        serverId: serverId,
+        prompt: serverPrompt,
+      }),
+    });
+  };
+
+  const handleDeployBot = () => {
+    fetch("/api/ia/deploy", {
+      method: "POST",
+      body: JSON.stringify({
+        ownerId: "mock_user_id",
+        serverId: serverId,
+        botName,
+      }),
+    });
+  };
 
   return (
     <div className="space-y-10">

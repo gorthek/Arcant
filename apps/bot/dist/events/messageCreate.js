@@ -14,12 +14,17 @@ exports.default = {
         if (message.client.user && message.mentions.has(message.client.user.id)) {
             const prompt = message.content.replace(`<@${message.client.user.id}>`, '').trim();
             if (prompt.length > 0) {
-                if ('sendTyping' in message.channel) {
-                    await message.channel.sendTyping();
+                try {
+                    if ('sendTyping' in message.channel) {
+                        await message.channel.sendTyping();
+                    }
+                    const { localAI } = require('../utils/LocalAIClient');
+                    const response = await localAI.generateResponse(prompt, "Tu es Arcant, l'assistant principal.");
+                    await message.reply(response);
                 }
-                const { localAI } = require('../utils/LocalAIClient');
-                const response = await localAI.generateResponse(prompt, "Tu es Arcant, l'assistant principal.");
-                await message.reply(response);
+                catch (error) {
+                    console.error(`[MainBot] L'IA a planté sur une commande, ignorée pour éviter le crash:`, error);
+                }
             }
             return;
         }

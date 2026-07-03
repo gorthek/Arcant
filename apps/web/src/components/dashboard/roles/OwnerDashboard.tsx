@@ -238,7 +238,7 @@ function ModuleIA() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ownerId: "mock_user_id", // À remplacer par le vrai ID via session
-          serverId: "mock_server_id",
+          serverId: serverId,
           botName,
           botToken,
           systemPrompt: botPrompt,
@@ -261,7 +261,7 @@ function ModuleIA() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          serverId: "mock_server_id",
+          serverId: serverId,
           prompt: serverPrompt,
           template: serverTemplate,
           options: { createRoles, managePerms, customFonts, customShapes, useDatabase }

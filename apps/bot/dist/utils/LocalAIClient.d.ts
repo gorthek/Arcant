@@ -1,15 +1,13 @@
 /**
- * LocalAIClient
- * Gère l'interfaçage avec un LLM local (ex: Ollama, Llama.cpp)
+ * LocalAIClient (Maintenant propulsé par Gemini)
+ * Gère l'interfaçage avec l'API Gemini de Google.
  */
 export declare class LocalAIClient {
-    private apiUrl;
+    private ai;
     private model;
-    constructor(apiUrl?: string, model?: string);
+    constructor();
     /**
-     * Génère une réponse via l'IA locale.
-     * Si l'API n'est pas disponible (ex: serveur sans GPU ou Ollama non lancé),
-     * on utilise un fallback basique pour la démo.
+     * Génère une réponse via Gemini.
      */
     generateResponse(prompt: string, systemContext?: string): Promise<string>;
 }
