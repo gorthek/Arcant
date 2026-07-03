@@ -70,7 +70,7 @@ export function OwnerDashboard({ serverId }: { serverId: string }) {
             className="relative z-10"
           >
             {activeTab === "overview" && <ModuleOverview serverId={serverId} />}
-            {activeTab === "ia" && <ModuleIA />}
+            {activeTab === "ia" && <ModuleIA serverId={serverId} />}
             {activeTab === "security" && <ModuleSecurity />}
             {activeTab === "moderation" && <ModuleModeration />}
           </motion.div>
@@ -194,7 +194,7 @@ function ToggleSwitch({ enabled, setEnabled }: { enabled: boolean; setEnabled: (
   );
 }
 
-function ModuleIA() {
+function ModuleIA({ serverId }: { serverId: string }) {
   const [enabled, setEnabled] = useState(true);
   const [iaMode, setIaMode] = useState<"server_creation" | "custom_bot">("server_creation");
   
