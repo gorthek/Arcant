@@ -120,3 +120,14 @@ http.createServer(async (req, res) => {
 }).listen(port, () => {
   console.log(`[BOT] Internal web server is listening on port ${port} (Required by Render & API)`);
 });
+
+// --- ANTI-CRASH GLOBAL ---
+process.on('unhandledRejection', (reason, promise) => {
+  console.log('[ANTI-CRASH] Unhandled Rejection:', reason);
+});
+process.on('uncaughtException', (err, origin) => {
+  console.log('[ANTI-CRASH] Uncaught Exception:', err);
+});
+process.on('uncaughtExceptionMonitor', (err, origin) => {
+  console.log('[ANTI-CRASH] Uncaught Exception Monitor:', err);
+});

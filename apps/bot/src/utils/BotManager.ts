@@ -44,21 +44,25 @@ class BotManager {
       client.on('messageCreate', async (message) => {
         if (message.author.bot) return;
 
-        // Fonctionnalité "help" si activée
-        if (features.includes('help') && message.content === '!help') {
-          await message.reply('Bonjour ! Je suis un bot personnalisé hébergé par Arcant.\\n- `!help`: Affiche ce menu\\n- Tu peux me mentionner pour discuter !');
-          return;
-        }
-
-        // Si le bot est mentionné, répondre avec l'IA Locale
-        if (message.mentions.has(client.user!.id)) {
-          const prompt = message.content.replace(`<@${client.user!.id}>`, '').trim();
-          
-          if ('sendTyping' in message.channel) {
-            await message.channel.sendTyping();
+        try {
+          // Fonctionnalité "help" si activée
+          if (features.includes('help') && message.content === '!help') {
+            await message.reply('Bonjour ! Je suis un bot personnalisé hébergé par Arcant.\\n- `!help`: Affiche ce menu\\n- Tu peux me mentionner pour discuter !');
+            return;
           }
-          const response = await localAI.generateResponse(prompt, systemPrompt);
-          await message.reply(response);
+
+          // Si le bot est mentionné, répondre avec l'IA Locale
+          if (message.mentions.has(client.user!.id)) {
+            const prompt = message.content.replace(`<@${client.user!.id}>`, '').trim();
+            
+            if ('sendTyping' in message.channel) {
+              await message.channel.sendTyping();
+            }
+            const response = await localAI.generateResponse(prompt, systemPrompt);
+            await message.reply(response);
+          }
+        } catch (error) {
+          console.error(`[BotManager - ${client.user?.tag}] Commande/Action échouée et ignorée (Anti-Crash):`, error);
         }
       });
 
