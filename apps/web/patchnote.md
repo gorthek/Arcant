@@ -5,6 +5,20 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 1.5.0
+*Dernière modification : 04 Juillet 2026*
+
+### 🌐 Dashboard Suprême & Refonte Globale
+- **[Console Suprême CEO]** Ajout d'une console d'administration suprême réservée au Bot Owner (CEO) accessible via contournement automatique d'ID Discord (`1061340110219640905`). Intégration d'un explorateur de base de données (tous les serveurs actifs) et d'un terminal d'annonces global en direct.
+- **[Refonte Thématique des Rôles]** Les dashboards ont été personnalisés selon le rôle avec des chartes graphiques fortes et des animations 3D complexes (`framer-motion`) :
+  - **Bot Owner / Server Owner (Thème Émeraude)** : Tableaux de bord de contrôle complet, édition 3D, gestion des règles d'IA.
+  - **Admin (Thème Démoniaque Rouge)** : Visualisation de sécurité renforcée avec un bouclier 3D animé d'alerte en cas de Raid, réglages persistés en DB.
+  - **Membre (Thème Spatial Bleu)** : Profil d'utilisateur interactif avec barre de progression de niveau animée et liste de succès/médailles.
+- **[IA 100% Autonome & Rules Manager]** Suppression définitive des API Gemini, GPT, Claude et autres au profit d'un moteur d'analyse sémantique local configurable depuis le dashboard via des mots-clés déclencheurs et des variables dynamiques (`{user}`, `{server_name}`).
+- **[Previews Changelog]** Intégration de pop-ups de prévisualisation interactives pour chaque patchnote dans la page Changelog.
+
+---
+
 ## 🟢 Version 1.2.3
 *Dernière modification : 03 Juillet 2026*
 

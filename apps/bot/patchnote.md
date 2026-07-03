@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.5.0
+*Dernière modification : 04 Juillet 2026*
+
+### 🤖 Cœur du Bot (Hébergeur & IA)
+- **[Moteur IA 100% Personnel]** Remplacement définitif de l'API Gemini par le moteur local `CustomAIEngine`. Analyse les messages par mots-clés, gère le matching d'intentions configuré depuis le Web, et injecte les variables dynamiques (`{user}`, `{server_name}`, `{time}`, `{date}`).
+- **[Terminal d'Annonces Globales]** Implémentation du point d'écoute `/announce` sur le serveur web interne du bot. Permet de diffuser instantanément des messages d'alertes enrichis (Embeds verts émeraude) sur tous les serveurs connectés.
+- **[Configuration Persistante en DB]** Liaison totale des modules de sécurité (Panic Button / Raid mode, sensibilité spam, mots interdits) à MongoDB via Express, rendant le paramétrage effectif et fonctionnel.
+
+---
+
 ## 🔴 Version 1.2.3
 *Dernière modification : 03 Juillet 2026*
 

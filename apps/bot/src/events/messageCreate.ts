@@ -19,7 +19,7 @@ export default {
             await message.channel.sendTyping();
           }
           const { localAI } = require('../utils/LocalAIClient');
-          const response = await localAI.generateResponse(prompt, "Tu es Arcant, l'assistant principal.");
+          const response = await localAI.generateResponse(prompt, "Tu es Arcant, l'assistant principal.", message.guildId || undefined);
           await message.reply(response);
         } catch (error) {
           console.error(`[MainBot] L'IA a planté sur une commande, ignorée pour éviter le crash:`, error);

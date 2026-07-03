@@ -20,10 +20,12 @@ app.get('/', (req: Request, res: Response) => {
 import botRoutes from './routes/bot.routes';
 import serverRoutes from './routes/server.routes';
 import templateRoutes from './routes/template.routes';
+import ownerRoutes from './routes/owner.routes';
 
 app.use('/api/bots', botRoutes);
 app.use('/api/server', serverRoutes);
 app.use('/api/templates', templateRoutes);
+app.use('/api/owner', ownerRoutes);
 
 dbConnect().then(() => {
   app.listen(port, () => {

@@ -18,9 +18,11 @@ app.get('/', (req, res) => {
 const bot_routes_1 = __importDefault(require("./routes/bot.routes"));
 const server_routes_1 = __importDefault(require("./routes/server.routes"));
 const template_routes_1 = __importDefault(require("./routes/template.routes"));
+const owner_routes_1 = __importDefault(require("./routes/owner.routes"));
 app.use('/api/bots', bot_routes_1.default);
 app.use('/api/server', server_routes_1.default);
 app.use('/api/templates', template_routes_1.default);
+app.use('/api/owner', owner_routes_1.default);
 (0, database_1.dbConnect)().then(() => {
     app.listen(port, () => {
         console.log(`[API] Server is listening on port ${port}`);

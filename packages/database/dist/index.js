@@ -19,3 +19,4 @@ __exportStar(require("./models/User"), exports);
 __exportStar(require("./models/CustomBot"), exports);
 __exportStar(require("./mongooseConnect"), exports);
 __exportStar(require("./models/AITemplate"), exports);
+__exportStar(require("./models/AIRule"), exports);

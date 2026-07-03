@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { Server } from '@arcant/database';
 
 const router = Router();
 const BOT_API_URL = process.env.BOT_API_URL || 'http://localhost:3000';
@@ -76,6 +77,67 @@ router.get('/:id/structure', async (req: Request, res: Response) => {
     return res.status(200).json(data);
   } catch (error) {
     console.error('[API] /server/:id/structure error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// 4. Récupérer les paramètres de sécurité/modération du serveur
+router.get('/:id/settings', async (req: Request, res: Response) => {
+  try {
+    const serverId = req.params.id;
+    if (!serverId) {
+      return res.status(400).json({ error: 'serverId is required' });
+    }
+
+    let server = await Server.findOne({ serverId });
+    if (!server) {
+      server = await Server.create({
+        serverId,
+        name: 'Serveur Discord',
+        ownerId: 'default_owner',
+      });
+    }
+
+    return res.status(200).json({ settings: server });
+  } catch (error) {
+    console.error('[API] GET /server/:id/settings error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// 5. Sauvegarder les paramètres de sécurité/modération du serveur
+router.post('/:id/settings', async (req: Request, res: Response) => {
+  try {
+    const serverId = req.params.id;
+    const { 
+      raidMode, 
+      antiLink, 
+      antiSpamSensitivity, 
+      logChannelId, 
+      muteDuration, 
+      blacklistedWords 
+    } = req.body;
+
+    if (!serverId) {
+      return res.status(400).json({ error: 'serverId is required' });
+    }
+
+    const server = await Server.findOneAndUpdate(
+      { serverId },
+      { 
+        raidMode, 
+        antiLink, 
+        antiSpamSensitivity, 
+        logChannelId, 
+        muteDuration, 
+        blacklistedWords 
+      },
+      { new: true, upsert: true }
+    );
+
+    return res.status(200).json({ message: 'Settings saved successfully', settings: server });
+  } catch (error) {
+    console.error('[API] POST /server/:id/settings error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });

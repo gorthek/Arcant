@@ -8,6 +8,14 @@ export interface IServer extends Document {
   isPremium: boolean;
   premiumUntil?: Date;
   joinedAt: Date;
+  // Security settings
+  raidMode: boolean;
+  antiLink: boolean;
+  antiSpamSensitivity: string;
+  // Moderation settings
+  logChannelId?: string;
+  muteDuration?: string;
+  blacklistedWords?: string[];
 }
 
 const ServerSchema = new Schema<IServer>({
@@ -17,7 +25,15 @@ const ServerSchema = new Schema<IServer>({
   ownerId: { type: String, required: true },
   isPremium: { type: Boolean, default: false },
   premiumUntil: { type: Date },
-  joinedAt: { type: Date, default: Date.now }
+  joinedAt: { type: Date, default: Date.now },
+  // Security defaults
+  raidMode: { type: Boolean, default: false },
+  antiLink: { type: Boolean, default: true },
+  antiSpamSensitivity: { type: String, default: 'medium' },
+  // Moderation defaults
+  logChannelId: { type: String, default: '' },
+  muteDuration: { type: String, default: '10m' },
+  blacklistedWords: { type: [String], default: [] }
 });
 
 // Use existing model if already compiled (Next.js hot reload fix)

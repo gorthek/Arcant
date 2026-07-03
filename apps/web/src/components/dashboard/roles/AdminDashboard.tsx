@@ -1,19 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, History, FileText } from "lucide-react";
-import Link from "next/link";
-
-import { Lock } from "lucide-react";
+import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, Server, Zap, Database, Type, PenTool, Layout, Lock, RefreshCw } from "lucide-react";
 
 export function AdminDashboard({ serverId }: { serverId: string }) {
   const [activeTab, setActiveTab] = useState("ia");
   const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleSave = () => {
+  // Security & Moderation lifted states
+  const [raidMode, setRaidMode] = useState(false);
+  const [antiLink, setAntiLink] = useState(true);
+  const [antiSpamSensitivity, setAntiSpamSensitivity] = useState("medium");
+  const [logChannelId, setLogChannelId] = useState("");
+  const [muteDuration, setMuteDuration] = useState("10m");
+  const [blacklistedWordsString, setBlacklistedWordsString] = useState("");
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const res = await fetch(`/api/server/${serverId}/settings`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.settings) {
+            setRaidMode(data.settings.raidMode ?? false);
+            setAntiLink(data.settings.antiLink ?? true);
+            setAntiSpamSensitivity(data.settings.antiSpamSensitivity ?? "medium");
+            setLogChannelId(data.settings.logChannelId ?? "");
+            setMuteDuration(data.settings.muteDuration ?? "10m");
+            setBlacklistedWordsString((data.settings.blacklistedWords || []).join("\n"));
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load server settings:", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSettings();
+  }, [serverId]);
+
+  const handleSave = async () => {
     setIsSaving(true);
-    setTimeout(() => setIsSaving(false), 1000);
+    const blacklistedWords = blacklistedWordsString
+      .split("\n")
+      .map(w => w.trim())
+      .filter(w => w.length > 0);
+
+    try {
+      const res = await fetch(`/api/server/${serverId}/settings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          raidMode,
+          antiLink,
+          antiSpamSensitivity,
+          logChannelId,
+          muteDuration,
+          blacklistedWords
+        }),
+      });
+      if (res.ok) {
+        alert("Paramètres de sécurité mis à jour !");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Erreur de sauvegarde locale.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const tabs = [
@@ -26,13 +82,13 @@ export function AdminDashboard({ serverId }: { serverId: string }) {
     <div className="max-w-5xl mx-auto pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2 text-white">Paramètres du Serveur</h1>
-          <p className="text-gray-400">Gérez les modules actifs pour le serveur {serverId}</p>
+          <h1 className="text-3xl font-black mb-2 text-white">Console d'Administration</h1>
+          <p className="text-gray-400">Gérez les modules de sécurité pour le serveur {serverId}</p>
         </div>
         <button 
           onClick={handleSave}
-          className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-red-500 hover:bg-red-400 text-white font-bold transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] disabled:opacity-70"
-          disabled={isSaving}
+          className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold transition-all shadow-[0_0_25px_rgba(220,38,38,0.4)] hover:scale-105 disabled:opacity-70 border border-red-500/30"
+          disabled={isSaving || loading}
         >
           <Save size={18} />
           {isSaving ? "Sauvegarde..." : "Sauvegarder"}
@@ -47,8 +103,8 @@ export function AdminDashboard({ serverId }: { serverId: string }) {
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
               activeTab === tab.id 
-                ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]" 
-                : "text-gray-400 hover:text-white hover:bg-white/5"
+                ? "bg-red-600 text-white shadow-[0_0_20px_rgba(220,38,38,0.5)] border border-red-500/20" 
+                : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
             }`}
           >
             {tab.icon} {tab.name}
@@ -57,24 +113,48 @@ export function AdminDashboard({ serverId }: { serverId: string }) {
       </div>
 
       {/* Content */}
-      <div className="bg-zinc-950/60 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
-        {/* Glow de fond pour le container */}
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-red-900/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="bg-zinc-950/60 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden min-h-[400px]">
+        {/* Glow de fond rouge */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-950/15 rounded-full blur-[120px] pointer-events-none" />
         
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 15, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -15, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="relative z-10"
-          >
-            {activeTab === "ia" && <ModuleIA serverId={serverId} />}
-            {activeTab === "security" && <ModuleSecurity />}
-            {activeTab === "moderation" && <ModuleModeration />}
-          </motion.div>
-        </AnimatePresence>
+        {loading ? (
+          <div className="flex items-center justify-center h-64 text-red-500">
+            <RefreshCw className="animate-spin mr-2" /> Chargement des configurations de sécurité...
+          </div>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 15, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -15, scale: 0.98 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="relative z-10"
+            >
+              {activeTab === "ia" && <ModuleIA serverId={serverId} />}
+              {activeTab === "security" && (
+                <ModuleSecurity 
+                  raidMode={raidMode} 
+                  setRaidMode={setRaidMode} 
+                  antiLink={antiLink} 
+                  setAntiLink={setAntiLink}
+                  antiSpamSensitivity={antiSpamSensitivity}
+                  setAntiSpamSensitivity={setAntiSpamSensitivity}
+                />
+              )}
+              {activeTab === "moderation" && (
+                <ModuleModeration 
+                  logChannelId={logChannelId}
+                  setLogChannelId={setLogChannelId}
+                  muteDuration={muteDuration}
+                  setMuteDuration={setMuteDuration}
+                  blacklistedWordsString={blacklistedWordsString}
+                  setBlacklistedWordsString={setBlacklistedWordsString}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        )}
       </div>
     </div>
   );
@@ -85,7 +165,7 @@ export function AdminDashboard({ serverId }: { serverId: string }) {
 function ToggleSwitch({ enabled, setEnabled, locked = false }: { enabled: boolean; setEnabled: (val: boolean) => void; locked?: boolean }) {
   return (
     <div 
-      className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-300 shrink-0 ${locked ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${enabled ? 'bg-red-500' : 'bg-zinc-700'}`}
+      className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-300 shrink-0 ${locked ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${enabled ? 'bg-red-600' : 'bg-zinc-700'}`}
       onClick={() => !locked && setEnabled(!enabled)}
     >
       <motion.div 
@@ -98,42 +178,6 @@ function ToggleSwitch({ enabled, setEnabled, locked = false }: { enabled: boolea
 }
 
 function ModuleIA({ serverId }: { serverId: string }) {
-  const [enabled, setEnabled] = useState(true);
-  const [iaMode, setIaMode] = useState<"server_creation" | "custom_bot">("server_creation");
-  const [serverPrompt, setServerPrompt] = useState("");
-  const [botName, setBotName] = useState("");
-  
-  // Toggles pour la création de serveur
-  const [createRoles, setCreateRoles] = useState(true);
-  const [managePerms, setManagePerms] = useState(true);
-  const [customFonts, setCustomFonts] = useState(false);
-  const [customShapes, setCustomShapes] = useState(false);
-  const [useDatabase, setUseDatabase] = useState(false);
-
-  // Toggles pour l'assistant
-  const [saveHistory, setSaveHistory] = useState(true);
-
-  const handleGenerateServer = () => {
-    fetch("/api/ia/generate", {
-      method: "POST",
-      body: JSON.stringify({
-        serverId: serverId,
-        prompt: serverPrompt,
-      }),
-    });
-  };
-
-  const handleDeployBot = () => {
-    fetch("/api/ia/deploy", {
-      method: "POST",
-      body: JSON.stringify({
-        ownerId: "mock_user_id",
-        serverId: serverId,
-        botName,
-      }),
-    });
-  };
-
   return (
     <div className="space-y-10">
       
@@ -141,263 +185,95 @@ function ModuleIA({ serverId }: { serverId: string }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-6 gap-4">
         <div>
           <h3 className="text-2xl font-bold mb-1 flex items-center gap-2 text-white">
-            <Bot className="text-red-400"/> Intelligence Artificielle <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded-md border border-red-500/30 ml-2">Lecture Seule</span>
+            <Bot className="text-red-400"/> Intelligence Artificielle 
+            <span className="text-xs bg-red-950/40 text-red-400 px-2.5 py-1 rounded-md border border-red-500/20 ml-2 font-black uppercase tracking-wider">
+              Lecture Seule
+            </span>
           </h3>
-          <p className="text-gray-400 text-sm">Seul le propriétaire du serveur peut modifier l'IA et gérer l'abonnement.</p>
-        </div>
-        <div className="flex items-center gap-3 bg-zinc-900/80 px-4 py-2 rounded-xl border border-white/5 opacity-50 cursor-not-allowed">
-          <span className="text-sm font-bold text-gray-300">Activer l'IA</span>
-          <ToggleSwitch enabled={enabled} setEnabled={() => {}} locked={true} />
+          <p className="text-gray-400 text-sm font-medium">Seul le propriétaire du serveur (Owner) peut modifier la configuration du Bot et l'IA.</p>
         </div>
       </div>
 
-      <div className={`space-y-10 transition-opacity duration-300 ${!enabled ? 'opacity-30 pointer-events-none grayscale' : ''}`}>
+      <div className="space-y-6 opacity-40 select-none pointer-events-none">
         
-        {/* COMPACT LIMITES PRO (Lien vers Settings) */}
-        <div className="flex flex-col md:flex-row items-center justify-between bg-zinc-900/50 border border-white/10 rounded-xl p-4 gap-4">
+        {/* COMPACT LIMITES PRO */}
+        <div className="flex items-center justify-between bg-zinc-900/50 border border-white/10 rounded-xl p-4 gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
               <Lock className="text-gray-400" size={20} />
             </div>
-            <div className="flex-1 opacity-50 pointer-events-none">
-              <h4 className="text-white font-bold text-sm flex items-center gap-2">
-                Abonnement Serveur : <span className="bg-white/10 px-2 py-0.5 rounded text-xs">Gratuit</span>
-              </h4>
+            <div>
+              <h4 className="text-white font-bold text-sm">Abonnement Serveur : Gratuit</h4>
               <p className="text-xs text-red-400/80">Premium requis pour l'IA illimitée.</p>
             </div>
           </div>
-          <button disabled className="px-4 py-2 bg-red-500/10 text-red-500/50 text-xs font-bold rounded-xl border border-red-500/10 cursor-not-allowed">
-              Gérer l'abonnement
-          </button>
         </div>
 
         {/* MODE DE FONCTIONNEMENT IA */}
-        <div className="space-y-6">
-          <h4 className="text-lg font-bold text-white border-b border-white/10 pb-2">Mode de fonctionnement</h4>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button 
-              onClick={() => setIaMode("server_creation")}
-              className={`p-6 rounded-2xl border text-left transition-all ${
-                iaMode === "server_creation" 
-                  ? "bg-red-500/10 border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.1)]" 
-                  : "bg-zinc-900/50 border-white/5 hover:bg-white/5"
-              }`}
-            >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${iaMode === "server_creation" ? "bg-red-500 text-white" : "bg-zinc-800 text-gray-400"}`}>
-                <Server size={20} />
-              </div>
-              <h5 className={`font-bold mb-2 ${iaMode === "server_creation" ? "text-red-400" : "text-gray-300"}`}>Création & Gestion Serveur</h5>
-              <p className="text-xs text-gray-400 leading-relaxed">Génère et configure l'architecture du serveur (rôles, permissions, salons, design).</p>
-            </button>
-
-            <button 
-              onClick={() => setIaMode("custom_bot")}
-              className={`p-6 rounded-2xl border text-left transition-all ${
-                iaMode === "custom_bot" 
-                  ? "bg-red-500/10 border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.1)]" 
-                  : "bg-zinc-900/50 border-white/5 hover:bg-white/5"
-              }`}
-            >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${iaMode === "custom_bot" ? "bg-red-500 text-white" : "bg-zinc-800 text-gray-400"}`}>
-                <Bot size={20} />
-              </div>
-              <h5 className={`font-bold mb-2 ${iaMode === "custom_bot" ? "text-red-400" : "text-gray-300"}`}>Création de Bot Perso</h5>
-              <p className="text-xs text-gray-400 leading-relaxed">Déployez votre propre bot Discord propulsé par l'IA.</p>
-            </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-6 rounded-2xl border border-white/5 bg-zinc-900/20">
+            <Server size={20} className="text-gray-500 mb-4" />
+            <h5 className="font-bold mb-2 text-gray-400">Création & Gestion Serveur</h5>
+            <p className="text-xs text-gray-500">Génère et configure l'architecture du serveur (rôles, salons, permissions).</p>
+          </div>
+          <div className="p-6 rounded-2xl border border-white/5 bg-zinc-900/20">
+            <Bot size={20} className="text-gray-500 mb-4" />
+            <h5 className="font-bold mb-2 text-gray-400">Création de Bot Perso</h5>
+            <p className="text-xs text-gray-500">Déployez votre propre bot Discord propulsé par l'IA.</p>
           </div>
         </div>
-
-        {/* DETAILS DU MODE SELECTIONNE */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={iaMode}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            {iaMode === "server_creation" ? (
-              <div className="bg-zinc-900/30 border border-white/5 rounded-2xl p-6 space-y-8">
-                
-                {/* PREVENT WARNING */}
-                <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
-                  <AlertTriangle size={20} className="text-amber-500 shrink-0 mt-0.5" />
-                  <div>
-                    <h6 className="text-amber-500 text-sm font-bold mb-1">Information importante</h6>
-                    <p className="text-amber-500/80 text-xs leading-relaxed">
-                      L'IA utilise les templates comme point de départ. Pour un résultat optimal, soyez extrêmement précis dans votre prompt (noms des rôles, hiérarchie, catégories voulues). L'IA adaptera les permissions en conséquence.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-4 opacity-50 pointer-events-none">
-                  <label className="text-sm font-bold text-gray-300">Prompt / Consigne détaillée</label>
-                  <textarea 
-                    className="w-full h-32 bg-zinc-950 border border-white/10 rounded-xl p-4 text-white focus:border-red-500 focus:outline-none transition-colors resize-none placeholder:text-gray-600 shadow-inner"
-                    placeholder="Ex: Crée un serveur Roleplay FiveM de style LSPD. Il me faut des grades Hiérarchiques pour la police, des salons vocaux avec formes stylisées (ex: 🚔・Patrouille), et des permissions bloquées pour les civils."
-                    readOnly
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-50 pointer-events-none">
-                  <button className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-all text-sm font-bold text-gray-300 group">
-                    <ImageIcon size={18} className="group-hover:text-red-400 transition-colors" /> Uploader une image de structure (Inspi)
-                  </button>
-                  <button className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-all text-sm font-bold text-gray-300 group">
-                    <Mic size={18} className="group-hover:text-red-400 transition-colors" /> Dicter la consigne vocalement
-                  </button>
-                </div>
-
-                <div className="space-y-2 opacity-50 pointer-events-none">
-                  <label className="text-sm font-bold text-gray-300">Template de base (Optionnel)</label>
-                  <select className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors" disabled>
-                    <option value="">Aucun (Création vierge basée sur le prompt)</option>
-                    <option value="gaming">Serveur Gaming Classique / Esport</option>
-                    <option value="rp">Serveur RolePlay (FiveM / Garry's Mod)</option>
-                    <option value="community">Communauté / Streamer / Influenceur</option>
-                  </select>
-                </div>
-
-                {/* ADVANCED AI SETTINGS */}
-                <div className="pt-6 border-t border-white/10 opacity-50 pointer-events-none">
-                  <h4 className="font-bold text-white mb-4">Fonctionnalités génératives</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    
-                    <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
-                      <div className="flex items-center gap-3">
-                        <ShieldAlert size={16} className="text-gray-400" />
-                        <div>
-                          <div className="text-sm font-bold text-white">Générer les Rôles</div>
-                          <div className="text-[10px] text-gray-500">L'IA crée et attribue les couleurs.</div>
-                        </div>
-                      </div>
-                      <ToggleSwitch enabled={createRoles} setEnabled={() => {}} locked={true} />
-                    </div>
-
-                    <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
-                      <div className="flex items-center gap-3">
-                        <PenTool size={16} className="text-gray-400" />
-                        <div>
-                          <div className="text-sm font-bold text-white">Ajuster Permissions</div>
-                          <div className="text-[10px] text-gray-500">Logique d'accès (Admin, Vocal, Textuel).</div>
-                        </div>
-                      </div>
-                      <ToggleSwitch enabled={managePerms} setEnabled={() => {}} locked={true} />
-                    </div>
-
-                    <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
-                      <div className="flex items-center gap-3">
-                        <Type size={16} className="text-gray-400" />
-                        <div>
-                          <div className="text-sm font-bold text-white">Styles & Polices</div>
-                          <div className="text-[10px] text-gray-500">Ex: 𝕲𝖊𝖓𝖊𝖗𝖆𝖑, 𝓡𝓸𝓵𝓮𝓹𝓵𝓪𝔂, etc.</div>
-                        </div>
-                      </div>
-                      <ToggleSwitch enabled={customFonts} setEnabled={() => {}} locked={true} />
-                    </div>
-
-                    <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-white/5">
-                      <div className="flex items-center gap-3">
-                        <Layout size={16} className="text-gray-400" />
-                        <div>
-                          <div className="text-sm font-bold text-white">Formes de Salons</div>
-                          <div className="text-[10px] text-gray-500">Emojis et séparateurs structurés.</div>
-                        </div>
-                      </div>
-                      <ToggleSwitch enabled={customShapes} setEnabled={() => {}} locked={true} />
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between bg-gradient-to-r from-blue-900/20 to-red-900/20 p-4 rounded-xl border border-blue-500/20">
-                    <div className="flex items-center gap-3">
-                      <Database size={20} className="text-blue-400" />
-                      <div>
-                        <div className="text-sm font-bold text-white">Synchronisation Base de Données (Avancé)</div>
-                        <div className="text-[11px] text-gray-400">L'IA relie la création des rôles avec votre DB externe.</div>
-                      </div>
-                    </div>
-                    <ToggleSwitch enabled={useDatabase} setEnabled={() => {}} locked={true} />
-                  </div>
-
-                </div>
-
-                <div className="flex justify-end pt-4">
-                  <button className="flex items-center gap-2 px-8 py-4 rounded-xl bg-zinc-800 text-gray-500 font-black cursor-not-allowed">
-                    <Lock size={18} /> Impossible pour un Admin
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-zinc-900/30 border border-white/5 rounded-2xl p-6 space-y-6">
-                <div className="space-y-4 opacity-50 pointer-events-none">
-                  <h4 className="font-bold text-white mb-2">Configurer votre Bot Personnalisé</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-300">Nom du Bot</label>
-                      <input 
-                        type="text"
-                        className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors"
-                        placeholder="Ex: MonSuperBot"
-                        readOnly
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-300">Avatar du Bot</label>
-                      <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-dashed border-white/20 bg-white/5 transition-all text-sm font-bold text-gray-300 cursor-not-allowed">
-                        <ImageIcon size={18} /> Choisir une image
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-300">Personnalité / Prompt Système</label>
-                    <textarea 
-                      className="w-full h-24 bg-zinc-950 border border-white/10 rounded-xl p-4 text-white focus:border-red-500 focus:outline-none transition-colors resize-none"
-                      placeholder="Décrivez comment le bot doit se comporter (ex: 'Tu es un sorcier sarcastique qui répond toujours avec humour...')"
-                      readOnly
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-300">Token Discord (Optionnel)</label>
-                    <input 
-                      type="password"
-                      className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors"
-                      placeholder="Collez le token Discord si vous hébergez vous-même l'application"
-                      readOnly
-                    />
-                    <p className="text-[11px] text-gray-500">Laissez vide si vous voulez qu'Arcant héberge le bot pour vous (Premium Requis).</p>
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-4 border-t border-white/10">
-                  <button className="flex items-center gap-2 px-8 py-4 rounded-xl bg-zinc-800 text-gray-500 font-black cursor-not-allowed">
-                    <Lock size={18} /> Impossible pour un Admin
-                  </button>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
       </div>
     </div>
   );
 }
 
-function ModuleSecurity() {
-  const [raidMode, setRaidMode] = useState(false);
-  const [antiLink, setAntiLink] = useState(true);
+interface ModuleSecurityProps {
+  raidMode: boolean;
+  setRaidMode: (val: boolean) => void;
+  antiLink: boolean;
+  setAntiLink: (val: boolean) => void;
+  antiSpamSensitivity: string;
+  setAntiSpamSensitivity: (val: string) => void;
+}
 
+function ModuleSecurity({
+  raidMode,
+  setRaidMode,
+  antiLink,
+  setAntiLink,
+  antiSpamSensitivity,
+  setAntiSpamSensitivity
+}: ModuleSecurityProps) {
   return (
     <div className="space-y-8">
-      <div className="flex flex-col md:flex-row gap-6 border-b border-white/10 pb-6">
-        <div className="flex-1 bg-red-500/10 border border-red-500/20 rounded-2xl p-6">
-          <div className="flex items-start justify-between">
+      <div className="flex flex-col md:flex-row gap-6 border-b border-white/10 pb-6 items-center">
+        
+        {/* Holographic 3D alert shield */}
+        <motion.div 
+          animate={{ 
+            rotateY: raidMode ? [0, -15, 15, 0] : [0, -5, 5, 0],
+            scale: raidMode ? [1, 1.05, 0.98, 1] : 1
+          }}
+          transition={{ duration: raidMode ? 4 : 8, repeat: Infinity, ease: "easeInOut" }}
+          className={`w-28 h-28 rounded-2xl border flex items-center justify-center shrink-0 shadow-2xl relative overflow-hidden ${
+            raidMode 
+              ? "bg-red-950/40 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.3)]" 
+              : "bg-zinc-900/60 border-white/10"
+          }`}
+        >
+          <div className={`absolute inset-0 bg-gradient-to-tr mix-blend-overlay ${raidMode ? "from-red-500/20 to-orange-500/10" : "from-zinc-800 to-transparent"}`} />
+          <ShieldAlert size={48} className={raidMode ? "text-red-500 animate-pulse" : "text-gray-500"} />
+        </motion.div>
+
+        <div className="flex-1 bg-red-600/5 border border-red-500/10 rounded-2xl p-6">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-xl font-bold text-red-400 mb-2 flex items-center gap-2"><ShieldAlert /> Mode Raid (Panic Button)</h3>
-              <p className="text-sm text-red-400/80 mb-4 max-w-sm">Verrouille instantanément le serveur. Les nouveaux membres devront passer un Captcha ultra-strict en MP avant de voir les salons.</p>
+              <h3 className="text-xl font-bold text-red-400 mb-2 flex items-center gap-2">
+                Mode Raid (Panic Button)
+              </h3>
+              <p className="text-sm text-gray-400 mb-4 max-w-xl">
+                Verrouille instantanément le serveur. Les nouveaux membres devront passer un Captcha ultra-strict en MP avant de voir les salons.
+              </p>
             </div>
             <ToggleSwitch enabled={raidMode} setEnabled={setRaidMode} />
           </div>
@@ -407,8 +283,12 @@ function ModuleSecurity() {
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-bold text-gray-300">Sensibilité Anti-Spam</label>
-            <select className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Sensibilité Anti-Spam</label>
+            <select 
+              value={antiSpamSensitivity}
+              onChange={(e) => setAntiSpamSensitivity(e.target.value)}
+              className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors text-sm font-semibold"
+            >
               <option value="low">Faible (5 msgs / 10s)</option>
               <option value="medium">Moyenne (4 msgs / 5s)</option>
               <option value="high">Élevée (3 msgs / 3s)</option>
@@ -416,7 +296,7 @@ function ModuleSecurity() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+        <div className="flex items-center justify-between bg-zinc-900/50 p-4 rounded-xl border border-white/5 hover:border-red-500/20 transition-all duration-300">
           <div>
             <div className="font-bold text-sm text-white mb-1">Anti-Lien & Anti-Pub</div>
             <div className="text-xs text-gray-400">Supprime automatiquement les invitations Discord et les liens non autorisés.</div>
@@ -428,24 +308,47 @@ function ModuleSecurity() {
   );
 }
 
-function ModuleModeration() {
-  const [autoMute, setAutoMute] = useState(true);
+interface ModuleModerationProps {
+  logChannelId: string;
+  setLogChannelId: (val: string) => void;
+  muteDuration: string;
+  setMuteDuration: (val: string) => void;
+  blacklistedWordsString: string;
+  setBlacklistedWordsString: (val: string) => void;
+}
 
+function ModuleModeration({
+  logChannelId,
+  setLogChannelId,
+  muteDuration,
+  setMuteDuration,
+  blacklistedWordsString,
+  setBlacklistedWordsString
+}: ModuleModerationProps) {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="text-sm font-bold text-gray-300">Salon des Logs</label>
-          <select className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors">
+          <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Salon des Logs</label>
+          <select 
+            value={logChannelId}
+            onChange={(e) => setLogChannelId(e.target.value)}
+            className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors text-sm font-semibold"
+          >
             <option value="">Sélectionner un salon...</option>
             <option value="789">#logs-moderation</option>
+            <option value="101">#sécurité-salon</option>
           </select>
           <p className="text-xs text-gray-500">Où envoyer les preuves de suppressions, kicks et bans.</p>
         </div>
         
         <div className="space-y-2">
-          <label className="text-sm font-bold text-gray-300">Durée Auto-Mute (Par défaut)</label>
-          <select className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors" disabled={!autoMute}>
+          <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Durée Auto-Mute (Par défaut)</label>
+          <select 
+            value={muteDuration}
+            onChange={(e) => setMuteDuration(e.target.value)}
+            className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors text-sm font-semibold"
+          >
             <option value="10m">10 Minutes</option>
             <option value="1h">1 Heure</option>
             <option value="24h">24 Heures</option>
@@ -454,9 +357,11 @@ function ModuleModeration() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-bold text-gray-300">Mots Interdits (Blacklist)</label>
+        <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Mots Interdits (Blacklist)</label>
         <textarea 
-          className="w-full h-32 bg-zinc-900 border border-white/10 rounded-xl p-4 text-white focus:border-red-500 focus:outline-none transition-colors resize-none"
+          value={blacklistedWordsString}
+          onChange={(e) => setBlacklistedWordsString(e.target.value)}
+          className="w-full h-32 bg-zinc-900 border border-white/10 rounded-xl p-4 text-white focus:border-red-500 focus:outline-none transition-colors resize-none text-sm font-semibold placeholder:text-gray-600"
           placeholder="Entrez un mot par ligne..."
         />
         <p className="text-xs text-gray-500">Le bot supprimera instantanément les messages contenant ces mots.</p>

@@ -33,24 +33,16 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Server = void 0;
+exports.AIRule = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const ServerSchema = new mongoose_1.Schema({
-    serverId: { type: String, required: true, unique: true },
-    name: { type: String, required: true },
-    icon: { type: String },
-    ownerId: { type: String, required: true },
-    isPremium: { type: Boolean, default: false },
-    premiumUntil: { type: Date },
-    joinedAt: { type: Date, default: Date.now },
-    // Security defaults
-    raidMode: { type: Boolean, default: false },
-    antiLink: { type: Boolean, default: true },
-    antiSpamSensitivity: { type: String, default: 'medium' },
-    // Moderation defaults
-    logChannelId: { type: String, default: '' },
-    muteDuration: { type: String, default: '10m' },
-    blacklistedWords: { type: [String], default: [] }
+const AIRuleSchema = new mongoose_1.Schema({
+    serverId: { type: String, required: true },
+    trigger: { type: String, required: true },
+    response: { type: String, required: true },
+    intent: { type: String, default: 'general' }
+}, {
+    timestamps: true
 });
-// Use existing model if already compiled (Next.js hot reload fix)
-exports.Server = mongoose_1.default.models.Server || mongoose_1.default.model('Server', ServerSchema);
+// Compound index to speed up checks and avoid duplicate triggers per server
+AIRuleSchema.index({ serverId: 1, trigger: 1 }, { unique: true });
+exports.AIRule = mongoose_1.default.models.AIRule || mongoose_1.default.model('AIRule', AIRuleSchema);

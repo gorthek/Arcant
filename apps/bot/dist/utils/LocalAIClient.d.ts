@@ -1,15 +1,11 @@
-/**
- * LocalAIClient (Maintenant propulsé par Gemini)
- * Gère l'interfaçage avec l'API Gemini de Google.
- */
 export declare class LocalAIClient {
-    private ai;
-    private model;
     constructor();
     /**
-     * Génère une réponse via Gemini.
+     * Analyse un message utilisateur et génère une réponse basée sur des règles ou de la simulation.
      */
-    generateResponse(prompt: string, systemContext?: string): Promise<string>;
+    generateResponse(prompt: string, systemContext?: string, serverId?: string): Promise<string>;
+    private handleCopilotRequest;
+    private generateFallbackResponse;
 }
 export declare const localAI: LocalAIClient;
 //# sourceMappingURL=LocalAIClient.d.ts.map

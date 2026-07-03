@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, History, FileText, User } from "lucide-react";
+import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, History, FileText, User, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import ServerVisualEditor from './ServerVisualEditor';
 
@@ -224,6 +224,71 @@ function ModuleIA({ serverId }: { serverId: string }) {
   const [isTyping, setIsTyping] = useState(false);
   // Un "fake" ID pour simuler la base de données (le vrai proviendrait de la session)
   const [botId] = useState("mock_bot_123");
+
+  // Etats pour les Règles IA Personnalisées
+  const [rules, setRules] = useState<{ _id: string; trigger: string; response: string; intent?: string }[]>([]);
+  const [newTrigger, setNewTrigger] = useState("");
+  const [newResponse, setNewResponse] = useState("");
+
+  const fetchRules = async () => {
+    try {
+      const res = await fetch(`/api/bots/${serverId}/rules`);
+      if (res.ok) {
+        const data = await res.json();
+        setRules(data.rules || []);
+      }
+    } catch (e) {
+      console.error("Failed to fetch custom rules:", e);
+      // Fallback
+      setRules([
+        { _id: "r1", trigger: "bonjour", response: "Salut {user} ! Comment vas-tu sur {server_name} ?" },
+        { _id: "r2", trigger: "aide", response: "Je suis le bot IA d'Arcant. Tapez .help pour voir les commandes." }
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    fetchRules();
+  }, [serverId]);
+
+  const handleAddRule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTrigger.trim() || !newResponse.trim()) return alert("Veuillez remplir le déclencheur et la réponse.");
+    try {
+      const res = await fetch(`/api/bots/${serverId}/rules`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trigger: newTrigger, response: newResponse }),
+      });
+      if (res.ok) {
+        setNewTrigger("");
+        setNewResponse("");
+        fetchRules();
+      } else {
+        alert("Erreur lors de la sauvegarde.");
+      }
+    } catch (e) {
+      // Offline fallback
+      setRules(prev => [...prev, { _id: Math.random().toString(), trigger: newTrigger, response: newResponse }]);
+      setNewTrigger("");
+      setNewResponse("");
+    }
+  };
+
+  const handleDeleteRule = async (ruleId: string) => {
+    try {
+      const res = await fetch(`/api/bots/${serverId}/rules/${ruleId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        fetchRules();
+      } else {
+        setRules(rules.filter(r => r._id !== ruleId));
+      }
+    } catch (e) {
+      setRules(rules.filter(r => r._id !== ruleId));
+    }
+  };
 
   // Etats pour la génération de serveur
   const [serverPrompt, setServerPrompt] = useState("");
@@ -602,7 +667,8 @@ function ModuleIA({ serverId }: { serverId: string }) {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-zinc-900/30 border border-white/5 rounded-2xl p-6">
+              <>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-zinc-900/30 border border-white/5 rounded-2xl p-6">
                 {/* PARTIE GAUCHE : CHAT COPILOT */}
                 <div className="flex flex-col h-[500px] border border-white/10 rounded-2xl bg-zinc-950 overflow-hidden relative">
                   <div className="bg-teal-500/10 border-b border-teal-500/20 p-4 flex items-center gap-3">
@@ -721,7 +787,90 @@ function ModuleIA({ serverId }: { serverId: string }) {
                   </div>
                 </div>
               </div>
-            )}
+              
+              {/* CUSTOM RULES MANAGEMENT CONTAINER */}
+              <div className="mt-8 bg-zinc-950/80 border border-white/10 rounded-3xl p-6 md:p-8 space-y-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[50px] pointer-events-none" />
+                
+                <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+                  <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+                    <Database size={16} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white text-base">Règles & Mots-Clés IA Personnalisés</h4>
+                    <p className="text-xs text-gray-500">Définissez des déclencheurs et les réponses correspondantes pour votre serveur.</p>
+                  </div>
+                </div>
+
+                <form onSubmit={handleAddRule} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-zinc-900/20 border border-white/5 p-4 rounded-2xl">
+                  <div className="md:col-span-4 space-y-2">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Mot Déclencheur</label>
+                    <input 
+                      type="text"
+                      value={newTrigger}
+                      onChange={(e) => setNewTrigger(e.target.value)}
+                      placeholder="Ex: bonjour"
+                      className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-teal-500 focus:outline-none transition-colors"
+                    />
+                  </div>
+                  <div className="md:col-span-6 space-y-2">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Réponse Automatique</label>
+                    <input 
+                      type="text"
+                      value={newResponse}
+                      onChange={(e) => setNewResponse(e.target.value)}
+                      placeholder="Ex: Salut {user} ! Heureux de te voir sur {server_name}"
+                      className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-teal-500 focus:outline-none transition-colors"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <button 
+                      type="submit"
+                      className="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-black font-black text-xs transition-colors flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(20,184,166,0.2)]"
+                    >
+                      <Plus size={14} /> Ajouter
+                    </button>
+                  </div>
+                </form>
+
+                <div className="space-y-3">
+                  <h5 className="text-xs font-black text-gray-400 uppercase tracking-wider pl-1">Règles Actives ({rules.length})</h5>
+                  {rules.length === 0 ? (
+                    <div className="text-center py-6 bg-zinc-900/10 border border-dashed border-white/5 rounded-2xl text-gray-600 text-xs">
+                      Aucune règle configurée. Ajoutez un déclencheur ci-dessus !
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-2.5">
+                      {rules.map((rule, idx) => (
+                        <motion.div 
+                          key={rule._id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="flex items-center justify-between bg-zinc-900/40 hover:bg-zinc-900/80 border border-white/5 hover:border-teal-500/20 px-5 py-4 rounded-2xl transition-all duration-300 group"
+                        >
+                          <div className="space-y-1.5 flex-1 pr-4">
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 rounded bg-teal-500/10 text-teal-400 text-[10px] font-black border border-teal-500/20 uppercase tracking-wider">
+                                {rule.trigger}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-300 font-medium leading-relaxed">{rule.response}</p>
+                          </div>
+                          <button 
+                            onClick={() => handleDeleteRule(rule._id)}
+                            className="p-2 rounded-xl bg-zinc-950 text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors border border-white/5"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
           </motion.div>
         </AnimatePresence>
 

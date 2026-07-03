@@ -2,18 +2,21 @@
 
 import { usePathname, useParams } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Settings2, ShieldAlert, Bot, ArrowLeft, ExternalLink, Activity, Image as ImageIcon } from "lucide-react";
+import { LayoutDashboard, Settings2, ShieldAlert, Bot, ArrowLeft, ExternalLink, Activity, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { useServerContext } from "@/contexts/ServerContext";
+import { useSession } from "next-auth/react";
 
 export function Sidebar() {
   const pathname = usePathname();
   const params = useParams();
   const serverId = params?.id as string | undefined;
+  const { data: session } = useSession();
   
-  // Utiliser le contexte pour récupérer le guild (s'il y en a un)
-  // Attention: si on est juste sur /dashboard, on n'a peut-être pas de ServerProvider au-dessus.
-  // Wait, DashboardLayoutClient is rendered at /dashboard too.
+  // Checking if logged in user is the Bot Owner (CEO)
+  // @ts-ignore
+  const isCeo = session?.user?.id === "1061340110219640905";
+  
   const context = useServerContext();
   const guild = context?.guild;
 
@@ -29,8 +32,17 @@ export function Sidebar() {
             <span className="font-bold text-gray-300 group-hover:text-white transition-colors text-sm uppercase tracking-wider">Accueil Site</span>
           </Link>
         </div>
-        <div className="flex-1 p-6">
-          <p className="text-gray-500 text-sm">Veuillez sélectionner un serveur pour configurer ses paramètres.</p>
+        <div className="flex-1 p-6 flex flex-col justify-between">
+          <div>
+            <p className="text-gray-500 text-sm">Veuillez sélectionner un serveur pour configurer ses paramètres.</p>
+          </div>
+          {isCeo && (
+            <div className="mt-auto pt-4 border-t border-white/5">
+              <Link href="/dashboard/admin-global" className="w-full py-3 px-4 rounded-xl bg-teal-500/10 text-teal-400 text-xs font-black tracking-wider hover:bg-teal-500 hover:text-black border border-teal-500/20 transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(20,184,166,0.1)]">
+                <Shield size={14} /> CONSOLE SUPRÊME
+              </Link>
+            </div>
+          )}
         </div>
         <div className="p-4 border-t border-white/10 flex flex-col gap-2 shrink-0">
           <a href="https://discord.gg/Fcj28jUawM" target="_blank" rel="noopener noreferrer" className="w-full py-2.5 rounded-lg bg-teal-500/10 text-teal-400 text-sm font-bold hover:bg-teal-500/20 transition-colors flex items-center justify-center gap-2">
@@ -89,7 +101,6 @@ export function Sidebar() {
 
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {navItems.map((item) => {
-          // Simplification de la vérification active pour la démo
           const isActive = pathname === item.path || (pathname === `/dashboard/${serverId}` && window?.location?.search === item.path.split('?')[1]);
           return (
             <Link key={item.name} href={item.path}>
@@ -110,6 +121,11 @@ export function Sidebar() {
       </nav>
       
       <div className="p-4 border-t border-white/10 flex flex-col gap-2 shrink-0">
+        {isCeo && (
+          <Link href="/dashboard/admin-global" className="w-full py-2.5 mb-2 rounded-lg bg-teal-500/15 hover:bg-teal-500 hover:text-black text-teal-400 text-xs font-black tracking-wider transition-all flex items-center justify-center gap-2 border border-teal-500/30 shadow-[0_0_15px_rgba(20,184,166,0.15)]">
+            <Shield size={14} /> CONSOLE SUPRÊME
+          </Link>
+        )}
         <a href="https://discord.gg/Fcj28jUawM" target="_blank" rel="noopener noreferrer" className="w-full py-2.5 rounded-lg bg-teal-500/10 text-teal-400 text-sm font-bold hover:bg-teal-500/20 transition-colors flex items-center justify-center gap-2 border border-teal-500/20">
           Support Discord <ExternalLink size={14} />
         </a>

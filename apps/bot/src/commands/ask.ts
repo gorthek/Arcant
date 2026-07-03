@@ -21,7 +21,7 @@ export default {
       // Le contexte principal de l'IA d'Arcant
       const systemContext = "Tu es Arcant, une intelligence artificielle sur-entraînée. Tu réponds de manière concise, intelligente et précise.";
       
-      const response = await localAI.generateResponse(question, systemContext);
+      const response = await localAI.generateResponse(question, systemContext, interaction.guildId || undefined);
       
       // Split if > 2000 chars (Discord limit)
       if (response.length > 2000) {

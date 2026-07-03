@@ -7,5 +7,11 @@ export interface IServer extends Document {
     isPremium: boolean;
     premiumUntil?: Date;
     joinedAt: Date;
+    raidMode: boolean;
+    antiLink: boolean;
+    antiSpamSensitivity: string;
+    logChannelId?: string;
+    muteDuration?: string;
+    blacklistedWords?: string[];
 }
 export declare const Server: Model<IServer>;

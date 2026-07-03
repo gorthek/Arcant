@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { CustomBot } from '@arcant/database';
+import { CustomBot, AIRule } from '@arcant/database';
 import axios from 'axios';
 
 const router = Router();
@@ -64,6 +64,60 @@ router.post('/copilot', async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error('[API] Copilot error:', error);
     res.status(500).json({ error: 'Failed to communicate with AI Copilot' });
+  }
+});
+
+// 5. Récupérer les règles personnalisées d'un serveur
+router.get('/:serverId/rules', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { serverId } = req.params;
+    const rules = await AIRule.find({ serverId }).sort({ createdAt: -1 });
+    res.status(200).json({ rules });
+  } catch (error) {
+    console.error('[API] GET rules error:', error);
+    res.status(500).json({ error: 'Failed to retrieve rules' });
+  }
+});
+
+// 6. Ajouter ou mettre à jour une règle personnalisée
+router.post('/:serverId/rules', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { serverId } = req.params;
+    const { trigger, response, intent } = req.body;
+
+    if (!trigger || !response) {
+      res.status(400).json({ error: 'Trigger and response are required' });
+      return;
+    }
+
+    const rule = await AIRule.findOneAndUpdate(
+      { serverId, trigger: trigger.trim() },
+      { response: response.trim(), intent: intent || 'general' },
+      { new: true, upsert: true }
+    );
+
+    res.status(200).json({ message: 'Rule saved successfully', rule });
+  } catch (error) {
+    console.error('[API] POST rules error:', error);
+    res.status(500).json({ error: 'Failed to save rule' });
+  }
+});
+
+// 7. Supprimer une règle personnalisée
+router.delete('/:serverId/rules/:ruleId', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { serverId, ruleId } = req.params;
+    const result = await AIRule.findOneAndDelete({ _id: ruleId, serverId });
+
+    if (!result) {
+      res.status(404).json({ error: 'Rule not found' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Rule deleted successfully' });
+  } catch (error) {
+    console.error('[API] DELETE rules error:', error);
+    res.status(500).json({ error: 'Failed to delete rule' });
   }
 });
 

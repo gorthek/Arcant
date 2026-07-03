@@ -226,6 +226,56 @@ Rien d'autre que du JSON.`;
             }
         });
     }
+    else if (req.method === 'POST' && req.url === '/announce') {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', async () => {
+            try {
+                const payload = JSON.parse(body);
+                const announceMsg = payload.message;
+                if (!announceMsg) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Missing message' }));
+                    return;
+                }
+                let successCount = 0;
+                let failCount = 0;
+                const guilds = Array.from(client.guilds.cache.values());
+                const { EmbedBuilder } = require('discord.js');
+                for (const guild of guilds) {
+                    try {
+                        const channel = guild.systemChannel || guild.channels.cache.find(c => c.isTextBased() && c.permissionsFor(guild.members.me)?.has('SendMessages'));
+                        if (channel && 'send' in channel) {
+                            const embed = new EmbedBuilder()
+                                .setTitle('📢 Annonce Officielle Arcant')
+                                .setDescription(announceMsg)
+                                .setColor('#10b981')
+                                .setThumbnail(client.user?.displayAvatarURL() || null)
+                                .setTimestamp()
+                                .setFooter({ text: 'Administration Globale Arcant' });
+                            await channel.send({ embeds: [embed] });
+                            successCount++;
+                        }
+                        else {
+                            failCount++;
+                        }
+                    }
+                    catch (e) {
+                        failCount++;
+                    }
+                }
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Announcements sent', successCount, failCount }));
+            }
+            catch (e) {
+                console.error('[API] /announce error:', e);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Internal server error' }));
+            }
+        });
+    }
     else {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end('Arcant Bot Service is alive!\n');
