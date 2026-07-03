@@ -31,6 +31,24 @@ export default function ServerVisualEditor({
     setStructure(newStructure);
   };
 
+  const deleteRole = (index: number) => {
+    const newStructure = { ...structure };
+    newStructure.roles.splice(index, 1);
+    setStructure(newStructure);
+  };
+
+  const deleteCategory = (index: number) => {
+    const newStructure = { ...structure };
+    newStructure.categories.splice(index, 1);
+    setStructure(newStructure);
+  };
+
+  const deleteChannel = (catIndex: number, chanIndex: number) => {
+    const newStructure = { ...structure };
+    newStructure.categories[catIndex].channels.splice(chanIndex, 1);
+    setStructure(newStructure);
+  };
+
   if (!structure) return <div className="text-white">Chargement de l'arborescence...</div>;
 
   return (
@@ -76,6 +94,7 @@ export default function ServerVisualEditor({
                   onChange={(e) => handleRoleNameChange(idx, e.target.value)}
                   className="bg-transparent text-sm font-semibold text-zinc-300 w-full focus:outline-none focus:text-white"
                 />
+                <button onClick={() => deleteRole(idx)} className="text-red-500/50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">✕</button>
               </div>
             ))}
           </div>
@@ -90,7 +109,7 @@ export default function ServerVisualEditor({
           <div className="space-y-6">
             {structure.categories?.map((cat: any, cIdx: number) => (
               <div key={cIdx} className="space-y-2">
-                <div className="flex items-center text-zinc-400 font-bold text-xs tracking-widest uppercase">
+                <div className="flex items-center text-zinc-400 font-bold text-xs tracking-widest uppercase group/cat">
                   <span className="mr-2">▼</span>
                   <input 
                     type="text"
@@ -98,11 +117,12 @@ export default function ServerVisualEditor({
                     onChange={(e) => handleCatNameChange(cIdx, e.target.value)}
                     className="bg-transparent w-full focus:outline-none focus:text-white"
                   />
+                  <button onClick={() => deleteCategory(cIdx)} className="text-red-500/50 hover:text-red-500 opacity-0 group-hover/cat:opacity-100 transition ml-2">✕</button>
                 </div>
                 
                 <div className="pl-4 space-y-1">
                   {cat.channels?.map((chan: any, chIdx: number) => (
-                    <div key={chIdx} className="flex items-center p-2 hover:bg-zinc-800 rounded-md transition-colors group">
+                    <div key={chIdx} className="flex items-center p-2 hover:bg-zinc-800 rounded-md transition-colors group/chan">
                       <span className="text-zinc-500 mr-2 text-lg">
                         {chan.type === 'voice' ? '🔊' : chan.type === 'forum' ? '💬' : '#'}
                       </span>
@@ -112,6 +132,7 @@ export default function ServerVisualEditor({
                         onChange={(e) => handleChanNameChange(cIdx, chIdx, e.target.value)}
                         className="bg-transparent text-sm text-zinc-300 w-full focus:outline-none focus:text-white"
                       />
+                      <button onClick={() => deleteChannel(cIdx, chIdx)} className="text-red-500/50 hover:text-red-500 opacity-0 group-hover/chan:opacity-100 transition ml-2 text-xs">✕</button>
                     </div>
                   ))}
                 </div>
