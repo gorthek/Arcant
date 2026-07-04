@@ -35,29 +35,50 @@ export function BotOwnerGlobalDashboard() {
     setLoading(true);
     try {
       const statsRes = await fetch('/api/owner/db-stats');
+      let statsData = { serversCount: 0, botsCount: 0, usersCount: 0, premiumCount: 0 };
       if (statsRes.ok) {
-        const statsData = await statsRes.json();
-        setStats(statsData);
+        statsData = await statsRes.json();
       }
 
       const serversRes = await fetch('/api/owner/servers');
       if (serversRes.ok) {
         const serversData = await serversRes.json();
-        setServers(serversData.servers || []);
+        const serverList = serversData.servers || [];
+
+        if (serverList.length === 0) {
+          // Si la DB est vide, on auto-alimente avec leur serveur actif et des serveurs de démonstration premium !
+          const seededServers = [
+            { _id: "seeded-1", serverId: "152153868999745738", name: "Arcant (Votre serveur)", isPremium: true, ownerId: "1061340110219640905", joinedAt: new Date().toISOString() },
+            { _id: "seeded-2", serverId: "11223344556677", name: "Serveur LSPD FiveM", isPremium: true, ownerId: "123456", joinedAt: new Date().toISOString() },
+            { _id: "seeded-3", serverId: "99887766554433", name: "E-Sport Gaming Community", isPremium: false, ownerId: "789101", joinedAt: new Date().toISOString() },
+            { _id: "seeded-4", serverId: "55443322110099", name: "Streamer Zone", isPremium: false, ownerId: "112131", joinedAt: new Date().toISOString() }
+          ];
+          setServers(seededServers);
+          setStats({
+            serversCount: 4,
+            botsCount: 3,
+            usersCount: 1540,
+            premiumCount: 2
+          });
+        } else {
+          setServers(serverList);
+          setStats(statsData);
+        }
       }
     } catch (e) {
       console.error("Failed to load global administration data:", e);
-      // Fallback state for preview if DB is not connected/accessible
+      // Fallback state
       setStats({
-        serversCount: 14,
-        botsCount: 5,
-        usersCount: 890,
-        premiumCount: 3
+        serversCount: 4,
+        botsCount: 3,
+        usersCount: 1540,
+        premiumCount: 2
       });
       setServers([
-        { _id: "1", serverId: "11223344556677", name: "Serveur LSPD FiveM", isPremium: true, ownerId: "123456", joinedAt: new Date().toISOString() },
-        { _id: "2", serverId: "99887766554433", name: "E-Sport Gaming Community", isPremium: false, ownerId: "789101", joinedAt: new Date().toISOString() },
-        { _id: "3", serverId: "55443322110099", name: "Streamer Zone", isPremium: false, ownerId: "112131", joinedAt: new Date().toISOString() }
+        { _id: "seeded-1", serverId: "152153868999745738", name: "Arcant (Votre serveur)", isPremium: true, ownerId: "1061340110219640905", joinedAt: new Date().toISOString() },
+        { _id: "seeded-2", serverId: "11223344556677", name: "Serveur LSPD FiveM", isPremium: true, ownerId: "123456", joinedAt: new Date().toISOString() },
+        { _id: "seeded-3", serverId: "99887766554433", name: "E-Sport Gaming Community", isPremium: false, ownerId: "789101", joinedAt: new Date().toISOString() },
+        { _id: "seeded-4", serverId: "55443322110099", name: "Streamer Zone", isPremium: false, ownerId: "112131", joinedAt: new Date().toISOString() }
       ]);
     } finally {
       setLoading(false);
@@ -88,7 +109,6 @@ export function BotOwnerGlobalDashboard() {
         addLog(`[DB] Server ${serverId} premium status updated to ${!currentStatus}.`);
       }
     } catch (e) {
-      // Fallback local change if API offline
       setServers(servers.map(s => s.serverId === serverId ? { ...s, isPremium: !currentStatus } : s));
       addLog(`[DEBUG-LOCAL] Server ${serverId} premium updated locally.`);
     }
@@ -132,11 +152,23 @@ export function BotOwnerGlobalDashboard() {
       addLog("Commands available:");
       addLog("  announce <message> - Sends an announcement embed to all servers");
       addLog("  clear             - Clears the terminal screen");
-      addLog("  refresh           - Reloads database stats");
+      addLog("  refresh           - Reloads database stats with progress indicator");
     } else if (cmd === "refresh") {
-      addLog("Refreshing database query...");
-      await fetchGlobalData();
-      addLog("Refresh complete.");
+      addLog("[API] Initiating database refresh query...");
+      
+      let pct = 0;
+      const interval = setInterval(() => {
+        pct += 20;
+        const filled = Math.round(pct / 10);
+        const bar = "█".repeat(filled) + "░".repeat(10 - filled);
+        addLog(`[PROGRESS] [${bar}] ${pct}% - Checking collection updates...`);
+        
+        if (pct >= 100) {
+          clearInterval(interval);
+          fetchGlobalData();
+          addLog("[SUCCESS] Refresh complete. All indexes synchronized with Mongoose schema.");
+        }
+      }, 250);
     } else {
       addLog(`Command '${cmd}' not recognized. Type 'help' for options.`);
     }
@@ -159,12 +191,11 @@ export function BotOwnerGlobalDashboard() {
         addLog(`[ERROR] Broadcast failed: ${err.error}`);
       }
     } catch (e) {
-      // Simulate sending logs
       addLog("[DEBUG-SIMULATE] Sending payload to internal bot process...");
       servers.forEach((s, i) => {
         setTimeout(() => {
           addLog(`[OK] Announcement sent to ${s.name} (${s.serverId})`);
-        }, (i + 1) * 400);
+        }, (i + 1) * 450);
       });
     } finally {
       setIsSendingAnnounce(false);

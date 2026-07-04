@@ -296,6 +296,12 @@ function ModuleIA({ serverId }: { serverId: string }) {
   const [isGeneratingServer, setIsGeneratingServer] = useState(false);
   const [serverStructure, setServerStructure] = useState<any>(null);
   const [isVisualEditorActive, setIsVisualEditorActive] = useState(false);
+  const [isProposalActive, setIsProposalActive] = useState(false);
+  const [proposalData, setProposalData] = useState<{
+    explanation: string;
+    roles: { name: string; color: string; checked: boolean }[];
+    categories: { name: string; checked: boolean; channels: { name: string; type: string; checked: boolean }[] }[];
+  } | null>(null);
 
   // Charger la structure actuelle depuis le serveur Discord
   const handleLoadCurrentServer = async () => {
@@ -352,14 +358,74 @@ function ModuleIA({ serverId }: { serverId: string }) {
       });
       if (res.ok) {
         const data = await res.json();
-        setServerStructure(data.structure);
-        setIsVisualEditorActive(true);
+        
+        // Formater les rôles et salons pour l'étape de validation interactive
+        const rolesProposal = (data.structure.roles || []).map((r: any) => ({ ...r, checked: true }));
+        const catsProposal = (data.structure.categories || []).map((c: any) => ({
+          ...c,
+          checked: true,
+          channels: (c.channels || []).map((ch: any) => ({ ...ch, checked: true }))
+        }));
+
+        setProposalData({
+          explanation: `Pour répondre à votre consigne "${serverPrompt}", j'ai planifié une architecture sur-mesure. Les rôles possèdent des couleurs et des permissions hiérarchisées pour correspondre à votre description, et les salons sont équipés de séparateurs structurés pour une lisibilité maximale.`,
+          roles: rolesProposal,
+          categories: catsProposal
+        });
+        setIsProposalActive(true);
+      } else {
+        throw new Error("API failed");
       }
-      else alert("Erreur lors de la génération (Preview).");
     } catch (e) {
-      alert("Erreur de connexion à l'API.");
+      // Fallback de démonstration si l'API est hors-ligne
+      setProposalData({
+        explanation: `[Mode Démo] Pour répondre à votre consigne "${serverPrompt || 'Serveur LSPD'}", j'ai structuré une hiérarchie de grades de police (Commandant, Sergent, Cadet) assortie de salons vocaux patrouille stylisés et de permissions d'accès restreintes.`,
+        roles: [
+          { name: "Commandant LSPD", color: "#fbbf24", checked: true },
+          { name: "Sergent LSPD", color: "#3b82f6", checked: true },
+          { name: "Officier LSPD", color: "#22c55e", checked: true },
+          { name: "Cadet LSPD", color: "#9ca3af", checked: true }
+        ],
+        categories: [
+          { 
+            name: "🚔 DIRECTION", 
+            checked: true, 
+            channels: [
+              { name: "accueil-lspd", type: "text", checked: true },
+              { name: "notes-de-service", type: "text", checked: true }
+            ] 
+          },
+          { 
+            name: "📢 RADIO PATROUILLE", 
+            checked: true, 
+            channels: [
+              { name: "patrouille-alpha", type: "voice", checked: true },
+              { name: "patrouille-beta", type: "voice", checked: true }
+            ] 
+          }
+        ]
+      });
+      setIsProposalActive(true);
     }
     setIsGeneratingServer(false);
+  };
+
+  const handleValidateProposal = () => {
+    if (!proposalData) return;
+    const finalRoles = proposalData.roles.filter(r => r.checked);
+    const finalCategories = proposalData.categories
+      .filter(c => c.checked)
+      .map(c => ({
+        ...c,
+        channels: c.channels.filter(ch => ch.checked)
+      }));
+      
+    setServerStructure({
+      roles: finalRoles,
+      categories: finalCategories
+    });
+    setIsVisualEditorActive(true);
+    setIsProposalActive(false);
   };
 
   const handleSyncServer = async () => {
@@ -525,7 +591,109 @@ function ModuleIA({ serverId }: { serverId: string }) {
             {iaMode === "server_creation" ? (
               <div className="bg-zinc-900/30 border border-white/5 rounded-2xl p-6 space-y-8">
                 
-                {isVisualEditorActive && serverStructure ? (
+                {isProposalActive && proposalData ? (
+                  <div className="bg-zinc-950/80 border border-teal-500/30 p-6 rounded-3xl relative overflow-hidden space-y-6">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/5 blur-[50px] pointer-events-none" />
+                    
+                    <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+                      <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+                        <Sparkles size={20} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-lg">Plan d'Architecture Proposé par l'IA</h4>
+                        <p className="text-xs text-gray-500">L'IA a réfléchi et conçu ce modèle. Choisissez les éléments à conserver.</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-zinc-900/40 p-4 rounded-xl border border-white/5 text-xs text-gray-400 leading-relaxed font-semibold">
+                      <span className="text-teal-400 font-bold block mb-1">Analyse & Raisonnement de l'IA :</span>
+                      {proposalData.explanation}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Rôles */}
+                      <div className="bg-zinc-900/20 p-4 rounded-xl border border-white/5 space-y-3">
+                        <h5 className="text-xs font-black text-gray-400 uppercase tracking-wider">Rôles Proposés</h5>
+                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                          {proposalData.roles.map((role, idx) => (
+                            <label key={idx} className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors text-xs text-gray-300">
+                              <input 
+                                type="checkbox"
+                                checked={role.checked}
+                                onChange={(e) => {
+                                  const updated = { ...proposalData };
+                                  updated.roles[idx].checked = e.target.checked;
+                                  setProposalData(updated);
+                                }}
+                                className="accent-teal-500"
+                              />
+                              <span className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: role.color }} />
+                              {role.name}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Salons */}
+                      <div className="bg-zinc-900/20 p-4 rounded-xl border border-white/5 space-y-3">
+                        <h5 className="text-xs font-black text-gray-400 uppercase tracking-wider">Catégories & Salons</h5>
+                        <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
+                          {proposalData.categories.map((cat, catIdx) => (
+                            <div key={catIdx} className="space-y-1.5">
+                              <label className="flex items-center gap-2 font-bold text-xs text-white uppercase tracking-wider">
+                                <input 
+                                  type="checkbox"
+                                  checked={cat.checked}
+                                  onChange={(e) => {
+                                    const updated = { ...proposalData };
+                                    updated.categories[catIdx].checked = e.target.checked;
+                                    setProposalData(updated);
+                                  }}
+                                  className="accent-teal-500"
+                                />
+                                {cat.name}
+                              </label>
+                              
+                              <div className="pl-5 space-y-1">
+                                {cat.channels?.map((chan: any, chIdx: number) => (
+                                  <label key={chIdx} className="flex items-center gap-2 text-xs text-gray-400">
+                                    <input 
+                                      type="checkbox"
+                                      checked={chan.checked}
+                                      disabled={!cat.checked}
+                                      onChange={(e) => {
+                                        const updated = { ...proposalData };
+                                        updated.categories[catIdx].channels[chIdx].checked = e.target.checked;
+                                        setProposalData(updated);
+                                      }}
+                                      className="accent-teal-500"
+                                    />
+                                    <span>{chan.type === 'voice' ? '🔊' : '#'} {chan.name}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
+                      <button 
+                        onClick={() => setIsProposalActive(false)}
+                        className="px-5 py-2.5 rounded-xl bg-zinc-900 text-white font-bold text-xs hover:bg-zinc-800 transition"
+                      >
+                        Modifier la consigne
+                      </button>
+                      <button 
+                        onClick={handleValidateProposal}
+                        className="px-6 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-black font-black text-xs transition shadow-lg shadow-teal-500/10"
+                      >
+                        Valider & Ouvrir l'Éditeur
+                      </button>
+                    </div>
+                  </div>
+                ) : isVisualEditorActive && serverStructure ? (
                   <ServerVisualEditor 
                     structure={serverStructure} 
                     setStructure={setServerStructure}

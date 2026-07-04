@@ -2,7 +2,7 @@
 
 import { usePathname, useParams } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Settings2, ShieldAlert, Bot, ArrowLeft, ExternalLink, Activity, Shield } from "lucide-react";
+import { LayoutDashboard, Settings2, ShieldAlert, Bot, ArrowLeft, ExternalLink, Activity, Shield, Award, FileText, Coins, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useServerContext } from "@/contexts/ServerContext";
 import { useSession } from "next-auth/react";
@@ -56,12 +56,16 @@ export function Sidebar() {
     );
   }
 
-  // Si on est sur le panel d'un serveur spécifique
+  // Modules enrichis pour la commercialisation
   const navItems = [
     { name: "Vue d'ensemble", path: `/dashboard/${serverId}`, icon: <LayoutDashboard size={20} /> },
     { name: "Configuration IA", path: `/dashboard/${serverId}?tab=ia`, icon: <Bot size={20} /> },
     { name: "Sécurité & Raid", path: `/dashboard/${serverId}?tab=security`, icon: <ShieldAlert size={20} /> },
     { name: "Modération", path: `/dashboard/${serverId}?tab=moderation`, icon: <Settings2 size={20} /> },
+    { name: "Tickets de Support", path: `/dashboard/${serverId}?tab=tickets`, icon: <FileText size={20} /> },
+    { name: "Économie & Boutique", path: `/dashboard/${serverId}?tab=economy`, icon: <Coins size={20} /> },
+    { name: "Système de Leveling", path: `/dashboard/${serverId}?tab=leveling`, icon: <Award size={20} /> },
+    { name: "Welcome & Auto-Rôles", path: `/dashboard/${serverId}?tab=welcome`, icon: <UserPlus size={20} /> },
   ];
 
   return (
@@ -99,20 +103,20 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto scrollbar-thin">
         {navItems.map((item) => {
           const isActive = pathname === item.path || (pathname === `/dashboard/${serverId}` && window?.location?.search === item.path.split('?')[1]);
           return (
             <Link key={item.name} href={item.path}>
-              <div className={`relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+              <div className={`relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 ${
                 isActive 
-                  ? "bg-teal-500/10 text-teal-400 border border-teal-500/20 shadow-[inset_0_0_20px_rgba(20,184,166,0.05)]" 
+                  ? "bg-teal-500/10 text-teal-400 border border-teal-500/20 shadow-[inset_0_0_20px_rgba(20,184,166,0.05)] font-bold" 
                   : "text-gray-400 hover:bg-white/5 hover:text-gray-200"
               }`}>
                 {item.icon}
                 <span className="font-medium text-sm">{item.name}</span>
                 {isActive && (
-                  <motion.div layoutId="activeNav" className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-teal-400 rounded-r-full shadow-[0_0_10px_rgba(20,184,166,0.8)]" />
+                  <motion.div layoutId="activeNav" className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-teal-400 rounded-r-full shadow-[0_0_10px_rgba(20,184,166,0.8)]" />
                 )}
               </div>
             </Link>
