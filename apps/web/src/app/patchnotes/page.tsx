@@ -5,14 +5,55 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { StardustBackground } from "@/components/landing/StardustBackground";
-import { CheckCircle2, Rocket, Wrench, Sparkles, AlertCircle, Settings2, Info, ChevronRight, Bot, X, Calendar, FileCode, Search } from "lucide-react";
+import { CheckCircle2, Rocket, Wrench, Sparkles, AlertCircle, Settings2, Info, ChevronRight, Bot, X, Calendar, FileCode, Search, Globe, Terminal } from "lucide-react";
 
 export default function PatchnotesPage() {
   const [selectedPatch, setSelectedPatch] = useState<any | null>(null);
   const [selectedChange, setSelectedChange] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<"web" | "bot">("web");
 
-  const patches = [
+  const webPatches = [
+    {
+      version: "v2.0.0",
+      date: "04 Juillet 2026",
+      title: "Refonte Visuelle & Intégration en Temps Réel",
+      type: "Mise à jour Majeure",
+      color: "from-cyan-400 via-teal-400 to-emerald-400",
+      border: "border-cyan-500/50",
+      bgHover: "hover:bg-cyan-900/10",
+      icon: <Sparkles className="text-cyan-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Espace Membre Enrichi : Profils, Niveaux et Classement",
+          detail: "Création d'un système d'onglets pour les membres. Permet de consulter son profil, sa progression XP, de voir le classement du serveur en temps réel, et d'accéder à l'arborescence des salons en lecture seule.",
+          files: ["apps/web/src/components/dashboard/roles/MemberDashboard.tsx"],
+          diff: `diff --git a/apps/web/src/components/dashboard/roles/MemberDashboard.tsx\n+  const [activeTab, setActiveTab] = useState("profile");\n+  // Ajout du classement XP et de l'arborescence...`
+        },
+        {
+          type: "feature",
+          text: "Console d'Administration Améliorée avec Journal d'Audit",
+          detail: "Intégration d'un bandeau KPI en lecture seule pour les admins, et ajout d'un Journal d'Audit complet retraçant les dernières sanctions et modifications de configuration.",
+          files: ["apps/web/src/components/dashboard/roles/AdminDashboard.tsx"],
+          diff: `diff --git a/apps/web/src/components/dashboard/roles/AdminDashboard.tsx\n+  { id: "overview", name: "Vue d'ensemble", icon: <Activity size={18} /> },\n+  { id: "audit", name: "Journal d'Audit", icon: <FileText size={18} /> },`
+        },
+        {
+          type: "feature",
+          text: "Console Suprême Cyberpunk & Flux MongoDB Réel",
+          detail: "Suppression définitive des données simulées. La console suprême affiche désormais les vrais serveurs enregistrés en DB et les statistiques réelles des collections MongoDB (servers, bots, users, airules).",
+          files: ["apps/web/src/components/dashboard/roles/BotOwnerGlobalDashboard.tsx"],
+          diff: `diff --git b/apps/web/src/components/dashboard/roles/BotOwnerGlobalDashboard.tsx\n-  // Seeded fallback removed\n+  const [stats, setStats] = useState({\n+    serversCount: 0,\n+    collections: []\n+  });`
+        },
+        {
+          type: "improvement",
+          text: "Thématisation dynamique des rôles",
+          detail: "Harmonisation complète des thèmes de couleurs d'accentuation (Red pour Admin, Blue pour Membre, Teal pour Server Owner, Glitch Cyberpunk pour CEO).",
+          files: ["apps/web/src/components/dashboard/DashboardLayoutClient.tsx", "apps/web/src/components/dashboard/roles/OwnerDashboard.tsx"],
+          diff: `diff --git a/apps/web/src/components/dashboard/DashboardLayoutClient.tsx\n+  const themeColors = {\n+    owner: "from-orange-500/20 via-amber-500/10 to-transparent",\n+    admin: "from-red-600/20 via-red-900/10 to-transparent",`
+        }
+      ]
+    },
     {
       version: "v1.5.0",
       date: "04 Juillet 2026",
@@ -26,30 +67,9 @@ export default function PatchnotesPage() {
         { 
           type: "feature", 
           text: "Console Suprême CEO : Accès global en base de données pour le Bot Owner.",
-          detail: "Permet au Bot Owner d'accéder à l'ensemble de la base de données via une console de contournement automatique par ID Discord. Gère l'activation/désactivation du Premium et la suppression des serveurs.",
-          files: ["apps/web/src/components/dashboard/roles/BotOwnerGlobalDashboard.tsx", "apps/web/src/app/dashboard/admin-global/page.tsx"],
-          diff: `diff --git a/apps/web/src/app/dashboard/admin-global/page.tsx\n+    // @ts-ignore\n+    const userId = session?.user?.id;\n+    if (userId === "1061340110219640905") {\n+      setAuthorized(true);\n+    } else {\n+      setAuthorized(false);\n+    }`
-        },
-        { 
-          type: "feature", 
-          text: "Terminal d'Annonces Globales : Diffusion d'alertes en temps réel sur Discord.",
-          detail: "Un terminal en ligne de commande rétro-futuriste vert néon émulé dans le panel d'administration global. La commande 'announce <message>' envoie une requête au bot Discord pour diffuser l'annonce sur tous les serveurs.",
-          files: ["apps/bot/src/index.ts", "apps/api/src/routes/owner.routes.ts"],
-          diff: `diff --git b/apps/bot/src/index.ts\n+  } else if (req.method === 'POST' && req.url === '/announce') {\n+    const guilds = Array.from(client.guilds.cache.values());\n+    for (const guild of guilds) {\n+      const channel = guild.systemChannel || ...;\n+      await channel.send({ embeds: [announceEmbed] });\n+    }`
-        },
-        { 
-          type: "feature", 
-          text: "Moteur IA Autonome Local : Remplacement de l'API Gemini par des règles locales.",
-          detail: "Remplacement complet de Gemini par un moteur d'intention local basé sur des règles configurables en base de données. Analyse des déclencheurs et injection de variables ({user}, {server_name}).",
-          files: ["apps/bot/src/utils/LocalAIClient.ts", "packages/database/src/models/AIRule.ts"],
-          diff: `diff --git a/apps/bot/src/utils/LocalAIClient.ts\n+  public async generateResponse(prompt: string, context: string, serverId?: string) {\n+    const rules = await AIRule.find({ serverId });\n+    for (const rule of rules) {\n+      if (prompt.toLowerCase().includes(rule.trigger)) {\n+        return rule.response.replace(/{user}/g, ...);\n+      }\n+    }`
-        },
-        { 
-          type: "improvement", 
-          text: "Refonte thématique des rôles (Émeraude, Rouge Démoniaque, Bleu Spatial) avec animations 3D.",
-          detail: "Les tableaux de bord s'adaptent visuellement au grade de l'utilisateur avec des animations de cartes et de boucliers 3D interactifs en cas de Raid.",
-          files: ["apps/web/src/components/dashboard/roles/AdminDashboard.tsx", "apps/web/src/components/dashboard/roles/MemberDashboard.tsx"],
-          diff: `diff --git a/apps/web/src/components/dashboard/roles/AdminDashboard.tsx\n+        <motion.div \n+          animate={{ rotateY: raidMode ? [0, -15, 15, 0] : 0 }}\n+          className="w-28 h-28 border flex items-center justify-center relative rounded-2xl"\n+        >\n+          <ShieldAlert size={48} className={raidMode ? "text-red-500" : "text-gray-500"} />\n+        </motion.div>`
+          detail: "Permet au Bot Owner d'accéder à l'ensemble de la base de données via une console de contournement automatique par ID Discord.",
+          files: ["apps/web/src/app/dashboard/admin-global/page.tsx"],
+          diff: `diff --git a/apps/web/src/app/dashboard/admin-global/page.tsx\n+    const userId = session?.user?.id;\n+    if (userId === "1061340110219640905") { setAuthorized(true); }`
         }
       ]
     },
@@ -65,17 +85,9 @@ export default function PatchnotesPage() {
       changes: [
         { 
           type: "feature", 
-          text: "Refonte du générateur de bots en un véritable Agent Copilot IA (Dashboard Scindé).",
+          text: "Refonte du générateur de bots en Agent Copilot IA.",
           detail: "L'utilisateur discute directement avec l'IA dans un chat interactif pour configurer ses modules et ses prompts.",
-          files: ["apps/web/src/components/dashboard/roles/OwnerDashboard.tsx"],
-          diff: `diff --git a/apps/web/src/components/dashboard/roles/OwnerDashboard.tsx\n+  const handleCopilotChat = async () => {\n+    const res = await fetch('/api/bots/copilot', { ... });\n+    if (res.ok) { setChatMessages(...) }\n+  }`
-        },
-        { 
-          type: "feature", 
-          text: "Ajout du Live State Viewer pour voir le bot se configurer en temps réel.",
-          detail: "Un panneau sur le côté droit affiche en temps réel les modules activés par le Copilot IA.",
-          files: ["apps/web/src/components/dashboard/roles/OwnerDashboard.tsx"],
-          diff: `diff --git a/apps/web/src/components/dashboard/roles/OwnerDashboard.tsx\n+  <div className="bg-zinc-950 border border-white/10 rounded-2xl p-6">\n+    <h4 className="font-bold text-sm">État en Direct du Bot</h4>\n+    <input value={botName} readOnly />\n+  </div>`
+          files: ["apps/web/src/components/dashboard/roles/OwnerDashboard.tsx"]
         }
       ]
     },
@@ -93,72 +105,7 @@ export default function PatchnotesPage() {
           type: "feature", 
           text: "Déploiement de la page de Paramètres du Profil Utilisateur (/settings).",
           detail: "Création de la page des paramètres de profil contenant les préférences utilisateur, les clés API, et la facturation.",
-          files: ["apps/web/src/app/settings/page.tsx"],
-          diff: `diff --git a/apps/web/src/app/settings/page.tsx\n+export default function SettingsPage() {\n+  const [activeTab, setActiveTab] = useState("profile");\n+  return ( ... )\n+}`
-        }
-      ]
-    },
-    {
-      version: "v1.2.3",
-      date: "03 Juillet 2026",
-      title: "Copilot IA & Rechargement à chaud",
-      type: "Mise à jour Mineure",
-      color: "from-blue-400 to-cyan-400",
-      border: "border-blue-500/30",
-      bgHover: "hover:bg-blue-900/10",
-      icon: <CheckCircle2 className="text-blue-400" size={24} />,
-      changes: [
-        {
-          type: "feature",
-          text: "Implémentation complète de l'API Copilot (/copilot).",
-          detail: "Le serveur reçoit les requêtes du Dashboard Web et met à jour dynamiquement la configuration du bot.",
-          files: ["apps/bot/src/index.ts"],
-          diff: `diff --git a/apps/bot/src/index.ts\n+app.post('/copilot', async (req, res) => {\n+  const { botId, userMessage } = req.body;\n+  // Logic Copilot...\n+});`
-        },
-        {
-          type: "improvement",
-          text: "Rechargement à chaud : reloadBot sans interruption.",
-          detail: "Permet de recharger instantanément les configurations du bot Discord sans aucun temps mort.",
-          files: ["apps/bot/src/index.ts"],
-          diff: `diff --git a/apps/bot/src/index.ts\n+export async function reloadBot(botId: string) {\n+  // Hot reload...\n+}`
-        }
-      ]
-    },
-    {
-      version: "v1.2.2",
-      date: "03 Juillet 2026",
-      title: "Architecture Multi-Bots",
-      type: "Mise à jour Mineure",
-      color: "from-blue-400 to-cyan-400",
-      border: "border-blue-500/30",
-      bgHover: "hover:bg-blue-900/10",
-      icon: <CheckCircle2 className="text-blue-400" size={24} />,
-      changes: [
-        {
-          type: "feature",
-          text: "BotManager pour héberger dynamiquement plusieurs instances.",
-          detail: "Le BotManager charge et déploie simultanément les bots configurés dans la base de données MongoDB.",
-          files: ["apps/bot/src/index.ts"],
-          diff: `diff --git a/apps/bot/src/index.ts\n+export class BotManager {\n+  private activeBots = new Map();\n+}`
-        }
-      ]
-    },
-    {
-      version: "v1.2.1",
-      date: "03 Juillet 2026",
-      title: "Sauvegarde de l'icône",
-      type: "Correctif",
-      color: "from-orange-400 to-amber-400",
-      border: "border-orange-500/30",
-      bgHover: "hover:bg-orange-900/10",
-      icon: <Wrench className="text-orange-400" size={24} />,
-      changes: [
-        {
-          type: "fix",
-          text: "Sauvegarde automatique de l'icône du serveur Discord dans MongoDB.",
-          detail: "Le bot enregistre l'url de l'icône à chaque fois qu'il rejoint ou qu'il est configuré sur un serveur.",
-          files: ["packages/database/src/models/Server.ts"],
-          diff: `diff --git a/packages/database/src/models/Server.ts\n+  icon: { type: String, default: null }`
+          files: ["apps/web/src/app/settings/page.tsx"]
         }
       ]
     },
@@ -176,15 +123,14 @@ export default function PatchnotesPage() {
           type: "feature", 
           text: "Déploiement complet du Dashboard Utilisateur.",
           detail: "Une interface complète pour gérer les modules, les configurations, et visualiser les statistiques en temps réel.",
-          files: ["apps/web/src/app/dashboard/page.tsx"],
-          diff: `diff --git a/apps/web/src/app/dashboard/page.tsx\n+export default function Dashboard() {\n+  return <DashboardLayout />\n+}`
+          files: ["apps/web/src/app/dashboard/page.tsx"]
         }
       ]
     },
     {
       version: "v1.1.0",
       date: "01 Juillet 2026",
-      title: "La Boutique et l'IA Autonome",
+      title: "La Boutique et la Vente d'Abonnement",
       type: "Mise à jour Majeure",
       color: "from-purple-400 to-pink-400",
       border: "border-purple-500/50",
@@ -195,8 +141,139 @@ export default function PatchnotesPage() {
           type: "feature", 
           text: "Refonte totale du système de paiement : fusion Boutique.",
           detail: "Abonnements récurrents et crédits d'IA unifiés dans une interface e-commerce moderne.",
-          files: ["apps/web/src/app/pricing/page.tsx"],
-          diff: `diff --git a/apps/web/src/app/pricing/page.tsx\n+export default function Pricing() { ... }`
+          files: ["apps/web/src/app/pricing/page.tsx"]
+        }
+      ]
+    },
+    {
+      version: "v1.0.0",
+      date: "25 Juin 2026",
+      title: "Lancement Officiel de la Plateforme",
+      type: "Lancement",
+      color: "from-orange-400 to-amber-400",
+      border: "border-orange-500/50",
+      bgHover: "hover:bg-orange-900/20",
+      icon: <Rocket className="text-orange-400" size={24} />,
+      changes: [
+        { 
+          type: "feature", 
+          text: "Création de la landing page avec effets 3D.",
+          detail: "Déploiement de l'interface d'accueil principale avec effets d'étoiles, néons et cartes d'achats.",
+          files: ["apps/web/src/app/page.tsx"]
+        }
+      ]
+    }
+  ];
+
+  const botPatches = [
+    {
+      version: "v2.0.0",
+      date: "04 Juillet 2026",
+      title: "Statistiques Réelles & API Unifiée",
+      type: "Mise à jour Majeure",
+      color: "from-cyan-400 via-blue-500 to-indigo-600",
+      border: "border-cyan-500/50",
+      bgHover: "hover:bg-cyan-900/10",
+      icon: <Terminal className="text-cyan-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Serveur HTTP Interne : Exposition des stats en temps réel",
+          detail: "Le bot Discord expose un nouveau endpoint interne /server-stats/:id retournant les vraies données de cache (memberCount, presenceCount, boosts, latence, salons, catégories).",
+          files: ["apps/bot/src/index.ts"],
+          diff: `diff --git a/apps/bot/src/index.ts\n+  } else if (req.method === 'GET' && req.url?.startsWith('/server-stats/')) {\n+    const guild = client.guilds.cache.get(serverId);\n+    res.end(JSON.stringify(stats));`
+        },
+        {
+          type: "improvement",
+          text: "Moteur IA unifié avec contexte multi-source",
+          detail: "Le moteur d'IA accepte désormais un objet AIContext contenant le mode (site, discord, api, copilot) et fournit des réponses adaptées et enrichies.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts", "apps/bot/src/utils/LocalAIClient.ts"],
+          diff: `diff --git a/packages/database/src/ai/ArcantAIEngine.ts\n+  public static async processMessage(userMessage: string, context: AIContext) {\n+    // Moteur d'IA propre à Arcant...`
+        }
+      ]
+    },
+    {
+      version: "v1.5.0",
+      date: "04 Juillet 2026",
+      title: "Diffusion Globale & Moteur d'IA Local",
+      type: "Mise à jour Majeure",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Bot className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Terminal d'Annonces Globales : Diffusion d'alertes en temps réel.",
+          detail: "La commande 'announce <message>' envoie une requête pour diffuser l'annonce sur tous les serveurs Discord via le bot.",
+          files: ["apps/bot/src/index.ts"],
+          diff: `diff --git a/apps/bot/src/index.ts\n+  } else if (req.method === 'POST' && req.url === '/announce') {\n+    // Send announcement to all system channels...`
+        },
+        {
+          type: "feature",
+          text: "Moteur IA Autonome Local propre à Arcant.",
+          detail: "Remplacement complet de l'API externe par un moteur d'intention local basé sur des règles configurables en base de données.",
+          files: ["apps/bot/src/utils/LocalAIClient.ts"]
+        }
+      ]
+    },
+    {
+      version: "v1.2.3",
+      date: "03 Juillet 2026",
+      title: "Copilot IA & Rechargement à chaud",
+      type: "Mise à jour Mineure",
+      color: "from-blue-400 to-cyan-400",
+      border: "border-blue-500/30",
+      bgHover: "hover:bg-blue-900/10",
+      icon: <Wrench className="text-blue-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Implémentation complète de l'API Copilot (/copilot).",
+          detail: "Le bot reçoit les requêtes du Dashboard Web et met à jour dynamiquement la configuration du bot.",
+          files: ["apps/bot/src/index.ts"]
+        },
+        {
+          type: "improvement",
+          text: "Rechargement à chaud sans interruption (reloadBot).",
+          detail: "Permet de recharger instantanément les configurations du bot Discord sans redémarrer le processus.",
+          files: ["apps/bot/src/index.ts"]
+        }
+      ]
+    },
+    {
+      version: "v1.2.2",
+      date: "03 Juillet 2026",
+      title: "Architecture Multi-Bots",
+      type: "Mise à jour Mineure",
+      color: "from-blue-400 to-cyan-400",
+      border: "border-blue-500/30",
+      bgHover: "hover:bg-blue-900/10",
+      icon: <Wrench className="text-blue-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "BotManager pour héberger dynamiquement plusieurs instances.",
+          detail: "Le BotManager charge et déploie simultanément les bots configurés dans la base de données MongoDB.",
+          files: ["apps/bot/src/index.ts"]
+        }
+      ]
+    },
+    {
+      version: "v1.2.1",
+      date: "03 Juillet 2026",
+      title: "Sauvegarde de l'icône",
+      type: "Correctif",
+      color: "from-orange-400 to-amber-400",
+      border: "border-orange-500/30",
+      bgHover: "hover:bg-orange-900/10",
+      icon: <Wrench className="text-orange-400" size={24} />,
+      changes: [
+        {
+          type: "fix",
+          text: "Sauvegarde automatique de l'icône du serveur Discord dans MongoDB.",
+          detail: "Le bot enregistre l'url de l'icône à chaque fois qu'il rejoint ou qu'il est configuré sur un serveur.",
+          files: ["packages/database/src/models/Server.ts"]
         }
       ]
     },
@@ -214,27 +291,7 @@ export default function PatchnotesPage() {
           type: "feature",
           text: "Mise en place de l'architecture monorepo en 3 pôles.",
           detail: "Configuration de npm workspaces pour lier les projets bot, api et web ensemble.",
-          files: ["package.json"],
-          diff: `diff --git a/package.json\n+  "workspaces": [\n+    "apps/*",\n+    "packages/*"\n+  ]`
-        }
-      ]
-    },
-    {
-      version: "v1.0.0",
-      date: "Lancement Officiel",
-      title: "Bienvenue sur Arcant",
-      type: "Lancement",
-      color: "from-orange-400 to-amber-400",
-      border: "border-orange-500/50",
-      bgHover: "hover:bg-orange-900/20",
-      icon: <Rocket className="text-orange-400" size={24} />,
-      changes: [
-        { 
-          type: "feature", 
-          text: "Création de la landing page avec effets 3D.",
-          detail: "Déploiement de l'interface d'accueil principale avec effets d'étoiles, néons et cartes d'achats.",
-          files: ["apps/web/src/app/page.tsx"],
-          diff: `diff --git a/apps/web/src/app/page.tsx\n+export default function Home() { ... }`
+          files: ["package.json"]
         }
       ]
     }
@@ -242,15 +299,17 @@ export default function PatchnotesPage() {
 
   const getIconForType = (type: string) => {
     switch (type) {
-      case "feature": return <Sparkles size={16} className="text-teal-400 mt-1 shrink-0" />;
+      case "feature": return <Sparkles size={16} className="text-cyan-400 mt-1 shrink-0" />;
       case "improvement": return <Rocket size={16} className="text-emerald-400 mt-1 shrink-0" />;
       case "fix": return <Wrench size={16} className="text-orange-400 mt-1 shrink-0" />;
       default: return <CheckCircle2 size={16} className="text-gray-400 mt-1 shrink-0" />;
     }
   };
 
+  const currentPatches = activeTab === "web" ? webPatches : botPatches;
+
   // Filtrer les patchs en temps réel
-  const filteredPatches = patches.filter(patch => {
+  const filteredPatches = currentPatches.filter(patch => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return true;
     return (
@@ -290,6 +349,30 @@ export default function PatchnotesPage() {
           </motion.h1>
         </div>
 
+        {/* Onglets Site Web / Bot Discord */}
+        <div className="flex justify-center gap-4 mb-8">
+          <button
+            onClick={() => { setActiveTab("web"); setSearchQuery(""); }}
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border ${
+              activeTab === "web"
+                ? "bg-teal-500 text-black border-teal-400 shadow-[0_0_20px_rgba(20,184,166,0.4)]"
+                : "bg-zinc-950/80 border-white/5 text-gray-400 hover:text-white"
+            }`}
+          >
+            <Globe size={14} /> Site Web
+          </button>
+          <button
+            onClick={() => { setActiveTab("bot"); setSearchQuery(""); }}
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border ${
+              activeTab === "bot"
+                ? "bg-teal-500 text-black border-teal-400 shadow-[0_0_20px_rgba(20,184,166,0.4)]"
+                : "bg-zinc-950/80 border-white/5 text-gray-400 hover:text-white"
+            }`}
+          >
+            <Bot size={14} /> Bot Discord
+          </button>
+        </div>
+
         {/* Barre de Recherche Intuitive */}
         <div className="max-w-xl mx-auto mb-16 relative">
           <div className="absolute -inset-1 bg-gradient-to-r from-teal-500 to-indigo-500 rounded-2xl blur-md opacity-25 group-hover:opacity-100 transition duration-1000" />
@@ -299,7 +382,7 @@ export default function PatchnotesPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Rechercher une version (ex: 1.2.0) ou un mot-clé (ex: IA, Raid)..."
+              placeholder={`Rechercher une version (ex: 2.0.0) ou un mot-clé dans les patchs ${activeTab === 'web' ? 'Site Web' : 'Bot Discord'}...`}
               className="w-full bg-transparent border-none text-white outline-none placeholder:text-gray-600 text-sm font-semibold"
             />
             {searchQuery && (
@@ -315,7 +398,7 @@ export default function PatchnotesPage() {
           {/* Quick Shortcuts */}
           <div className="flex flex-wrap gap-2 justify-center mt-4">
             <span className="text-xs text-gray-500 font-bold self-center">Accès Rapide :</span>
-            {["1.5.0", "1.4.0", "1.3.0", "1.2.3", "1.2.0", "1.0.0"].map(v => (
+            {["2.0.0", "1.5.0", "1.4.0", "1.3.0", "1.2.0", "1.0.0"].map(v => (
               <button
                 key={v}
                 onClick={() => setSearchQuery(v)}
@@ -346,7 +429,9 @@ export default function PatchnotesPage() {
             </div>
             
             <div>
-              <h2 className="text-2xl font-black text-white mb-3">Historique Complet ({patches.length} versions)</h2>
+              <h2 className="text-2xl font-black text-white mb-3">
+                Historique {activeTab === "web" ? "Site Web" : "Bot Discord"} ({filteredPatches.length} versions affichées)
+              </h2>
               <p className="text-gray-400 leading-relaxed text-sm">
                 Découvrez toutes les étapes de l'évolution d'Arcant. 
                 Cliquez sur n'importe quelle version pour ouvrir sa fiche détaillée. Cliquez sur **chaque modification individuelle** pour voir le code source !
@@ -411,7 +496,7 @@ export default function PatchnotesPage() {
                           <h3 className="text-2xl text-white font-bold mt-2 group-hover:text-teal-300 transition-colors">{patch.title}</h3>
                         </div>
 
-                        {/* Affiche TOUS les patchnotes pour cette version */}
+                        {/* Affiche les patchnotes pour cette version */}
                         <div className="space-y-3 relative z-10">
                           {patch.changes.map((change, i) => (
                             <div 

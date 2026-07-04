@@ -10,10 +10,17 @@ class LocalAIClient {
      * Analyse un message utilisateur et génère une réponse en appelant le moteur unifié.
      */
     async generateResponse(prompt, systemContext = '', serverId) {
-        // Appel du moteur d'IA unifié partagé
-        const result = await database_1.ArcantAIEngine.processMessage(prompt, serverId, systemContext);
+        // Détermine le mode depuis le contexte
+        const isCopilot = systemContext.includes("Copilot") || systemContext.includes("JSON");
+        const mode = isCopilot ? 'copilot' : 'discord';
+        // Appel du moteur d'IA unifié partagé avec la nouvelle API
+        const result = await database_1.ArcantAIEngine.processMessage(prompt, {
+            mode,
+            serverId,
+            systemContext
+        });
         // Si c'est un format Copilot, on renvoie la structure sous forme de chaîne JSON
-        if (systemContext.includes("Copilot") || systemContext.includes("JSON")) {
+        if (isCopilot) {
             return JSON.stringify({
                 reply: result.reply,
                 update: result.update

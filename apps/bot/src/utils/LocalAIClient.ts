@@ -13,11 +13,19 @@ export class LocalAIClient {
     systemContext: string = '', 
     serverId?: string
   ): Promise<string> {
-    // Appel du moteur d'IA unifié partagé
-    const result = await ArcantAIEngine.processMessage(prompt, serverId, systemContext);
+    // Détermine le mode depuis le contexte
+    const isCopilot = systemContext.includes("Copilot") || systemContext.includes("JSON");
+    const mode = isCopilot ? 'copilot' as const : 'discord' as const;
+
+    // Appel du moteur d'IA unifié partagé avec la nouvelle API
+    const result = await ArcantAIEngine.processMessage(prompt, {
+      mode,
+      serverId,
+      systemContext
+    });
 
     // Si c'est un format Copilot, on renvoie la structure sous forme de chaîne JSON
-    if (systemContext.includes("Copilot") || systemContext.includes("JSON")) {
+    if (isCopilot) {
       return JSON.stringify({
         reply: result.reply,
         update: result.update

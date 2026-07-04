@@ -82,21 +82,60 @@ router.post('/announce', async (req: Request, res: Response) => {
   }
 });
 
-// 5. Récupérer les statistiques globales (métriques DB)
+// 5. Récupérer les statistiques globales enrichies (métriques DB + méta)
 router.get('/db-stats', async (req: Request, res: Response) => {
   try {
-    const [serversCount, botsCount, usersCount, premiumCount] = await Promise.all([
+    const [serversCount, botsCount, usersCount, premiumCount, aiRulesCount] = await Promise.all([
       Server.countDocuments(),
       CustomBot.countDocuments(),
       User.countDocuments(),
-      Server.countDocuments({ isPremium: true })
+      Server.countDocuments({ isPremium: true }),
+      AIRule.countDocuments()
     ]);
+
+    // Get Mongoose connection info
+    const dbConnection = Server.db;
+    const dbName = dbConnection?.name || 'unknown';
+    const dbState = Server.db?.readyState; // 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
+    const dbStatusMap: Record<number, string> = {
+      0: 'disconnected',
+      1: 'connected',
+      2: 'connecting',
+      3: 'disconnecting'
+    };
+
+    // Get collection names and sizes
+    let collections: { name: string; count: number }[] = [];
+    try {
+      const db = Server.db?.db;
+      if (db) {
+        const colls = await db.listCollections().toArray();
+        collections = await Promise.all(
+          colls.map(async (c: any) => {
+            const count = await db.collection(c.name).countDocuments();
+            return { name: c.name, count };
+          })
+        );
+      }
+    } catch (e) {
+      // Fallback if we can't list collections
+      collections = [
+        { name: 'servers', count: serversCount },
+        { name: 'custombots', count: botsCount },
+        { name: 'users', count: usersCount },
+        { name: 'airules', count: aiRulesCount }
+      ];
+    }
 
     res.status(200).json({
       serversCount,
       botsCount,
       usersCount,
-      premiumCount
+      premiumCount,
+      aiRulesCount,
+      dbConnectionStatus: dbStatusMap[dbState ?? 0] || 'unknown',
+      dbName,
+      collections
     });
   } catch (error) {
     console.error('[API Owner] GET /db-stats error:', error);

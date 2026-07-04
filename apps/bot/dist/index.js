@@ -276,6 +276,52 @@ Rien d'autre que du JSON.`;
             }
         });
     }
+    else if (req.method === 'GET' && req.url?.startsWith('/server-stats/')) {
+        const serverId = req.url.split('/')[2];
+        if (!serverId) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Missing serverId' }));
+            return;
+        }
+        try {
+            const guild = client.guilds.cache.get(serverId);
+            if (!guild) {
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Guild not found in cache' }));
+                return;
+            }
+            // Fetch fresh data
+            await guild.members.fetch({ withPresences: false, limit: 1 }).catch(() => { });
+            const textChannels = guild.channels.cache.filter(c => c.type === 0).size;
+            const voiceChannels = guild.channels.cache.filter(c => c.type === 2).size;
+            const categories = guild.channels.cache.filter(c => c.type === 4).size;
+            const stats = {
+                id: guild.id,
+                name: guild.name,
+                icon: guild.iconURL({ size: 128 }),
+                memberCount: guild.memberCount,
+                approximatePresenceCount: guild.approximateMemberCount || guild.memberCount,
+                boostCount: guild.premiumSubscriptionCount || 0,
+                boostTier: guild.premiumTier,
+                rolesCount: guild.roles.cache.size,
+                textChannels,
+                voiceChannels,
+                categories,
+                totalChannels: guild.channels.cache.size,
+                createdAt: guild.createdAt.toISOString(),
+                ownerId: guild.ownerId,
+                botLatency: client.ws.ping,
+                botOnline: client.ws.status === 0,
+            };
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(stats));
+        }
+        catch (e) {
+            console.error('[API] /server-stats error:', e);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Internal server error' }));
+        }
+    }
     else {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end('Arcant Bot Service is alive!\n');

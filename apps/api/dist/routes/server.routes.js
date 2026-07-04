@@ -114,5 +114,44 @@ router.post('/:id/settings', async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
+// 6. Récupérer les stats temps réel du serveur Discord (via le bot)
+router.get('/:id/stats', async (req, res) => {
+    try {
+        const serverId = req.params.id;
+        if (!serverId) {
+            return res.status(400).json({ error: 'serverId is required' });
+        }
+        const botRes = await fetch(`${BOT_API_URL}/server-stats/${serverId}`);
+        if (!botRes.ok) {
+            // Fallback: retourner les données DB si le bot est offline
+            const server = await database_1.Server.findOne({ serverId });
+            return res.status(200).json({
+                id: serverId,
+                name: server?.name || 'Serveur Discord',
+                icon: server?.icon || null,
+                memberCount: 0,
+                approximatePresenceCount: 0,
+                boostCount: 0,
+                boostTier: 0,
+                rolesCount: 0,
+                textChannels: 0,
+                voiceChannels: 0,
+                categories: 0,
+                totalChannels: 0,
+                createdAt: server?.joinedAt?.toISOString() || new Date().toISOString(),
+                ownerId: server?.ownerId || '',
+                botLatency: -1,
+                botOnline: false,
+                _fallback: true,
+            });
+        }
+        const data = await botRes.json();
+        return res.status(200).json(data);
+    }
+    catch (error) {
+        console.error('[API] GET /server/:id/stats error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
 exports.default = router;
 //# sourceMappingURL=server.routes.js.map

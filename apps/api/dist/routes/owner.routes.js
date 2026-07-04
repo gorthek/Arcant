@@ -75,20 +75,56 @@ router.post('/announce', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-// 5. Récupérer les statistiques globales (métriques DB)
+// 5. Récupérer les statistiques globales enrichies (métriques DB + méta)
 router.get('/db-stats', async (req, res) => {
     try {
-        const [serversCount, botsCount, usersCount, premiumCount] = await Promise.all([
+        const [serversCount, botsCount, usersCount, premiumCount, aiRulesCount] = await Promise.all([
             database_1.Server.countDocuments(),
             database_1.CustomBot.countDocuments(),
             database_1.User.countDocuments(),
-            database_1.Server.countDocuments({ isPremium: true })
+            database_1.Server.countDocuments({ isPremium: true }),
+            database_1.AIRule.countDocuments()
         ]);
+        // Get Mongoose connection info
+        const dbConnection = database_1.Server.db;
+        const dbName = dbConnection?.name || 'unknown';
+        const dbState = database_1.Server.db?.readyState; // 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
+        const dbStatusMap = {
+            0: 'disconnected',
+            1: 'connected',
+            2: 'connecting',
+            3: 'disconnecting'
+        };
+        // Get collection names and sizes
+        let collections = [];
+        try {
+            const db = database_1.Server.db?.db;
+            if (db) {
+                const colls = await db.listCollections().toArray();
+                collections = await Promise.all(colls.map(async (c) => {
+                    const count = await db.collection(c.name).countDocuments();
+                    return { name: c.name, count };
+                }));
+            }
+        }
+        catch (e) {
+            // Fallback if we can't list collections
+            collections = [
+                { name: 'servers', count: serversCount },
+                { name: 'custombots', count: botsCount },
+                { name: 'users', count: usersCount },
+                { name: 'airules', count: aiRulesCount }
+            ];
+        }
         res.status(200).json({
             serversCount,
             botsCount,
             usersCount,
-            premiumCount
+            premiumCount,
+            aiRulesCount,
+            dbConnectionStatus: dbStatusMap[dbState ?? 0] || 'unknown',
+            dbName,
+            collections
         });
     }
     catch (error) {

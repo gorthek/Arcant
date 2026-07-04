@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, FileText, User, Plus, Trash2, Award, Coins, UserPlus, HelpCircle } from "lucide-react";
+import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, FileText, User, Plus, Trash2, Award, Coins, UserPlus, HelpCircle, Activity } from "lucide-react";
 import ServerVisualEditor from './ServerVisualEditor';
 
 export function OwnerDashboard({ serverId }: { serverId: string }) {
@@ -91,119 +91,207 @@ function ToggleSwitch({ enabled, setEnabled }: { enabled: boolean; setEnabled: (
   );
 }
 
-// --- VUE D'ENSEMBLE : ARBORESCENCE DU SERVEUR ---
+// --- VUE D'ENSEMBLE : STATS SERVEUR + ARBORESCENCE ---
 function ModuleOverview({ serverId }: { serverId: string }) {
   const [structure, setStructure] = useState<any>(null);
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStructure = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/server/${serverId}/structure`);
-        if (res.ok) {
-          const data = await res.json();
-          setStructure(data.structure);
-        } else {
-          throw new Error("API failed");
-        }
-      } catch (e) {
-        // Fallback arborescence pour la démonstration (conforme à Image 3)
+    const fetchAll = async () => {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      
+      // Fetch structure + stats in parallel
+      const [structRes, statsRes] = await Promise.allSettled([
+        fetch(`${apiUrl}/api/server/${serverId}/structure`),
+        fetch(`${apiUrl}/api/server/${serverId}/stats`)
+      ]);
+
+      // Handle structure
+      if (structRes.status === 'fulfilled' && structRes.value.ok) {
+        const data = await structRes.value.json();
+        setStructure(data.structure);
+      } else {
+        // Fallback arborescence
         setStructure({
           roles: [
             { name: "@everyone", color: "#99aab5" },
-            { name: "[Member]", color: "#2ecc71" },
-            { name: "[OG]", color: "#9b59b6" },
-            { name: "[FRIEND]", color: "#f1c40f" },
-            { name: "[MOD]", color: "#3498db" },
-            { name: "[OWNER]", color: "#e74c3c" }
+            { name: "Founder", color: "#e74c3c" },
+            { name: "Lead Developer", color: "#e67e22" },
+            { name: "Admin", color: "#e74c3c" },
+            { name: "Moderator", color: "#2ecc71" },
+            { name: "Support Team", color: "#f1c40f" },
+            { name: "Server Booster", color: "#e74c3c" },
+            { name: "VIP", color: "#9b59b6" },
+            { name: "Verified", color: "#3498db" },
+            { name: "Membre", color: "#99aab5" }
           ],
           categories: [
-            {
-              name: "📋 IMPORTANT",
-              channels: [
-                { name: "announcement", type: "text" },
-                { name: "rules", type: "text" },
-                { name: "portal", type: "text" }
-              ]
-            },
-            {
-              name: "💬 CHATTING",
-              channels: [
-                { name: "general-chat", type: "text" },
-                { name: "bot-commands", type: "text" },
-                { name: "pictures", type: "text" },
-                { name: "music-requests", type: "text" }
-              ]
-            },
-            {
-              name: "🔊 VOICE CHANNELS",
-              channels: [
-                { name: "[MAIN]", type: "voice" },
-                { name: "[MUSIC]", type: "voice" }
-              ]
-            }
+            { name: "📋 IMPORTANT", channels: [{ name: "announcement", type: "text" }, { name: "rules", type: "text" }] },
+            { name: "💬 CHATTING", channels: [{ name: "general-chat", type: "text" }, { name: "bot-commands", type: "text" }] },
+            { name: "🔊 VOICE", channels: [{ name: "Général", type: "voice" }, { name: "Musique", type: "voice" }] }
           ]
         });
-      } finally {
-        setLoading(false);
       }
+
+      // Handle stats
+      if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
+        const data = await statsRes.value.json();
+        setStats(data);
+      } else {
+        // Fallback stats quand le bot est offline
+        setStats({
+          memberCount: 0,
+          approximatePresenceCount: 0,
+          boostCount: 0,
+          boostTier: 0,
+          rolesCount: 0,
+          textChannels: 0,
+          voiceChannels: 0,
+          totalChannels: 0,
+          botLatency: -1,
+          botOnline: false,
+          _fallback: true
+        });
+      }
+
+      setLoading(false);
     };
-    fetchStructure();
+    fetchAll();
   }, [serverId]);
 
   if (loading) {
-    return <div className="text-teal-400 font-mono text-xs animate-pulse">Chargement de la structure du serveur...</div>;
+    return <div className="text-teal-400 font-mono text-xs animate-pulse">Chargement des données du serveur...</div>;
   }
 
+  const isFallback = stats?._fallback;
+  const kpis = [
+    { 
+      label: "Membres", 
+      value: stats?.memberCount?.toLocaleString() || "0", 
+      icon: <User size={18} className="text-blue-400" />,
+      desc: isFallback ? "Bot hors ligne" : "Total du serveur"
+    },
+    { 
+      label: "En Ligne", 
+      value: stats?.approximatePresenceCount?.toLocaleString() || "0", 
+      icon: <Activity size={18} className="text-emerald-400" />,
+      desc: isFallback ? "Indisponible" : "Membres actifs" 
+    },
+    { 
+      label: "Boosts", 
+      value: `${stats?.boostCount || 0}`, 
+      icon: <Zap size={18} className="text-pink-400" />,
+      desc: `Niveau ${stats?.boostTier || 0}`
+    },
+    { 
+      label: "Bot Arcant", 
+      value: stats?.botOnline ? `${stats.botLatency}ms` : "Offline", 
+      icon: <Bot size={18} className={stats?.botOnline ? "text-emerald-400" : "text-red-400"} />,
+      desc: stats?.botOnline ? "En ligne" : "Hors ligne",
+      statusColor: stats?.botOnline ? "emerald" : "red"
+    },
+    { 
+      label: "Salons", 
+      value: `${stats?.totalChannels || 0}`, 
+      icon: <Server size={18} className="text-cyan-400" />,
+      desc: `${stats?.textChannels || 0} textuels · ${stats?.voiceChannels || 0} vocaux` 
+    },
+    { 
+      label: "Bouclier", 
+      value: "Actif", 
+      icon: <ShieldAlert size={18} className="text-teal-400" />,
+      desc: "Protection anti-raid",
+      statusColor: "teal"
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="border-b border-white/10 pb-4">
-        <h3 className="text-xl font-bold text-white">Arborescence Active du Serveur</h3>
-        <p className="text-xs text-gray-500">Visualisez la hiérarchie en temps réel de vos salons et vos rôles.</p>
+    <div className="space-y-8">
+      {/* Bandeau d'avertissement si fallback */}
+      {isFallback && (
+        <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold">
+          <AlertTriangle size={16} />
+          <span>Le bot Arcant est hors ligne. Les statistiques affichées proviennent de la base de données et peuvent ne pas être à jour.</span>
+        </div>
+      )}
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        {kpis.map((kpi, idx) => (
+          <motion.div 
+            key={idx}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.08, type: "spring" }}
+            whileHover={{ scale: 1.05, y: -3 }}
+            className="bg-zinc-900/50 border border-white/5 rounded-2xl p-4 relative overflow-hidden group hover:border-teal-500/20 transition-all duration-300"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                {kpi.icon}
+              </div>
+            </div>
+            <div className="text-xl font-black text-white flex items-center gap-1.5">
+              {kpi.statusColor && (
+                <span className={`w-2 h-2 rounded-full animate-pulse ${kpi.statusColor === 'emerald' ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : kpi.statusColor === 'red' ? 'bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)]' : 'bg-teal-400 shadow-[0_0_6px_rgba(20,184,166,0.8)]'}`} />
+              )}
+              {kpi.value}
+            </div>
+            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">{kpi.label}</div>
+            <p className="text-[9px] text-gray-500 mt-0.5">{kpi.desc}</p>
+          </motion.div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 bg-zinc-900/20 border border-white/5 rounded-3xl p-6">
-        {/* Colonne Salons */}
-        <div className="md:col-span-8 space-y-4">
-          <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-white/5 pb-2">Salons & Catégories</h4>
-          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin">
-            {structure?.categories?.map((cat: any, idx: number) => (
-              <div key={idx} className="space-y-2">
-                <div className="text-gray-300 font-black text-xs uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="text-gray-500">▼</span> {cat.name}
-                </div>
-                <div className="pl-4 space-y-1.5 border-l border-white/5 ml-1.5">
-                  {cat.channels?.map((chan: any, chIdx: number) => (
-                    <div key={chIdx} className="flex items-center gap-2 text-xs text-gray-400 py-1 hover:text-white transition-colors">
-                      <span className="text-gray-600 text-sm font-bold">
-                        {chan.type === 'voice' ? '🔊' : '#'}
-                      </span>
-                      <span className="font-mono">{chan.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Arborescence */}
+      <div className="border-t border-white/10 pt-6">
+        <h3 className="text-lg font-bold text-white mb-1">Arborescence Active du Serveur</h3>
+        <p className="text-xs text-gray-500 mb-6">Visualisez la hiérarchie en temps réel de vos salons et vos rôles.</p>
 
-        {/* Colonne Rôles */}
-        <div className="md:col-span-4 space-y-4 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">
-          <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-white/5 pb-2">Rôles Discord</h4>
-          <div className="flex flex-wrap gap-2 max-h-[400px] overflow-y-auto pr-1">
-            {structure?.roles?.map((role: any, idx: number) => (
-              <div 
-                key={idx}
-                className="px-3 py-1.5 rounded-full text-xs font-bold border flex items-center gap-2 bg-zinc-950 shadow-inner"
-                style={{ 
-                  color: role.color || '#99aab5',
-                  borderColor: `${role.color || '#99aab5'}30`
-                }}
-              >
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: role.color }} />
-                {role.name}
-              </div>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 bg-zinc-900/20 border border-white/5 rounded-3xl p-6">
+          {/* Colonne Salons */}
+          <div className="md:col-span-8 space-y-4">
+            <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-white/5 pb-2">Salons & Catégories</h4>
+            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin">
+              {structure?.categories?.map((cat: any, idx: number) => (
+                <div key={idx} className="space-y-2">
+                  <div className="text-gray-300 font-black text-xs uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="text-gray-500">▼</span> {cat.name}
+                  </div>
+                  <div className="pl-4 space-y-1.5 border-l border-white/5 ml-1.5">
+                    {cat.channels?.map((chan: any, chIdx: number) => (
+                      <div key={chIdx} className="flex items-center gap-2 text-xs text-gray-400 py-1 hover:text-white transition-colors">
+                        <span className="text-gray-600 text-sm font-bold">
+                          {chan.type === 'voice' ? '🔊' : '#'}
+                        </span>
+                        <span className="font-mono">{chan.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Colonne Rôles */}
+          <div className="md:col-span-4 space-y-4 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">
+            <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-white/5 pb-2">Rôles Discord</h4>
+            <div className="flex flex-wrap gap-2 max-h-[400px] overflow-y-auto pr-1">
+              {structure?.roles?.map((role: any, idx: number) => (
+                <div 
+                  key={idx}
+                  className="px-3 py-1.5 rounded-full text-xs font-bold border flex items-center gap-2 bg-zinc-950 shadow-inner"
+                  style={{ 
+                    color: role.color || '#99aab5',
+                    borderColor: `${role.color || '#99aab5'}30`
+                  }}
+                >
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: role.color }} />
+                  {role.name}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
