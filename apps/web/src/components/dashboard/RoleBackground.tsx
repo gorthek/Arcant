@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, Points, PointMaterial, Environment, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
@@ -141,7 +141,13 @@ function MemberScene() {
 }
 
 export function RoleBackground({ role }: { role: ServerRole }) {
-  if (role === "loading") return null;
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || role === "loading") return null;
 
   return (
     <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-screen">
