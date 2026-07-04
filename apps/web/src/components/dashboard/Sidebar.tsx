@@ -56,16 +56,36 @@ export function Sidebar() {
     );
   }
 
-  // Modules enrichis pour la commercialisation
-  const navItems = [
-    { name: "Vue d'ensemble", path: `/dashboard/${serverId}`, icon: <LayoutDashboard size={20} /> },
-    { name: "Configuration IA", path: `/dashboard/${serverId}?tab=ia`, icon: <Bot size={20} /> },
-    { name: "Sécurité & Raid", path: `/dashboard/${serverId}?tab=security`, icon: <ShieldAlert size={20} /> },
-    { name: "Modération", path: `/dashboard/${serverId}?tab=moderation`, icon: <Settings2 size={20} /> },
-    { name: "Tickets de Support", path: `/dashboard/${serverId}?tab=tickets`, icon: <FileText size={20} /> },
-    { name: "Économie & Boutique", path: `/dashboard/${serverId}?tab=economy`, icon: <Coins size={20} /> },
-    { name: "Système de Leveling", path: `/dashboard/${serverId}?tab=leveling`, icon: <Award size={20} /> },
-    { name: "Welcome & Auto-Rôles", path: `/dashboard/${serverId}?tab=welcome`, icon: <UserPlus size={20} /> },
+  // Catégories de navigation triées pour la commercialisation
+  const menuCategories = [
+    {
+      title: "GÉNÉRAL",
+      items: [
+        { name: "Vue d'ensemble", path: `/dashboard/${serverId}`, icon: <LayoutDashboard size={18} /> },
+      ]
+    },
+    {
+      title: "IA & AUTOMATION",
+      items: [
+        { name: "Configuration IA", path: `/dashboard/${serverId}?tab=ia`, icon: <Bot size={18} /> },
+        { name: "Welcome & Auto-Rôles", path: `/dashboard/${serverId}?tab=welcome`, icon: <UserPlus size={18} /> },
+      ]
+    },
+    {
+      title: "PROTECTION",
+      items: [
+        { name: "Sécurité & Raid", path: `/dashboard/${serverId}?tab=security`, icon: <ShieldAlert size={18} /> },
+        { name: "Modération", path: `/dashboard/${serverId}?tab=moderation`, icon: <Settings2 size={18} /> },
+      ]
+    },
+    {
+      title: "ENGAGEMENT & ECONOMIE",
+      items: [
+        { name: "Tickets de Support", path: `/dashboard/${serverId}?tab=tickets`, icon: <FileText size={18} /> },
+        { name: "Économie & Boutique", path: `/dashboard/${serverId}?tab=economy`, icon: <Coins size={18} /> },
+        { name: "Système de Leveling", path: `/dashboard/${serverId}?tab=leveling`, icon: <Award size={18} /> },
+      ]
+    }
   ];
 
   return (
@@ -79,7 +99,7 @@ export function Sidebar() {
         </Link>
       </div>
       
-      <div className="p-6 shrink-0 border-b border-white/5 relative overflow-hidden">
+      <div className="p-5 shrink-0 border-b border-white/5 relative overflow-hidden">
         {/* Glow behind server icon */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-teal-500/10 blur-2xl rounded-full pointer-events-none" />
         
@@ -103,25 +123,35 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto scrollbar-thin">
-        {navItems.map((item) => {
-          const isActive = pathname === item.path || (pathname === `/dashboard/${serverId}` && window?.location?.search === item.path.split('?')[1]);
-          return (
-            <Link key={item.name} href={item.path}>
-              <div className={`relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 ${
-                isActive 
-                  ? "bg-teal-500/10 text-teal-400 border border-teal-500/20 shadow-[inset_0_0_20px_rgba(20,184,166,0.05)] font-bold" 
-                  : "text-gray-400 hover:bg-white/5 hover:text-gray-200"
-              }`}>
-                {item.icon}
-                <span className="font-medium text-sm">{item.name}</span>
-                {isActive && (
-                  <motion.div layoutId="activeNav" className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-teal-400 rounded-r-full shadow-[0_0_10px_rgba(20,184,166,0.8)]" />
-                )}
-              </div>
-            </Link>
-          );
-        })}
+      {/* Menu avec regroupements par Catégorie */}
+      <nav className="flex-1 p-4 space-y-4 overflow-y-auto scrollbar-thin">
+        {menuCategories.map((category) => (
+          <div key={category.title} className="space-y-1">
+            <h4 className="text-[10px] font-black text-gray-500 tracking-widest pl-3 uppercase">
+              {category.title}
+            </h4>
+            <div className="space-y-1">
+              {category.items.map((item) => {
+                const isActive = pathname === item.path || (pathname === `/dashboard/${serverId}` && window?.location?.search === item.path.split('?')[1]);
+                return (
+                  <Link key={item.name} href={item.path}>
+                    <div className={`relative flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300 ${
+                      isActive 
+                        ? "bg-teal-500/10 text-teal-400 border border-teal-500/20 shadow-[inset_0_0_20px_rgba(20,184,166,0.05)] font-bold" 
+                        : "text-gray-400 hover:bg-white/5 hover:text-gray-200"
+                    }`}>
+                      {item.icon}
+                      <span className="font-medium text-xs">{item.name}</span>
+                      {isActive && (
+                        <motion.div layoutId="activeNav" className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-teal-400 rounded-r-full shadow-[0_0_10px_rgba(20,184,166,0.8)]" />
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
       
       <div className="p-4 border-t border-white/10 flex flex-col gap-2 shrink-0">
