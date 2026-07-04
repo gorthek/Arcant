@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useParams } from "next/navigation";
+import { usePathname, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LayoutDashboard, Settings2, ShieldAlert, Bot, ArrowLeft, ExternalLink, Activity, Shield, Award, FileText, Coins, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 export function Sidebar() {
   const pathname = usePathname();
   const params = useParams();
+  const searchParams = useSearchParams();
   const serverId = params?.id as string | undefined;
   const { data: session } = useSession();
   
@@ -19,6 +20,8 @@ export function Sidebar() {
   
   const context = useServerContext();
   const guild = context?.guild;
+  const userRole = context?.role || "member";
+  const activeTab = searchParams.get("tab") || "overview";
 
   // Si on est juste sur /dashboard (sélection du serveur), on affiche un sidebar basique
   if (!serverId) {
@@ -56,23 +59,26 @@ export function Sidebar() {
     );
   }
 
-  // Catégories de navigation triées pour la commercialisation
+  // Filtrage intelligent des menus selon le rôle simulé/réel de l'utilisateur
   const menuCategories = [
     {
       title: "GÉNÉRAL",
+      visible: true,
       items: [
         { name: "Vue d'ensemble", path: `/dashboard/${serverId}`, icon: <LayoutDashboard size={18} /> },
       ]
     },
     {
       title: "IA & AUTOMATION",
+      visible: userRole === "owner" || userRole === "server_owner" || userRole === "admin",
       items: [
-        { name: "Configuration IA", path: `/dashboard/${serverId}?tab=ia`, icon: <Bot size={18} /> },
-        { name: "Welcome & Auto-Rôles", path: `/dashboard/${serverId}?tab=welcome`, icon: <UserPlus size={18} /> },
-      ]
+        { name: userRole === "admin" ? "IA (Lecture Seule)" : "Configuration IA", path: `/dashboard/${serverId}?tab=ia`, icon: <Bot size={18} /> },
+        { name: "Welcome & Auto-Rôles", path: `/dashboard/${serverId}?tab=welcome`, icon: <UserPlus size={18} />, hidden: userRole === "admin" },
+      ].filter(item => !item.hidden)
     },
     {
       title: "PROTECTION",
+      visible: userRole === "owner" || userRole === "server_owner" || userRole === "admin",
       items: [
         { name: "Sécurité & Raid", path: `/dashboard/${serverId}?tab=security`, icon: <ShieldAlert size={18} /> },
         { name: "Modération", path: `/dashboard/${serverId}?tab=moderation`, icon: <Settings2 size={18} /> },
@@ -80,13 +86,14 @@ export function Sidebar() {
     },
     {
       title: "ENGAGEMENT & ECONOMIE",
+      visible: userRole === "owner" || userRole === "server_owner" || userRole === "member",
       items: [
-        { name: "Tickets de Support", path: `/dashboard/${serverId}?tab=tickets`, icon: <FileText size={18} /> },
+        { name: "Tickets de Support", path: `/dashboard/${serverId}?tab=tickets`, icon: <FileText size={18} />, hidden: userRole === "member" },
         { name: "Économie & Boutique", path: `/dashboard/${serverId}?tab=economy`, icon: <Coins size={18} /> },
         { name: "Système de Leveling", path: `/dashboard/${serverId}?tab=leveling`, icon: <Award size={18} /> },
-      ]
+      ].filter(item => !item.hidden)
     }
-  ];
+  ].filter(cat => cat.visible);
 
   return (
     <aside className="w-64 bg-zinc-950/80 backdrop-blur-md border-r border-white/5 h-screen hidden md:flex flex-col sticky top-0 z-20 shadow-2xl">
@@ -123,7 +130,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Menu avec regroupements par Catégorie */}
+      {/* Menu regroupé par Catégorie avec filtrage des rôles */}
       <nav className="flex-1 p-4 space-y-4 overflow-y-auto scrollbar-thin">
         {menuCategories.map((category) => (
           <div key={category.title} className="space-y-1">
@@ -132,7 +139,9 @@ export function Sidebar() {
             </h4>
             <div className="space-y-1">
               {category.items.map((item) => {
-                const isActive = pathname === item.path || (pathname === `/dashboard/${serverId}` && window?.location?.search === item.path.split('?')[1]);
+                const itemTab = item.path.includes("?tab=") ? item.path.split("?tab=")[1] : "overview";
+                const isActive = activeTab === itemTab;
+
                 return (
                   <Link key={item.name} href={item.path}>
                     <div className={`relative flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300 ${

@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
 import { RoleBackground } from "@/components/dashboard/RoleBackground";
 import { motion, AnimatePresence } from "framer-motion";
+import { Suspense } from "react";
 
 export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
   const { role, isLoading } = useServerContext();
@@ -27,7 +28,11 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
         <RoleBackground key={role} role={role} />
       </AnimatePresence>
 
-      <Sidebar />
+      {/* Sidebar wrapped in Suspense because of useSearchParams() */}
+      <Suspense fallback={<div className="w-64 bg-zinc-950/80 border-r border-white/5 h-screen animate-pulse" />}>
+        <Sidebar />
+      </Suspense>
+
       <div className="flex-1 flex flex-col h-screen overflow-hidden z-10 relative">
         <Header />
         <main className="flex-1 overflow-y-auto bg-transparent relative scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
@@ -49,7 +54,15 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
           </AnimatePresence>
           
           <div className="relative z-10 p-6 md:p-8 max-w-6xl mx-auto">
-            {children}
+            {/* children wrapped in Suspense because of useSearchParams() in pages */}
+            <Suspense fallback={
+              <div className="flex flex-col items-center justify-center min-h-[40vh] text-teal-500 font-mono text-xs">
+                <div className="animate-spin mb-4 text-teal-400">⚡</div>
+                <p className="animate-pulse">Initialisation du tableau de bord...</p>
+              </div>
+            }>
+              {children}
+            </Suspense>
           </div>
         </main>
       </div>
