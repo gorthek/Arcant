@@ -14,6 +14,7 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 - **[Correction de la hauteur 100vh]** Remplacement systématique de `h-screen` et `min-h-screen` par les unités dynamiques `h-dvh` et `min-h-dvh` pour éviter le chevauchement avec les barres d'adresse/navigation des navigateurs mobiles (iOS Safari & Chrome Mobile).
 - **[Résolution des Bugs d'Hydratation]** Ajout de `suppressHydrationWarning` sur la balise HTML racine pour immuniser l'application contre les plantages de rendu client provoqués par les extensions de navigateurs tiers.
 - **[Contrôles Tactiles Canvas]** Implémentation des événements tactiles (`touchmove`, `touchstart`, `touchend`) pour que le fond interactif réagisse parfaitement au glissement de doigt sur mobile et tablette.
+- **[Optimisation Drastique des Performances]** Remplacement complet des animations de particules Stardust et Hellfire (qui engendraient plus de 250 nœuds DOM gérés en boucle par Framer Motion) par des Canvas HTML5 2D ultra-légers et accélérés matériellement. Chargement dynamique asynchrone (`dynamic` import sans SSR) du composant 3D Three.js (`RoleBackground`) dans le Dashboard pour réduire le bundle de démarrage de 800Ko et éliminer les gels et saccades de chargement.
 
 ---
 

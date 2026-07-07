@@ -3,9 +3,14 @@
 import { useServerContext } from "@/contexts/ServerContext";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
-import { RoleBackground } from "@/components/dashboard/RoleBackground";
 import { motion, AnimatePresence } from "framer-motion";
 import { Suspense, useState } from "react";
+import dynamic from "next/dynamic";
+
+const RoleBackground = dynamic(
+  () => import("@/components/dashboard/RoleBackground").then(mod => mod.RoleBackground),
+  { ssr: false }
+);
 
 export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
   const { role, isLoading } = useServerContext();

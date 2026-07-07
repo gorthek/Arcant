@@ -47,6 +47,12 @@ export default function PatchnotesPage() {
           text: "Bugs d'Hydratation & Tactile Canvas",
           detail: "Ajout de suppressHydrationWarning pour éviter les plantages d'hydratation Next.js causés par les extensions, et support des mouvements tactiles (touchmove/touchstart) pour le canvas de fond.",
           files: ["apps/web/src/app/layout.tsx", "apps/web/src/components/dashboard/InteractiveBackground.tsx"]
+        },
+        {
+          type: "improvement",
+          text: "Optimisation Drastique des Animations",
+          detail: "Remplacement complet des animations de particules Stardust et Hellfire (qui engendraient plus de 250 nœuds DOM gérés en boucle par Framer Motion) par des Canvas HTML5 2D ultra-légers et accélérés matériellement. Chargement dynamique asynchrone (dynamic import sans SSR) du composant 3D Three.js (RoleBackground) dans le Dashboard pour réduire le bundle de démarrage de 800Ko et éliminer les saccades.",
+          files: ["apps/web/src/components/landing/StardustBackground.tsx", "apps/web/src/components/landing/HellfireBackground.tsx", "apps/web/src/components/dashboard/DashboardLayoutClient.tsx"]
         }
       ]
     },

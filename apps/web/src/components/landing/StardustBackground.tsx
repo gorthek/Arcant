@@ -1,51 +1,93 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export function StardustBackground() {
-  const [particles, setParticles] = useState<any[]>([]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    // Etoiles globales sur tout le site (faible densité pour ne pas surcharger)
-    const newParticles = [...Array(100)].map(() => ({
-      id: Math.random(),
-      size: Math.random() * 3 + 1,
-      left: Math.random() * 100, 
-      top: Math.random() * 100, 
-      duration: Math.random() * 4 + 3, // 3 à 7 secondes (plus lent, plus ambiant)
-      yOffset: -Math.random() * 50 - 20, // Légère dérive vers le haut
-      delay: Math.random() * 5
-    }));
-    setParticles(newParticles);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let particles: {
+      x: number;
+      y: number;
+      size: number;
+      speedY: number;
+      opacity: number;
+      fadeSpeed: number;
+      maxOpacity: number;
+    }[] = [];
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initParticles();
+    };
+
+    const initParticles = () => {
+      particles = [];
+      const numParticles = Math.min(Math.floor((canvas.width * canvas.height) / 15000), 80);
+      for (let i = 0; i < numParticles; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2 + 0.5,
+          speedY: -(Math.random() * 0.15 + 0.05), // Slowly drift up
+          opacity: Math.random(),
+          fadeSpeed: (Math.random() * 0.003 + 0.001) * (Math.random() > 0.5 ? 1 : -1),
+          maxOpacity: Math.random() * 0.4 + 0.1
+        });
+      }
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        
+        // Update opacity (twinkling effect)
+        p.opacity += p.fadeSpeed;
+        if (p.opacity > p.maxOpacity || p.opacity < 0) {
+          p.fadeSpeed = -p.fadeSpeed;
+        }
+        p.opacity = Math.max(0, Math.min(p.maxOpacity, p.opacity));
+
+        // Update position (drift up)
+        p.y += p.speedY;
+        if (p.y < 0) {
+          p.y = canvas.height;
+          p.x = Math.random() * canvas.width;
+        }
+
+        ctx.fillStyle = `rgba(13, 148, 136, ${p.opacity})`; // Teal color with particle opacity
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    window.addEventListener("resize", resize);
+    resize();
+    draw();
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
   return (
-    <div className="fixed inset-0 w-full h-full z-0 overflow-hidden pointer-events-none">
-      {particles.map((p) => (
-        <motion.div
-          key={p.id}
-          className="absolute rounded-full bg-teal-200/40"
-          style={{
-            width: p.size,
-            height: p.size,
-            left: `${p.left}%`,
-            top: `${p.top}%`,
-            boxShadow: "0 0 8px 1px rgba(45,212,191,0.3)"
-          }}
-          animate={{
-            y: p.yOffset,
-            opacity: [0, 0.6, 0],
-            scale: [0, 1.2, 0],
-          }}
-          transition={{
-            duration: p.duration,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: p.delay
-          }}
-        />
-      ))}
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 w-full h-full z-0 overflow-hidden pointer-events-none"
+    />
   );
 }
