@@ -15,6 +15,42 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.1.0",
+      date: "07 Juillet 2026",
+      title: "Compatibilité Mobile Totale & Optimisations",
+      type: "Mise à jour Mineure",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Settings2 className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Navigation Mobile Landing Page",
+          detail: "Intégration d'un menu hamburger avec transitions fluides, un panneau mobile déroulant avec effet de verre dépoli (backdrop-blur-2xl bg-black/95) et animations pour simplifier la navigation sur smartphones et tablettes.",
+          files: ["apps/web/src/components/landing/Navbar.tsx"]
+        },
+        {
+          type: "feature",
+          text: "Tiroir Sidebar Responsive Dashboard",
+          detail: "La barre latérale s'ouvre maintenant sous forme de panneau glissant sur mobile avec un calque d'arrière-plan sombre cliquable pour fermer le menu.",
+          files: ["apps/web/src/components/dashboard/Sidebar.tsx", "apps/web/src/components/dashboard/Header.tsx"]
+        },
+        {
+          type: "improvement",
+          text: "Correction de la hauteur 100vh sur Mobile",
+          detail: "Remplacement de h-screen par h-dvh et min-h-screen par min-h-dvh pour s'adapter dynamiquement aux barres de navigation et d'adresse des navigateurs mobiles (iOS Safari et Chrome).",
+          files: ["apps/web/src/components/dashboard/DashboardLayoutClient.tsx", "apps/web/src/components/dashboard/Sidebar.tsx"]
+        },
+        {
+          type: "improvement",
+          text: "Bugs d'Hydratation & Tactile Canvas",
+          detail: "Ajout de suppressHydrationWarning pour éviter les plantages d'hydratation Next.js causés par les extensions, et support des mouvements tactiles (touchmove/touchstart) pour le canvas de fond.",
+          files: ["apps/web/src/app/layout.tsx", "apps/web/src/components/dashboard/InteractiveBackground.tsx"]
+        }
+      ]
+    },
+    {
       version: "v2.0.0",
       date: "04 Juillet 2026",
       title: "Refonte Visuelle & Intégration en Temps Réel",

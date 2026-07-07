@@ -5,7 +5,7 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
-## 🟢 Version 1.6.0
+## 🟢 Version 2.1.0
 *Dernière modification : 07 Juillet 2026*
 
 ### 🌐 Compatibilité Mobile Totale & Optimisations Multi-appareils
@@ -17,7 +17,7 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
-## 🟢 Version 1.5.0
+## 🟢 Version 2.0.0
 *Dernière modification : 04 Juillet 2026*
 
 ### 🌐 Dashboard Suprême & Refonte Globale
