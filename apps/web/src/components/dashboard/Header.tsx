@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, User, Star, Shield, Crown, Zap, X, LogOut, Settings as SettingsIcon, LayoutDashboard, Hash } from "lucide-react";
+import { Bell, User, Star, Shield, Crown, Zap, X, LogOut, Settings as SettingsIcon, LayoutDashboard, Hash, Menu } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
@@ -88,7 +88,11 @@ const SparklesHalo = () => {
   );
 };
 
-export function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void;
+}
+
+export function Header({ onMenuClick }: HeaderProps) {
   const { data: session } = useSession();
   
   // Utilisation du contexte global au lieu du hook isolé
@@ -126,6 +130,13 @@ export function Header() {
   return (
     <header className="h-20 border-b border-white/10 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-6 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
       <div className="flex items-center gap-4">
+        <button
+          onClick={onMenuClick}
+          className="p-2 -ml-2 text-gray-400 hover:text-white md:hidden focus:outline-none cursor-pointer"
+          aria-label="Open sidebar"
+        >
+          <Menu size={24} />
+        </button>
         <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 hidden sm:block">
           Dashboard de Configuration
         </h1>

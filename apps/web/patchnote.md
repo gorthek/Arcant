@@ -5,6 +5,18 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 1.6.0
+*Dernière modification : 07 Juillet 2026*
+
+### 🌐 Compatibilité Mobile Totale & Optimisations Multi-appareils
+- **[Navigation Mobile Landing Page]** Intégration d'un menu hamburger animé avec Framer Motion et fond flouté en verre dépoli (`backdrop-blur-2xl`) pour une navigation fluide sur les smartphones et tablettes.
+- **[Tiroir Sidebar Responsive]** La barre latérale du dashboard se transforme désormais en tiroir glissant sur mobile avec un calque d'arrière-plan sombre cliquable pour fermer le menu.
+- **[Correction de la hauteur 100vh]** Remplacement systématique de `h-screen` et `min-h-screen` par les unités dynamiques `h-dvh` et `min-h-dvh` pour éviter le chevauchement avec les barres d'adresse/navigation des navigateurs mobiles (iOS Safari & Chrome Mobile).
+- **[Résolution des Bugs d'Hydratation]** Ajout de `suppressHydrationWarning` sur la balise HTML racine pour immuniser l'application contre les plantages de rendu client provoqués par les extensions de navigateurs tiers.
+- **[Contrôles Tactiles Canvas]** Implémentation des événements tactiles (`touchmove`, `touchstart`, `touchend`) pour que le fond interactif réagisse parfaitement au glissement de doigt sur mobile et tablette.
+
+---
+
 ## 🟢 Version 1.5.0
 *Dernière modification : 04 Juillet 2026*
 

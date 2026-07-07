@@ -5,10 +5,11 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
 import { RoleBackground } from "@/components/dashboard/RoleBackground";
 import { motion, AnimatePresence } from "framer-motion";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 
 export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
   const { role, isLoading } = useServerContext();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Définition des thèmes de couleurs selon le rôle
   const themeColors = {
@@ -22,19 +23,19 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
   const glowColor = themeColors[role as keyof typeof themeColors] || themeColors.member;
 
   return (
-    <div className="min-h-screen bg-black text-white flex overflow-hidden relative">
+    <div className="min-h-dvh bg-black text-white flex overflow-hidden relative">
       {/* 3D Dynamic Ambient Glow & Particles */}
       <AnimatePresence mode="wait">
         <RoleBackground key={role} role={role} />
       </AnimatePresence>
 
       {/* Sidebar wrapped in Suspense because of useSearchParams() */}
-      <Suspense fallback={<div className="w-64 bg-zinc-950/80 border-r border-white/5 h-screen animate-pulse" />}>
-        <Sidebar />
+      <Suspense fallback={<div className="w-64 bg-zinc-950/80 border-r border-white/5 h-dvh animate-pulse" />}>
+        <Sidebar isOpen={isMobileSidebarOpen} onClose={() => setIsMobileSidebarOpen(false)} />
       </Suspense>
 
-      <div className="flex-1 flex flex-col h-screen overflow-hidden z-10 relative">
-        <Header />
+      <div className="flex-1 flex flex-col h-dvh overflow-hidden z-10 relative">
+        <Header onMenuClick={() => setIsMobileSidebarOpen(true)} />
         <main className="flex-1 overflow-y-auto bg-transparent relative scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           {/* Subtle top glow based on role */}
           <AnimatePresence mode="wait">

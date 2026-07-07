@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
-import { LogOut, Settings, Hash, LayoutDashboard, ChevronDown } from "lucide-react";
+import { LogOut, Settings, Hash, LayoutDashboard, ChevronDown, Menu, X } from "lucide-react";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 interface NavbarProps {
@@ -14,6 +14,7 @@ export function Navbar({ theme = "default" }: NavbarProps) {
   const { data: session, status } = useSession();
   const isLoggedIn = status === "authenticated";
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Couleurs dynamiques selon le thème
   const isDemonic = theme === "demonic";
@@ -93,76 +94,134 @@ export function Navbar({ theme = "default" }: NavbarProps) {
           ))}
         </div>
 
-        {isLoggedIn && user ? (
-          <div className="relative">
-            <button 
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-            >
-              <img src={user.avatar} alt="Avatar" className="w-8 h-8 rounded-full border border-teal-500/30" />
-              <span className="font-medium text-sm hidden sm:block">{user.pseudo}</span>
-              <ChevronDown size={16} className={`text-gray-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
-            </button>
+        <div className="flex items-center gap-3">
+          {isLoggedIn && user ? (
+            <div className="relative">
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+              >
+                <img src={user.avatar} alt="Avatar" className="w-8 h-8 rounded-full border border-teal-500/30" />
+                <span className="font-medium text-sm hidden sm:block">{user.pseudo}</span>
+                <ChevronDown size={16} className={`text-gray-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
 
-            {/* Menu Déroulant Profile */}
-            <AnimatePresence>
-              {isDropdownOpen && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-3 w-64 bg-[#0a0f16] border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
-                >
-                  <div className="p-4 border-b border-white/10 bg-white/5">
-                    <div className="flex items-center gap-3 mb-2">
-                      <img src={user.avatar} alt="Avatar" className="w-10 h-10 rounded-full border border-teal-500/50" />
-                      <div>
-                        <div className="font-bold text-white leading-tight">{user.pseudo}</div>
-                        <div className="text-xs text-gray-400 flex items-center gap-1">
-                          <Hash size={12} /> {user.id}
+              {/* Menu Déroulant Profile */}
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-3 w-64 bg-[#0a0f16] border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
+                  >
+                    <div className="p-4 border-b border-white/10 bg-white/5">
+                      <div className="flex items-center gap-3 mb-2">
+                        <img src={user.avatar} alt="Avatar" className="w-10 h-10 rounded-full border border-teal-500/50" />
+                        <div>
+                          <div className="font-bold text-white leading-tight">{user.pseudo}</div>
+                          <div className="text-xs text-gray-400 flex items-center gap-1">
+                            <Hash size={12} /> {user.id}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="p-2 flex flex-col gap-1">
-                    <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-teal-500/10 hover:text-teal-400 text-gray-300 text-sm transition-colors group">
-                      <LayoutDashboard size={18} className="text-gray-500 group-hover:text-teal-400 transition-colors" />
-                      Mon Dashboard (Le Bot)
-                    </Link>
-                    
-                    <Link href="/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-teal-500/10 hover:text-teal-400 text-gray-300 text-sm transition-colors group">
-                      <Settings size={18} className="text-gray-500 group-hover:text-teal-400 transition-colors" />
-                      Paramètres du profil
-                    </Link>
+                    <div className="p-2 flex flex-col gap-1">
+                      <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-teal-500/10 hover:text-teal-400 text-gray-300 text-sm transition-colors group">
+                        <LayoutDashboard size={18} className="text-gray-500 group-hover:text-teal-400 transition-colors" />
+                        Mon Dashboard (Le Bot)
+                      </Link>
+                      
+                      <Link href="/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-teal-500/10 hover:text-teal-400 text-gray-300 text-sm transition-colors group">
+                        <Settings size={18} className="text-gray-500 group-hover:text-teal-400 transition-colors" />
+                        Paramètres du profil
+                      </Link>
 
-                    <div className="h-px bg-white/10 my-1 mx-2" />
+                      <div className="h-px bg-white/10 my-1 mx-2" />
 
-                    <button 
-                      onClick={() => signOut()}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 hover:text-red-400 text-gray-300 text-sm transition-colors group w-full text-left"
-                    >
-                      <LogOut size={18} className="text-gray-500 group-hover:text-red-400 transition-colors" />
-                      Déconnexion
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <motion.button 
-            onClick={() => signIn('discord')}
-            whileHover={{ scale: 1.05, boxShadow: `0 0 20px ${hoverGlow}` }}
-            whileTap={{ scale: 0.95 }}
-            className="px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-sm font-bold border border-white/10 backdrop-blur-md relative overflow-hidden group"
+                      <button 
+                        onClick={() => signOut()}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 hover:text-red-400 text-gray-300 text-sm transition-colors group w-full text-left"
+                      >
+                        <LogOut size={18} className="text-gray-500 group-hover:text-red-400 transition-colors" />
+                        Déconnexion
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <motion.button 
+              onClick={() => signIn('discord')}
+              whileHover={{ scale: 1.05, boxShadow: `0 0 20px ${hoverGlow}` }}
+              whileTap={{ scale: 0.95 }}
+              className="px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-sm font-bold border border-white/10 backdrop-blur-md relative overflow-hidden group hidden md:block"
+            >
+              <span className="relative z-10">Connexion Discord</span>
+              <div className={`absolute inset-0 bg-gradient-to-r ${isDemonic ? 'from-red-600/20 to-orange-500/20' : 'from-teal-500/20 to-emerald-500/20'} translate-y-full group-hover:translate-y-0 transition-transform duration-300`} />
+            </motion.button>
+          )}
+
+          {/* Hamburger button on mobile */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-gray-300 hover:text-white transition-all md:hidden focus:outline-none cursor-pointer"
+            aria-label="Toggle mobile menu"
           >
-            <span className="relative z-10">Connexion Discord</span>
-            <div className={`absolute inset-0 bg-gradient-to-r ${isDemonic ? 'from-red-600/20 to-orange-500/20' : 'from-teal-500/20 to-emerald-500/20'} translate-y-full group-hover:translate-y-0 transition-transform duration-300`} />
-          </motion.button>
-        )}
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu Panel */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="mt-3 w-full bg-[#050505]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 shadow-[0_10px_50px_rgba(0,0,0,0.8)] flex flex-col gap-3 md:hidden relative overflow-hidden"
+          >
+            {/* Glow background inside panel */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${isDemonic ? 'from-red-600/5 to-transparent' : 'from-teal-500/5 to-transparent'} pointer-events-none`} />
+            
+            <div className="relative z-10 flex flex-col gap-2">
+              {[
+                { label: "Fonctionnalités", href: "/#features" },
+                { label: "FAQ", href: "/#faq" },
+                { label: "Avis", href: "/#reviews" },
+                { label: "Prix", href: "/#pricing" }
+              ].map((item) => (
+                <Link 
+                  key={item.label} 
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`py-3 px-4 rounded-xl hover:bg-white/5 transition-all text-gray-300 hover:text-white font-medium text-base flex items-center justify-between border border-transparent hover:border-white/5`}
+                >
+                  <span>{item.label}</span>
+                  <span className={`text-xs opacity-50 ${isDemonic ? 'text-red-400' : 'text-teal-400'}`}>➔</span>
+                </Link>
+              ))}
+
+              {!isLoggedIn && (
+                <button 
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    signIn('discord');
+                  }}
+                  className={`mt-2 w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r ${isDemonic ? 'from-red-600 to-orange-500' : 'from-teal-500 to-emerald-600'} text-black font-black text-sm uppercase tracking-wider shadow-xl flex items-center justify-center gap-2`}
+                >
+                  Connexion Discord
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }
