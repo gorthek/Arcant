@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.1.1
+*Dernière modification : 08 Juillet 2026*
+
+### 🌐 Optimisation des performances multi-navigateurs
+- **[Suppression feDropShadow]** Remplacement du filtre SVG d'ombrage feDropShadow par des vagues d'ombres vectorielles dupliquées et décalées, résolvant le gel de chargement et le défilement saccadé sur Safari, Chrome, Firefox et Edge.
+- **[Resize Handler Mobile]** Mémorisation de la largeur de l'écran pour éviter la recréation des particules de fond sur les défilements mobiles (scroll) dus à l'apparition/disparition des barres d'adresse.
+- **[Fusions 3D & Blurs]** Suppression des filtres de flou de fond (`backdrop-blur`) superflus sur les cartes avec effet 3D (Features, Reviews, Pricing) pour économiser la composition GPU.
+
+---
+
 ## 🟢 Version 2.1.0
 *Dernière modification : 07 Juillet 2026*
 

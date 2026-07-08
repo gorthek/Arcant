@@ -36,7 +36,7 @@ const TiltCard = ({ feature, i }: { feature: any, i: number }) => {
       viewport={{ once: true }}
       transition={{ delay: i * 0.1, type: "spring", stiffness: 300, damping: 20 }}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className="group relative bg-white/5 border border-white/10 backdrop-blur-md p-8 rounded-[2rem] transition-colors duration-300 hover:border-teal-400/50 perspective-1000"
+      className="group relative bg-zinc-950/80 border border-white/10 p-8 rounded-[2rem] transition-colors duration-300 hover:border-teal-400/50 perspective-1000"
     >
       {/* Glare effect */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[2rem]">

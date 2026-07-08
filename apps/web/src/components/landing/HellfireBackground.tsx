@@ -25,10 +25,20 @@ export function HellfireBackground() {
       glowColor: string;
     }[] = [];
 
+    let lastWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+    let lastHeight = typeof window !== "undefined" ? window.innerHeight : 0;
+
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      initParticles();
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      
+      if (width !== lastWidth || Math.abs(height - lastHeight) > 100 || particles.length === 0) {
+        lastWidth = width;
+        lastHeight = height;
+        initParticles();
+      }
     };
 
     const initParticles = () => {

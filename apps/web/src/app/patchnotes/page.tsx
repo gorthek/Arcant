@@ -15,6 +15,44 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.1.1",
+      date: "08 Juillet 2026",
+      title: "Optimisation de Rendu & Multi-navigateurs",
+      type: "Correctif de performance",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Settings2 className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "improvement",
+          text: "Suppression du filtre SVG d'ombrage",
+          detail: "Remplacement de l'ombrage complexe feDropShadow par des vagues d'ombres vectorielles dupliquées (Duplicate Layer Vector Shadow) décalées verticalement, augmentant les performances à 60 FPS constants sur tous les navigateurs y compris Safari sur écran Retina.",
+          files: ["apps/web/src/components/landing/Divider.tsx"]
+        },
+        {
+          type: "improvement",
+          text: "Optimisation du Resize Handler sur Mobile",
+          detail: "Mise en cache de la largeur de la fenêtre et ajout d'un seuil de changement de hauteur pour éviter de re-générer les canvas de particules (Stardust, Hellfire, Interactive) à chaque petit défilement mobile (scroll) lorsque la barre d'adresse change.",
+          files: [
+            "apps/web/src/components/landing/StardustBackground.tsx",
+            "apps/web/src/components/landing/HellfireBackground.tsx",
+            "apps/web/src/components/dashboard/InteractiveBackground.tsx"
+          ]
+        },
+        {
+          type: "improvement",
+          text: "Suppression de backdrop-blur sur les cartes 3D",
+          detail: "Suppression des classes backdrop-blur-md/xl gourmandes sur les cartes avec des transformations 3D (Features, Reviews, Pricing) car le fond noir rend l'effet inutile visuellement mais coûteux en ressources graphiques.",
+          files: [
+            "apps/web/src/components/landing/Features.tsx",
+            "apps/web/src/components/landing/Reviews.tsx",
+            "apps/web/src/components/landing/Pricing.tsx"
+          ]
+        }
+      ]
+    },
+    {
       version: "v2.1.0",
       date: "07 Juillet 2026",
       title: "Compatibilité Mobile Totale & Optimisations",

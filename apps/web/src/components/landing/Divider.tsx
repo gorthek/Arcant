@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useId } from "react";
 
 interface DividerProps {
   bottomColorHex?: string;
@@ -21,8 +20,6 @@ export function Divider({
   // qui se chevauchent de façon distincte avec une ombre pour donner de la profondeur,
   // et qui se déplacent à des vitesses différentes pour faire "vrai océan".
 
-  const shadowId = useId() + "-shadow";
-
   // Une seule forme de vague très maritime (cycle court de 600px, forte amplitude de 75px)
   // Répétée 4 fois (2400px de large) pour permettre le défilement infini sans coupure.
   const a = 75; // Amplitude
@@ -33,12 +30,6 @@ export function Divider({
       
       {/* Un seul SVG prenant toute la largeur, fini la bidouille des 200% */}
       <svg viewBox="0 0 1200 300" preserveAspectRatio="none" className="absolute bottom-0 w-full h-full z-10">
-        <defs>
-          {/* Ombre portée vers le haut pour bien démarquer chaque couche (effet Draftbot) */}
-          <filter id={shadowId} x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="-6" stdDeviation="6" floodColor="#000000" floodOpacity="0.4" />
-          </filter>
-        </defs>
         
         {/* Vague Arrière (Sombre, Lente) */}
         <motion.path 
@@ -49,31 +40,55 @@ export function Divider({
           transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
         />
         
-        {/* Vague Milieu (Moyenne, Vitesse normale) - Ombrée */}
+        {/* Vague Milieu - Ombre Vectorielle Décalée */}
+        <motion.path 
+          d={wavePath}
+          fill="rgba(0, 0, 0, 0.15)"
+          initial={{ x: -150, y: 104 }}
+          animate={{ x: [-150, -750], y: [104, 104] }}
+          transition={{ duration: 13, repeat: Infinity, ease: "linear" }}
+        />
+        
+        {/* Vague Milieu (Moyenne, Vitesse normale) */}
         <motion.path 
           d={wavePath}
           fill={wave2Color}
-          filter={`url(#${shadowId})`}
           initial={{ x: -150, y: 110 }} // Décalage de départ (phase)
           animate={{ x: [-150, -750], y: [110, 110] }}
           transition={{ duration: 13, repeat: Infinity, ease: "linear" }}
         />
         
-        {/* Vague Avant (Claire, Rapide) - Ombrée */}
+        {/* Vague Avant - Ombre Vectorielle Décalée */}
+        <motion.path 
+          d={wavePath}
+          fill="rgba(0, 0, 0, 0.15)"
+          initial={{ x: -300, y: 144 }}
+          animate={{ x: [-300, -900], y: [144, 144] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "linear" }}
+        />
+        
+        {/* Vague Avant (Claire, Rapide) */}
         <motion.path 
           d={wavePath}
           fill={wave3Color}
-          filter={`url(#${shadowId})`}
           initial={{ x: -300, y: 150 }}
           animate={{ x: [-300, -900], y: [150, 150] }}
           transition={{ duration: 9, repeat: Infinity, ease: "linear" }}
         />
         
-        {/* Masque du Fond (Gris foncé/Noir, très lent) - Ombré pour fermer la vague */}
+        {/* Masque du Fond - Ombre Vectorielle Décalée */}
+        <motion.path 
+          d={wavePath}
+          fill="rgba(0, 0, 0, 0.2)"
+          initial={{ x: -50, y: 184 }}
+          animate={{ x: [-50, -650], y: [184, 184] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        />
+        
+        {/* Masque du Fond (Gris foncé/Noir, très lent) */}
         <motion.path 
           d={wavePath}
           fill={bottomColorHex}
-          filter={`url(#${shadowId})`}
           initial={{ x: -50, y: 190 }}
           animate={{ x: [-50, -650], y: [190, 190] }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}

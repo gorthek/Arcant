@@ -52,7 +52,7 @@ export function Pricing({ isFullPage = false }: PricingProps) {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
           whileHover={{ y: -15, rotateY: 5, rotateX: 5, z: 50, boxShadow: "0 30px 60px rgba(0,0,0,0.6)" }}
-          className="bg-white/5 border border-white/10 backdrop-blur-xl p-8 rounded-[2rem] flex flex-col transition-all relative overflow-hidden group"
+          className="bg-zinc-950/80 border border-white/10 p-8 rounded-[2rem] flex flex-col transition-all relative overflow-hidden group"
 
         >
           <div className="absolute inset-0 bg-gradient-to-br from-teal-500/0 to-teal-500/0 group-hover:from-teal-500/5 group-hover:to-transparent transition-colors duration-500" />
@@ -82,11 +82,11 @@ export function Pricing({ isFullPage = false }: PricingProps) {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
           whileHover={{ scale: 1.05, z: 80, rotateX: -5, rotateY: 0, boxShadow: "0 40px 80px rgba(20,184,166,0.4)" }}
-          className="bg-gradient-to-b from-teal-600/20 to-emerald-600/10 border border-teal-500/50 backdrop-blur-xl p-8 rounded-[2rem] flex flex-col relative shadow-2xl shadow-teal-500/20 group overflow-hidden"
+          className="bg-gradient-to-b from-teal-600/20 to-emerald-600/10 border border-teal-500/50 p-8 rounded-[2rem] flex flex-col relative shadow-2xl shadow-teal-500/20 group overflow-hidden"
 
         >
           <div className="absolute -inset-full animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0_340deg,rgba(20,184,166,0.3)_360deg)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute inset-[1px] bg-black/80 backdrop-blur-xl rounded-[calc(2rem-1px)] z-0" />
+          <div className="absolute inset-[1px] bg-zinc-950/95 rounded-[calc(2rem-1px)] z-0" />
           <div className="relative z-10 flex flex-col h-full">
             <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full text-xs font-bold uppercase tracking-wider text-black shadow-[0_0_20px_rgba(20,184,166,0.5)]">
               Populaire
@@ -118,7 +118,7 @@ export function Pricing({ isFullPage = false }: PricingProps) {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
           whileHover={{ y: -15, rotateY: -5, rotateX: 5, z: 50, boxShadow: "0 30px 60px rgba(0,0,0,0.6)" }}
-          className="bg-white/5 border border-white/10 backdrop-blur-xl p-8 rounded-[2rem] flex flex-col relative overflow-hidden group"
+          className="bg-zinc-950/80 border border-white/10 p-8 rounded-[2rem] flex flex-col relative overflow-hidden group"
         >
           <div className="absolute inset-0 bg-gradient-to-bl from-teal-500/0 to-teal-500/0 group-hover:from-teal-500/5 group-hover:to-transparent transition-colors duration-500" />
           <div className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Pour les pros</div>

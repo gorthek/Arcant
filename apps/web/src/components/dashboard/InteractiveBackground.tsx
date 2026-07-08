@@ -17,10 +17,20 @@ export function InteractiveBackground() {
 
     const mouse = { x: -1000, y: -1000 };
 
+    let lastWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+    let lastHeight = typeof window !== "undefined" ? window.innerHeight : 0;
+
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      initParticles();
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      
+      if (width !== lastWidth || Math.abs(height - lastHeight) > 100 || particles.length === 0) {
+        lastWidth = width;
+        lastHeight = height;
+        initParticles();
+      }
     };
 
     class Particle {
@@ -105,11 +115,13 @@ export function InteractiveBackground() {
       mouse.y = -1000;
     };
 
-    window.addEventListener("resize", resize);
-    window.addEventListener("mousemove", (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
-    });
+    };
+
+    window.addEventListener("resize", resize);
+    window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("touchmove", handleTouch, { passive: true });
     window.addEventListener("touchstart", handleTouch, { passive: true });
     window.addEventListener("touchend", handleTouchEnd, { passive: true });
@@ -119,6 +131,7 @@ export function InteractiveBackground() {
 
     return () => {
       window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("touchmove", handleTouch);
       window.removeEventListener("touchstart", handleTouch);
       window.removeEventListener("touchend", handleTouchEnd);

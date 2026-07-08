@@ -5,6 +5,14 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🟢 Version 1.5.1
+*Dernière modification : 08 Juillet 2026*
+
+### 🤖 Cœur du Bot & Optimisations Client
+- **[Synchronisation & Nettoyage]** Correction des fuites de mémoire potentielles sur le tracking de la souris dans l'arrière-plan interactif du dashboard client, améliorant la réactivité de l'application sur le long terme.
+
+---
+
 ## 🔴 Version 1.5.0
 *Dernière modification : 04 Juillet 2026*
 

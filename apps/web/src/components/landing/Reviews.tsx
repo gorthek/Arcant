@@ -49,7 +49,7 @@ export function Reviews() {
               rotateY: -10,
               boxShadow: "0 30px 60px -12px rgba(20, 184, 166, 0.2)"
             }}
-            className="bg-white/5 border border-white/10 backdrop-blur-xl p-8 rounded-[2rem] flex flex-col gap-4 transform-gpu transition-all duration-200"
+            className="bg-zinc-950/80 border border-white/10 p-8 rounded-[2rem] flex flex-col gap-4 transform-gpu transition-all duration-200"
             style={{ transformStyle: "preserve-3d" }}
           >
             <div className="flex gap-1 text-yellow-400">
