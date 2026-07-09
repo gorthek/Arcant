@@ -79,6 +79,22 @@ Génère une architecture riche avec des règles de sécurité logiques.`;
                 throw new Error(`Serveur ${serverId} introuvable ou bot non présent.`);
             }
             console.log(`[ServerGenerator] Début de la synchronisation pour le serveur ${serverId}...`);
+            // Optionnel : Suppression de tous les anciens salons (Purge complète)
+            if (options.clearExisting) {
+                console.log(`[ServerGenerator] Purge complète demandée pour le serveur ${serverId}. Suppression de tous les salons...`);
+                const channelsToPurge = Array.from(guild.channels.cache.values());
+                for (const channel of channelsToPurge) {
+                    try {
+                        await channel.delete('Purge Arcant IA avant ré-application');
+                        await this.sleep(150); // Pause anti-rate limit
+                    }
+                    catch (e) {
+                        console.warn(`[ServerGenerator] Impossible de supprimer le salon ${channel.name}:`, e);
+                    }
+                }
+                // Attendre un peu que le cache Discord se mette à jour
+                await this.sleep(1000);
+            }
             const createdRoles = new Map();
             // 3. Création des Rôles
             if (options.createRoles && structure.roles && Array.isArray(structure.roles)) {

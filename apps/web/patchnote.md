@@ -5,6 +5,15 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.6
+*Dernière modification : 09 Juillet 2026*
+
+### 🌐 Purge & Déploiement Direct de Serveur
+- **[Option de Purge Totale de Serveur]** Intégration d'un bouton de bascule "Purger l'ancien serveur" dans le panneau de l'éditeur visuel. Si activé, l'application supprime tous les anciens salons existants avant de générer la nouvelle arborescence.
+- **[Liaison API REST Directe]** Remplacement du mock de déploiement par un appel API réel reliant le Dashboard Web de l'Owner au Bot Discord pour exécuter la création des salons en temps réel.
+
+---
+
 ## 🟢 Version 2.2.5
 *Dernière modification : 09 Juillet 2026*
 

@@ -15,6 +15,30 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.2.6",
+      date: "09 Juillet 2026",
+      title: "Purge & Déploiement Direct de Serveur",
+      type: "Mise à jour Fonctionnelle",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Sparkles className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Option de Purge Totale de Serveur",
+          detail: "Intégration d'un bouton de bascule 'Purger l'ancien serveur' dans l'éditeur visuel. Si activé, l'application supprime tous les anciens salons existants avant de générer la nouvelle architecture propre pour éviter d'empiler les arborescences.",
+          files: ["apps/web/src/components/dashboard/roles/ServerVisualEditor.tsx", "apps/bot/src/utils/ServerGenerator.ts"]
+        },
+        {
+          type: "improvement",
+          text: "Liaison d'API REST Directe",
+          detail: "Remplacement du mock de déploiement par un appel API asynchrone réel reliant le Dashboard Web de l'Owner au Bot Discord pour exécuter l'arborescence finale en temps réel.",
+          files: ["apps/web/src/components/dashboard/roles/OwnerDashboard.tsx"]
+        }
+      ]
+    },
+    {
       version: "v2.2.5",
       date: "09 Juillet 2026",
       title: "Éditeur Visuel de Serveur Premium (Discord Mockup)",

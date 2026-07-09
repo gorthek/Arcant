@@ -8,6 +8,7 @@ export declare class ServerGenerator {
     static applyStructure(client: Client, serverId: string, structure: any, options: {
         createRoles?: boolean;
         managePerms?: boolean;
+        clearExisting?: boolean;
     }): Promise<{
         success: boolean;
     }>;

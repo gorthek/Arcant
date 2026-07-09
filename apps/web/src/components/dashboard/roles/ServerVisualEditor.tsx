@@ -57,10 +57,11 @@ export default function ServerVisualEditor({
 }: { 
   structure: Structure; 
   setStructure: (val: Structure) => void;
-  onDeploy: () => void;
+  onDeploy: (options?: { clearExisting: boolean }) => void;
   onCancel: () => void;
 }) {
   const [activeRoleIdx, setActiveRoleIdx] = useState<number | null>(null);
+  const [clearExisting, setClearExisting] = useState(false);
 
   const handleRoleNameChange = (index: number, newName: string) => {
     const newStructure = { ...structure };
@@ -171,8 +172,17 @@ export default function ServerVisualEditor({
           >
             <X className="w-4 h-4" /> Annuler
           </button>
+          <label className="flex items-center gap-1.5 text-xs text-zinc-400 font-semibold cursor-pointer hover:text-white transition mr-3">
+            <input 
+              type="checkbox" 
+              checked={clearExisting} 
+              onChange={(e) => setClearExisting(e.target.checked)}
+              className="rounded border-zinc-700 bg-zinc-800 text-teal-500 focus:ring-teal-500 accent-teal-500"
+            />
+            <span>Purger l'ancien serveur</span>
+          </label>
           <button 
-            onClick={onDeploy}
+            onClick={() => onDeploy({ clearExisting })}
             className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-teal-500/20 active:scale-95 transition-all duration-200 text-sm flex items-center gap-2"
           >
             <Sparkles className="w-4 h-4" /> Déployer sur Discord

@@ -485,13 +485,34 @@ function ModuleIA({ serverId }: { serverId: string }) {
     setIsProposalActive(false);
   };
 
-  const handleSyncServer = async () => {
+  const handleSyncServer = async (options?: { clearExisting: boolean }) => {
+    if (!serverStructure) return alert("Aucune structure de serveur à synchroniser.");
     setIsGeneratingServer(true);
-    setTimeout(() => {
-      alert("Synchronisation lancée sur Discord !");
-      setIsVisualEditorActive(false);
-      setIsGeneratingServer(false);
-    }, 1000);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/server/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serverId,
+          structure: serverStructure,
+          options: {
+            createRoles,
+            managePerms,
+            clearExisting: options?.clearExisting ?? false
+          }
+        }),
+      });
+      if (res.ok) {
+        alert("Synchronisation lancée sur Discord ! Les rôles et salons vont être instanciés.");
+        setIsVisualEditorActive(false);
+      } else {
+        alert("Erreur lors de la synchronisation de l'arborescence.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Erreur de connexion lors de la synchronisation.");
+    }
+    setIsGeneratingServer(false);
   };
 
   const handleFeedAI = async () => {

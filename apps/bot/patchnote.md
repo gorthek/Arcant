@@ -5,6 +5,14 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.6.6
+*Dernière modification : 09 Juillet 2026*
+
+### 🤖 Cœur du Bot & Intelligence Artificielle unifiée
+- **[Purge complète de salons (clearExisting)]** Intégration de l'option de purge dans la routine `applyStructure`. Le bot efface de façon asynchrone tous les salons existants avant de générer la nouvelle architecture Discord pour un déploiement 100% propre.
+
+---
+
 ## 🔴 Version 1.6.5
 *Dernière modification : 09 Juillet 2026*
 
