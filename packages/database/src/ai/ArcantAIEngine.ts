@@ -124,6 +124,79 @@ export class ArcantAIEngine {
       return this.handleAPIMode(userMessage, context);
     }
 
+    // -- Détection de l'intention d'apprentissage autonome
+    // Exemples : 
+    // "quand je dis 'bonsoir', réponds 'bonne soirée à toi !'"
+    // "quand on dit 'site', réponds 'voici l'url : https://arcant.fr'"
+    // "quand quelqu'un dit 'ping', réponds 'pong !'"
+    if (serverId && (msg.includes("quand je dis") || msg.includes("quand on dit") || msg.includes("quand quelqu'un dit") || msg.includes("apprends que quand"))) {
+      const learnRegex = /(?:quand je dis|quand on dit|quand quelqu'un dit|apprends que quand)\s+['"\s]?([^'"]+)['"\s]?,?\s+(?:tu dois répondre|tu dois repondre|réponds|reponds|répond|repond)\s+['"\s]?([^'"]+)['"\s]?/i;
+      const learnMatch = userMessage.match(learnRegex);
+      
+      if (learnMatch && learnMatch[1] && learnMatch[2]) {
+        const trigger = learnMatch[1].trim();
+        const response = learnMatch[2].trim();
+        
+        try {
+          const newRule = new AIRule({
+            serverId,
+            trigger,
+            response,
+            creatorId: userId || 'AI_AUTONOMOUS'
+          });
+          await newRule.save();
+          
+          // Invalider le cache des règles pour ce serveur
+          delete this.cache[`rules_${serverId}`];
+          
+          return {
+            reply: `💡 **Apprentissage réussi !** Désormais, quand quelqu'un dira *"${trigger}"* sur ce serveur, je répondrai *"${response}"*.`
+          };
+        } catch (err) {
+          console.error("[ArcantAI] Erreur lors de l'apprentissage autonome:", err);
+          return {
+            reply: "❌ Je n'ai pas pu enregistrer cette règle en base de données. Réessayez plus tard."
+          };
+        }
+      }
+    }
+
+    // -- Détection de l'intention d'oubli/suppression autonome de règle
+    // Exemples :
+    // "oublie la règle 'bonsoir'"
+    // "supprime la règle 'bonsoir'"
+    if (serverId && (msg.includes("oublie la règle") || msg.includes("supprime la règle") || msg.includes("oublie le mot-clé") || msg.includes("oublie la regle") || msg.includes("supprime la regle"))) {
+      const forgetRegex = /(?:oublie la règle|oublie la regle|supprime la règle|supprime la regle|oublie le mot-clé|oublie le mot-cle)\s+['"\s]?([^'"]+)['"\s]?/i;
+      const forgetMatch = userMessage.match(forgetRegex);
+      
+      if (forgetMatch && forgetMatch[1]) {
+        const triggerToForget = forgetMatch[1].trim().toLowerCase();
+        try {
+          const deleteResult = await AIRule.deleteMany({
+            serverId,
+            trigger: { $regex: new RegExp(`^${triggerToForget}$`, 'i') }
+          });
+          
+          if (deleteResult.deletedCount > 0) {
+            // Invalider le cache des règles pour ce serveur
+            delete this.cache[`rules_${serverId}`];
+            return {
+              reply: `🧹 **Règle oubliée !** J'ai supprimé la règle associée au déclencheur *"${forgetMatch[1]}"*.`
+            };
+          } else {
+            return {
+              reply: `❓ Je n'ai trouvé aucune règle personnalisée avec le déclencheur *"${forgetMatch[1]}"* sur ce serveur.`
+            };
+          }
+        } catch (err) {
+          console.error("[ArcantAI] Erreur lors de l'oubli autonome:", err);
+          return {
+            reply: "❌ Une erreur est survenue lors de la tentative de suppression de la règle."
+          };
+        }
+      }
+    }
+
     // 3. Recherche de règles personnalisées dans la DB (avec Cache & Similarité Fuzzy)
     if (serverId) {
       try {
@@ -805,41 +878,92 @@ export class ArcantAIEngine {
     dbContext: string,
     serverSettingsText: string
   ): string {
-    // Salutations
-    if (this.containsFuzzy(words, 'bonjour', ['salut', 'yo', 'hello', 'hey', 'bonsoir'])) {
-      return `Bonjour ! Je suis l'IA d'Arcant, le moteur unifié qui propulse le site web, l'API, le bot Discord et la base de données. ${dbContext}\nComment puis-je vous aider ?${serverSettingsText}`;
+    // 1. Salutations
+    if (this.containsFuzzy(words, 'bonjour', ['salut', 'yo', 'hello', 'hey', 'bonsoir', 'coucou', 'wsh'])) {
+      const replies = [
+        `Salut ! Je suis l'IA d'Arcant. ${dbContext} Comment puis-je égayer ta journée aujourd'hui ?`,
+        `Bonjour ! Ravi de te parler. Je suis l'IA d'Arcant. ${dbContext} De quoi souhaites-tu discuter ?`,
+        `Yo ! Je suis le moteur d'IA d'Arcant. Tout est opérationnel de mon côté. ${dbContext} Qu'est-ce qu'on fait aujourd'hui ?`
+      ];
+      return replies[Math.floor(Math.random() * replies.length)] + serverSettingsText;
     }
 
-    // Identification
-    if (this.containsFuzzy(words, 'qui', ['quoi', 'arcant']) && this.containsFuzzy(words, 'es-tu', ['es tu', 'est', 'cree'])) {
+    // 2. Humeur / Petites discussions
+    if (this.containsFuzzy(words, 'va', ['comment', 'ca', 'ça', 'forme']) && (this.containsFuzzy(words, 'tu', ['comment', 'ca', 'ça']) || msg.includes("ça va") || msg.includes("ca va"))) {
+      const replies = [
+        "Je me sens super bien ! Je viens de nettoyer mon cache et tout est fluide. Et toi, comment ça va ?",
+        "Tout va pour le mieux ! Mes algorithmes tournent à plein régime. Comment se passe ta journée ?",
+        "Ça va nickel ! Prêt à t'aider ou à configurer ton serveur. Et toi ?"
+      ];
+      return replies[Math.floor(Math.random() * replies.length)];
+    }
+
+    // 3. Ton créateur / Origine
+    if (this.containsFuzzy(words, 'créateur', ['crée', 'cree', 'developpeur', 'dev', 'boss', 'patron', 'gorthek', 'qui t\'a'])) {
+      return "J'ai été conçu par **Gorthek** (le créateur d'Arcant) pour être un moteur d'IA 100% autonome, ultra-rapide et intégré dans l'écosystème Arcant. Il m'a programmé en TypeScript pur avec amour !";
+    }
+
+    // 4. Blagues
+    if (this.containsFuzzy(words, 'blague', ['raconte', 'rire', 'drôle', 'humour'])) {
+      const jokes = [
+        "Pourquoi les développeurs détestent-ils la nature ? Parce qu'il y a trop de bugs ! 🐛",
+        "Que dit un bit qui a de la fièvre ? 'Je crois que j'ai un chaud-octet !' 🤒",
+        "Combien de développeurs faut-il pour changer une ampoule ? Aucun, c'est un problème matériel ! 💡",
+        "Un SQL entre dans un bar, va voir deux tables et demande : 'Je peux me joindre à vous ?' 📊",
+        "Pourquoi le bot est-il allé chez le psychologue ? Parce qu'il avait trop de conflits de commit ! 🧠"
+      ];
+      return jokes[Math.floor(Math.random() * jokes.length)];
+    }
+
+    // 5. Conseils de modération / Sécurité
+    if (this.containsFuzzy(words, 'conseil', ['protéger', 'securite', 'securiser', 'conseils', 'moderation', 'anti-raid'])) {
+      return "🛡️ **Conseils de sécurité Arcant** :\n" +
+        "1. Activez le **Bloqueur de Liens** pour stopper les invitations suspectes.\n" +
+        "2. Réglez la **Sensibilité Anti-Spam** sur *medium* ou *high* pour bloquer les spammeurs.\n" +
+        "3. En cas d'attaque, écrivez *« active l'anti-raid »* dans le chat du Copilot pour verrouiller instantanément le serveur.\n" +
+        "4. Utilisez mes règles personnalisées autonomes (ex: *« quand je dis 'règles', réponds... »*) pour guider vos membres.";
+    }
+
+    // 6. Remerciements
+    if (this.containsFuzzy(words, 'merci', ['thanks', 'ty', 'super', 'cool', 'parfait', 'gg'])) {
+      const replies = [
+        "De rien ! C'est un plaisir d'aider.",
+        "Avec plaisir ! N'hésite pas si tu as d'autres questions.",
+        "Pas de souci ! Je suis là pour ça. 😉"
+      ];
+      return replies[Math.floor(Math.random() * replies.length)];
+    }
+
+    // 7. Identification
+    if (msg.includes("qui es-tu") || msg.includes("qui es tu") || msg.includes("c'est quoi arcant")) {
       return `Je suis l'intelligence artificielle propre à Arcant. Je ne suis ni Gemini, ni ChatGPT — je suis un moteur autonome intégré directement dans l'écosystème Arcant. ${dbContext} Je fonctionne de manière identique sur le site web, l'API REST, et le bot Discord.${serverSettingsText}`;
     }
 
-    // Aide
-    if (this.containsFuzzy(words, 'aide', ['help', 'commandes', 'fonctionnalités'])) {
+    // 8. Aide générale
+    if (msg.includes("help") || msg.includes("aide") || msg.includes("commande")) {
       if (mode === 'discord') {
         return "Voici mes commandes : `.ask <question>` pour me poser une question, `.help` pour l'aide complète. Mon panneau web vous permet aussi de configurer mes réponses personnalisées et mes modules de sécurité.";
       }
       return "Mon panneau web vous permet d'associer des mots-clés à des réponses personnalisées et de configurer mes modules de modération, sécurité, tickets, économie et leveling. Tout est synchronisé avec la base de données en temps réel.";
     }
 
-    // Premium
-    if (this.containsFuzzy(words, 'premium', ['pro', 'upgrade', 'payer', 'achat'])) {
+    // 9. Premium
+    if (msg.includes("premium") || msg.includes("pro") || msg.includes("upgrade")) {
       return "Arcant Premium débloque l'analyse sémantique avancée, la génération d'architecture de serveurs par IA, et le système de bot personnalisé illimité. Rendez-vous sur la page Pricing du site web pour plus d'informations.";
     }
 
-    // Stats
-    if (this.containsFuzzy(words, 'stats', ['statistiques', 'infos', 'données', 'donnees'])) {
+    // 10. Stats
+    if (msg.includes("stat") || msg.includes("info") || msg.includes("données")) {
       return `${dbContext} Toutes ces données sont synchronisées en temps réel entre le site web, l'API et le bot Discord.${serverSettingsText}`;
     }
 
-    // Sécurité
-    if (this.containsFuzzy(words, 'sécurité', ['raid', 'anti-raid', 'anti-link', 'anti-lien', 'protection', 'config'])) {
-      return `Le module de sécurité d'Arcant inclut : Anti-Raid (Panic Button), Captcha par MP, Anti-Lien, Anti-Selfbot, Scanner d'âge de compte, Limite de mentions, et Protection Staff anti-mass ban. Tout est configurable depuis le dashboard.${serverSettingsText}`;
-    }
-
-    // Fallback générique
-    return `Message bien reçu par l'IA unifiée d'Arcant. ${dbContext}\nConfigurez mes réponses personnalisées depuis le tableau de bord web !${serverSettingsText}`;
+    // Fallback générique intelligent et conversationnel
+    const fallbacks = [
+      `J'ai bien reçu ton message ! ${dbContext}\nSi tu souhaites m'apprendre des réponses personnalisées, tu peux me dire : *« quand je dis 'mot', réponds 'ma réponse' »* !`,
+      `Intéressant ! Je garde ça dans mes variables. ${dbContext}\nJe suis programmé pour répondre à tes questions ou configurer ton serveur. Que veux-tu faire ?`,
+      `Message analysé avec succès. ${dbContext}\nTu peux à tout moment personnaliser mes réponses ou ma personnalité depuis le dashboard ou directement par écrit !`
+    ];
+    return fallbacks[Math.floor(Math.random() * fallbacks.length)] + serverSettingsText;
   }
 
   /**

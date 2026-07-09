@@ -15,6 +15,30 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.2.2",
+      date: "09 Juillet 2026",
+      title: "IA Autonome (Self-Learning & Dialogue)",
+      type: "Mise à jour Majeure",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Sparkles className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Apprentissage Autonome (Self-Learning)",
+          detail: "L'IA est désormais capable d'apprendre et d'oublier des règles de réponse par elle-même en analysant le chat écrit. Par exemple : « quand je dis 'mot', réponds 'ma réponse' » crée instantanément une nouvelle règle dans MongoDB, et « oublie la règle 'mot' » la supprime.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts"]
+        },
+        {
+          type: "feature",
+          text: "Dialogue Naturel & Intelligence Conversationnelle",
+          detail: "Enrichissement massif du dictionnaire de discussion autonome (générateur de blagues, conseils de modération et sécurité, humeur, identité du créateur Gorthek) afin d'éviter les fallbacks statiques et rendre les échanges vivants.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts"]
+        }
+      ]
+    },
+    {
       version: "v2.2.1",
       date: "09 Juillet 2026",
       title: "Optimisations d'Efficacité & Cache IA",

@@ -5,6 +5,15 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.6.2
+*Dernière modification : 09 Juillet 2026*
+
+### 🤖 Cœur du Bot & Intelligence Artificielle unifiée
+- **[Apprentissage / Oubli de commandes autonome]** Le bot intercepte les instructions de conversation de type *« quand je dis X, réponds Y »* ou *« oublie la règle X »* pour enregistrer/supprimer automatiquement les lignes correspondantes dans MongoDB de façon 100% autonome.
+- **[Dialogue conversationnel enrichi]** Liaison du nouveau dictionnaire de dialogues, blagues, humeurs et conseils de sécurité.
+
+---
+
 ## 🔴 Version 1.6.1
 *Dernière modification : 09 Juillet 2026*
 

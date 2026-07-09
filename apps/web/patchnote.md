@@ -5,6 +5,15 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.2
+*Dernière modification : 09 Juillet 2026*
+
+### 🌐 IA Autonome (Self-Learning & Dialogue)
+- **[Apprentissage Autonome]** L'IA peut désormais enregistrer de nouvelles règles de commande ou de réponse par elle-même directement à l'écrit via le chat (ex: *« quand je dis 'mot', réponds 'ma réponse' »* crée une règle MongoDB, et *« oublie la règle 'mot' »* la supprime).
+- **[Dialogue Naturel]** Intégration d'un dictionnaire conversationnel complet (blagues, humeurs, identité, conseils de sécurité/modération d'Arcant) pour des conversations vivantes et autonomes.
+
+---
+
 ## 🟢 Version 2.2.1
 *Dernière modification : 09 Juillet 2026*
 
