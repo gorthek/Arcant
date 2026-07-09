@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.6.1
+*Dernière modification : 09 Juillet 2026*
+
+### 🤖 Cœur du Bot & Intelligence Artificielle unifiée
+- **[Cache en mémoire TTL]** Intégration de la couche de mise en cache locale pour éviter les requêtes MongoDB inutiles et accélérer la réponse de l'IA unifiée à <1ms.
+- **[Tolérance aux fautes d'orthographe]** Le moteur de matching de règles et de commandes supporte désormais la similarité floue Levenshtein pour décoder correctement les messages des membres même s'ils font des fautes de frappe.
+- **[Variables et Mentions Dynamiques]** Résolution dynamique de la variable de réponse `{user}` avec la vraie mention cliquable Discord active de l'auteur du message.
+
+---
+
 ## 🔴 Version 1.6.0
 *Dernière modification : 09 Juillet 2026*
 

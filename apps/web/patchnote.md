@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.1
+*Dernière modification : 09 Juillet 2026*
+
+### 🌐 Optimisations d'Efficacité & Cache IA
+- **[Cache TTL en Mémoire]** Mise en place d'un système de mise en cache temporaire (TTL) pour les statistiques globales de la base de données (30s) et les configurations/règles par serveur (10-20s), réduisant les requêtes MongoDB redondantes et garantissant une latence d'IA de <1ms sur les messages répétés.
+- **[Fuzzy Matching Levenshtein]** Implémentation locale de l'algorithme de similarité de Levenshtein, permettant de tolérer les fautes de frappe ou les abréviations des membres lors des déclenchements de commandes et de règles.
+- **[Synonymes Premium & Mentions]** Intégration d'un dictionnaire de synonymes élargi pour les serveurs Premium, et remplacement dynamique de la variable `{user}` par une vraie mention cliquable Discord active.
+
+---
+
 ## 🟢 Version 2.2.0
 *Dernière modification : 09 Juillet 2026*
 

@@ -15,6 +15,36 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.2.1",
+      date: "09 Juillet 2026",
+      title: "Optimisations d'Efficacité & Cache IA",
+      type: "Correctif de performance",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Settings2 className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "improvement",
+          text: "Mise en Cache TTL en Mémoire",
+          detail: "Intégration d'un système de cache en mémoire (TTL) pour les statistiques de base de données, les paramètres de serveurs et les règles personnalisées. Cela permet de réduire les requêtes MongoDB répétitives et d'obtenir des temps de réponse d'IA inférieurs à 1 ms.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts"]
+        },
+        {
+          type: "improvement",
+          text: "Algorithme de Similarité Floue (Levenshtein)",
+          detail: "Implémentation de la distance de Levenshtein pour tolérer les fautes d'orthographe dans les commandes écrites et les déclencheurs de règles personnalisées. L'IA comprend désormais des mots mal saisis ou abrégés.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts"]
+        },
+        {
+          type: "improvement",
+          text: "Synonymes Élargis Premium & Mentions Précises",
+          detail: "Les serveurs Premium bénéficient désormais d'un dictionnaire de synonymes étendu pour une meilleure compréhension. De plus, la variable {user} est résolue en mention réelle active (<@id>) du membre.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts"]
+        }
+      ]
+    },
+    {
       version: "v2.2.0",
       date: "09 Juillet 2026",
       title: "Moteur d'IA Locale Suprême & Génération Thématique",

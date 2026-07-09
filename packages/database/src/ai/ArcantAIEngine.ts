@@ -19,17 +19,95 @@ interface AIContext {
 }
 
 export class ArcantAIEngine {
+  // Cache en mémoire pour réduire la charge DB et la latence
+  private static cache: Record<string, { data: any; expiry: number }> = {};
+
+  private static getFromCache<T>(key: string): T | null {
+    const entry = this.cache[key];
+    if (entry && entry.expiry > Date.now()) {
+      return entry.data as T;
+    }
+    return null;
+  }
+
+  private static setToCache(key: string, data: any, ttlMs: number = 15000): void {
+    this.cache[key] = {
+      data,
+      expiry: Date.now() + ttlMs
+    };
+  }
+
+  /**
+   * Calcule la distance de Levenshtein entre deux chaînes.
+   * Indispensable pour la tolérance aux fautes d'orthographe.
+   */
+  private static getLevenshteinDistance(a: string, b: string): number {
+    const matrix: number[][] = [];
+
+    for (let i = 0; i <= b.length; i++) {
+      matrix[i] = [i];
+    }
+    for (let j = 0; j <= a.length; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1, // substitution
+            matrix[i][j - 1] + 1,     // insertion
+            matrix[i - 1][j] + 1      // suppression
+          );
+        }
+      }
+    }
+
+    return matrix[b.length][a.length];
+  }
+
+  /**
+   * Vérifie si deux chaînes sont similaires avec un seuil de distance maximal.
+   */
+  private static isFuzzyMatch(word: string, target: string, maxDistance: number = 2): boolean {
+    if (word.length < 3 || target.length < 3) return word === target;
+    const distance = this.getLevenshteinDistance(word, target);
+    return distance <= maxDistance;
+  }
+
+  /**
+   * Recherche si l'une des chaînes fournies correspond à la cible de façon tolérante.
+   */
+  private static containsFuzzy(words: string[], target: string, synonyms: string[] = []): boolean {
+    const allTargets = [target, ...synonyms];
+    for (const w of words) {
+      for (const t of allTargets) {
+        if (t.length < 4) {
+          if (w === t) return true;
+        } else {
+          const maxDist = t.length > 6 ? 2 : 1;
+          if (this.isFuzzyMatch(w, t, maxDist)) return true;
+        }
+      }
+    }
+    return false;
+  }
+
   /**
    * Analyse et génère une réponse unifiée pour le Bot Discord, l'API ou le Site Web.
-   * L'IA est propre à Arcant — aucune dépendance externe (pas de Gemini, pas d'OpenAI).
-   * Elle utilise un moteur de règles intelligent avec détection de patterns avancés.
    */
   public static async processMessage(
     userMessage: string,
     context: AIContext
   ): Promise<{ reply: string; update?: any; data?: any }> {
     const msg = userMessage.toLowerCase().trim();
-    const { mode, serverId, systemContext } = context;
+    const { mode, serverId, systemContext, userId } = context;
+
+    // Découper le message en mots pour l'analyse fuzzy
+    const cleanMsg = msg.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
+    const words = cleanMsg.split(/\s+/).filter(w => w.length > 0);
 
     // 0. Mode Server Generation (Génération d'architecture de serveur Discord)
     if (mode === 'server_generation' || systemContext?.includes("architecte") || systemContext?.includes("categories")) {
@@ -46,20 +124,58 @@ export class ArcantAIEngine {
       return this.handleAPIMode(userMessage, context);
     }
 
-    // 3. Recherche de règles personnalisées dans la DB
+    // 3. Recherche de règles personnalisées dans la DB (avec Cache & Similarité Fuzzy)
     if (serverId) {
       try {
-        const rules = await AIRule.find({ serverId });
+        const cacheKey = `rules_${serverId}`;
+        let rules = this.getFromCache<any[]>(cacheKey);
+        if (!rules) {
+          rules = await AIRule.find({ serverId });
+          this.setToCache(cacheKey, rules, 10000); // Cache de 10 secondes
+        }
+
+        // Récupérer les infos de serveurs (avec Cache)
+        const serverCacheKey = `server_${serverId}`;
+        let serverInfo = this.getFromCache<any>(serverCacheKey);
+        if (!serverInfo) {
+          serverInfo = await Server.findOne({ serverId });
+          this.setToCache(serverCacheKey, serverInfo, 20000); // Cache de 20 secondes
+        }
+
+        const botCacheKey = `bot_${serverId}`;
+        let botInfo = this.getFromCache<any>(botCacheKey);
+        if (!botInfo) {
+          botInfo = await CustomBot.findOne({ serverId });
+          this.setToCache(botCacheKey, botInfo, 20000);
+        }
+
         for (const rule of rules) {
           const trigger = rule.trigger.toLowerCase().trim();
-          if (msg.includes(trigger)) {
-            let responseText = rule.response;
-            
-            const serverInfo = await Server.findOne({ serverId });
-            const botInfo = await CustomBot.findOne({ serverId });
+          let isMatched = false;
 
-            // Remplacement des variables dynamiques
-            responseText = responseText.replace(/{user}/g, `<@user>`);
+          if (msg.includes(trigger)) {
+            isMatched = true;
+          } else {
+            // Recherche tolérante par mots (Fuzzy Matcher)
+            const triggerWords = trigger.split(/\s+/).filter((w: string) => w.length >= 3);
+            if (triggerWords.length > 0) {
+              let matchesAll = true;
+              for (const tw of triggerWords) {
+                if (!words.some(w => this.isFuzzyMatch(w, tw, tw.length > 5 ? 2 : 1))) {
+                  matchesAll = false;
+                  break;
+                }
+              }
+              isMatched = matchesAll;
+            }
+          }
+
+          if (isMatched) {
+            let responseText = rule.response;
+
+            // Remplacement des variables dynamiques de façon précise
+            const userMention = userId ? `<@${userId}>` : `<@user>`;
+            responseText = responseText.replace(/{user}/g, userMention);
             responseText = responseText.replace(/{server_name}/g, serverInfo?.name || "le serveur");
             responseText = responseText.replace(/{time}/g, new Date().toLocaleTimeString('fr-FR'));
             responseText = responseText.replace(/{date}/g, new Date().toLocaleDateString('fr-FR'));
@@ -74,7 +190,7 @@ export class ArcantAIEngine {
       }
     }
 
-    // 4. Enrichir le contexte avec les données réelles de la DB
+    // 4. Enrichir le contexte avec les données réelles de la DB (Optimisé avec Cache)
     let enrichedContext = '';
     let serverSettingsText = '';
     try {
@@ -82,12 +198,18 @@ export class ArcantAIEngine {
       enrichedContext = `[Contexte Arcant] ${dbStats.serversCount} serveurs, ${dbStats.botsCount} bots, ${dbStats.usersCount} utilisateurs, ${dbStats.aiRulesCount} règles IA configurées.`;
       
       if (serverId) {
-        const serverInfo = await Server.findOne({ serverId });
+        const serverCacheKey = `server_${serverId}`;
+        let serverInfo = this.getFromCache<any>(serverCacheKey);
+        if (!serverInfo) {
+          serverInfo = await Server.findOne({ serverId });
+          this.setToCache(serverCacheKey, serverInfo, 20000);
+        }
+
         if (serverInfo) {
           serverSettingsText = `\n⚙️ **Configuration actuelle de ${serverInfo.name}** :\n` +
             `- 🛡️ **Mode Anti-Raid** : ${serverInfo.raidMode ? '🔴 Activé (Le serveur est verrouillé)' : '🟢 Désactivé'}\n` +
             `- 🔗 **Anti-Lien** : ${serverInfo.antiLink ? '🔒 Activé (Liens bloqués)' : '🔓 Désactivé'}\n` +
-            `- ⚠️ **Sensibilité Anti-Spam** : Niveau ${serverInfo.antiSpamSensitivity}/5\n` +
+            `- ⚠️ **Sensibilité Anti-Spam** : ${serverInfo.antiSpamSensitivity || 'medium'}\n` +
             `- 📝 **Mots interdits** : ${serverInfo.blacklistedWords?.join(', ') || 'Aucun'}`;
         }
       }
@@ -96,14 +218,18 @@ export class ArcantAIEngine {
     }
 
     // 5. Réponse intelligente contextuelle
-    const reply = this.getSmartReply(msg, mode, enrichedContext, serverSettingsText);
+    const reply = this.getSmartReply(msg, words, mode, enrichedContext, serverSettingsText);
     return { reply };
   }
 
   /**
-   * Récupère les statistiques réelles de la DB MongoDB.
+   * Récupère les statistiques réelles de la DB MongoDB (Optimisé avec Cache 30 secondes).
    */
   public static async getDBStats() {
+    const cacheKey = 'db_stats';
+    const cached = this.getFromCache<{ serversCount: number; botsCount: number; usersCount: number; aiRulesCount: number }>(cacheKey);
+    if (cached) return cached;
+
     try {
       const [serversCount, botsCount, usersCount, aiRulesCount] = await Promise.all([
         Server.countDocuments(),
@@ -111,7 +237,9 @@ export class ArcantAIEngine {
         User.countDocuments(),
         AIRule.countDocuments()
       ]);
-      return { serversCount, botsCount, usersCount, aiRulesCount };
+      const stats = { serversCount, botsCount, usersCount, aiRulesCount };
+      this.setToCache(cacheKey, stats, 30000);
+      return stats;
     } catch (e) {
       return { serversCount: 0, botsCount: 0, usersCount: 0, aiRulesCount: 0 };
     }
@@ -457,7 +585,6 @@ export class ArcantAIEngine {
 
   /**
    * Mode Copilot (Site Web) — Configuration interactive de bots.
-   * Modifie les fonctionnalités et met à jour à chaud les paramètres de la base de données.
    */
   private static async handleCopilot(
     userMessage: string, 
@@ -475,37 +602,52 @@ export class ArcantAIEngine {
     let currentSensitivity = 'medium';
     let currentMute = '10m';
     let currentWords: string[] = [];
+    let isPremium = false;
 
     if (serverId) {
       try {
-        const server = await Server.findOne({ serverId });
+        const cacheKey = `server_${serverId}`;
+        let server = this.getFromCache<any>(cacheKey);
+        if (!server) {
+          server = await Server.findOne({ serverId });
+          this.setToCache(cacheKey, server, 20000);
+        }
+
         if (server) {
           currentRaidMode = server.raidMode ?? false;
           currentAntiLink = server.antiLink ?? false;
           currentSensitivity = server.antiSpamSensitivity ?? 'medium';
           currentMute = server.muteDuration ?? '10m';
           currentWords = server.blacklistedWords ?? [];
+          isPremium = server.isPremium ?? false;
         }
       } catch (err) {
         console.error("[ArcantAI] Copilot failed to fetch server configs:", err);
       }
     }
 
+    const cleanMsg = msg.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
+    const words = cleanMsg.split(/\s+/).filter(w => w.length > 0);
+
+    // Dictionnaire des synonymes élargis si Premium
+    const antiLinkSyns = isPremium ? ['link', 'liens', 'website', 'url', 'pub'] : ['lien', 'liens'];
+    const raidSyns = isPremium ? ['raid', 'panic', 'urgence', 'panicbutton', 'bloquer'] : ['raid', 'panic'];
+
     // 2. Traitement d'intents de configuration de sécurité en direct
     // -- Anti-Lien
-    if (msg.includes("active l'anti-lien") || msg.includes("active anti-lien") || msg.includes("bloque les liens") || msg.includes("active anti-link") || msg.includes("active l'anti-link")) {
+    if (this.containsFuzzy(words, 'active', ['on', 'activer', 'bloque', 'bloquer']) && this.containsFuzzy(words, 'anti-lien', antiLinkSyns)) {
       currentAntiLink = true;
       replyParts.push("✓ Bloqueur de liens (Anti-Lien) activé.");
-    } else if (msg.includes("désactive l'anti-lien") || msg.includes("désactive anti-lien") || msg.includes("autorise les liens") || msg.includes("désactive anti-link") || msg.includes("désactive l'anti-link")) {
+    } else if (this.containsFuzzy(words, 'désactive', ['off', 'desactiver', 'autorise', 'permettre']) && this.containsFuzzy(words, 'anti-lien', antiLinkSyns)) {
       currentAntiLink = false;
       replyParts.push("✓ Bloqueur de liens (Anti-Lien) désactivé.");
     }
 
     // -- Anti-Raid / Panic Button
-    if (msg.includes("active l'anti-raid") || msg.includes("active anti-raid") || msg.includes("panic button") || msg.includes("bloque le serveur") || msg.includes("verrouille le serveur")) {
+    if (this.containsFuzzy(words, 'active', ['on', 'activer', 'verrouille', 'verrouiller']) && this.containsFuzzy(words, 'anti-raid', raidSyns)) {
       currentRaidMode = true;
       replyParts.push("🚨 Mode Anti-Raid activé (Panic Button armé). Le serveur est verrouillé.");
-    } else if (msg.includes("désactive l'anti-raid") || msg.includes("désactive anti-raid") || msg.includes("débloque le serveur") || msg.includes("déverrouille le serveur")) {
+    } else if (this.containsFuzzy(words, 'désactive', ['off', 'desactiver', 'déverrouille', 'deverrouiller']) && this.containsFuzzy(words, 'anti-raid', raidSyns)) {
       currentRaidMode = false;
       replyParts.push("✓ Mode Anti-Raid désactivé. Le serveur est déverrouillé.");
     }
@@ -551,38 +693,55 @@ export class ArcantAIEngine {
       }
     }
 
-    // 3. Détection des modules standards du bot
-    if (msg.includes("aide") || msg.includes("help")) {
-      featuresToAdd.push("help");
-      replyParts.push("✓ Module d'aide configuré.");
+    // 3. Détection des modules standards du bot (avec Tolérance Fuzzy)
+    const activeKeywords = ['active', 'activer', 'ajoute', 'ajouter', 'installe', 'installer', 'on'];
+    const shouldAddFeature = this.containsFuzzy(words, 'active', activeKeywords);
+
+    if (shouldAddFeature || msg.includes("aide") || msg.includes("help")) {
+      if (this.containsFuzzy(words, 'aide', ['help', 'menu'])) {
+        featuresToAdd.push("help");
+        replyParts.push("✓ Module d'aide configuré.");
+      }
     }
-    if (msg.includes("modér") || msg.includes("mod") || msg.includes("bannir") || msg.includes("kick")) {
-      featuresToAdd.push("mod");
-      replyParts.push("✓ Module de modération configuré.");
+    if (shouldAddFeature || msg.includes("modér") || msg.includes("mod") || msg.includes("bannir")) {
+      if (this.containsFuzzy(words, 'modération', ['mod', 'moderation', 'ban', 'kick', 'bannir'])) {
+        featuresToAdd.push("mod");
+        replyParts.push("✓ Module de modération configuré.");
+      }
     }
-    if (msg.includes("ticket") || msg.includes("support")) {
-      featuresToAdd.push("tickets");
-      replyParts.push("✓ Système de tickets activé.");
+    if (shouldAddFeature || msg.includes("ticket") || msg.includes("support")) {
+      if (this.containsFuzzy(words, 'ticket', ['tickets', 'support', 'aide-staff'])) {
+        featuresToAdd.push("tickets");
+        replyParts.push("✓ Système de tickets activé.");
+      }
     }
-    if (msg.includes("éco") || msg.includes("eco") || msg.includes("argent") || msg.includes("boutique")) {
-      featuresToAdd.push("economy");
-      replyParts.push("✓ Module d'économie activé.");
+    if (shouldAddFeature || msg.includes("éco") || msg.includes("eco") || msg.includes("argent")) {
+      if (this.containsFuzzy(words, 'économie', ['eco', 'economy', 'argent', 'boutique', 'shop'])) {
+        featuresToAdd.push("economy");
+        replyParts.push("✓ Module d'économie activé.");
+      }
     }
-    if (msg.includes("log") || msg.includes("audit") || msg.includes("historique")) {
-      featuresToAdd.push("logs");
-      replyParts.push("✓ Module de logs activé.");
+    if (shouldAddFeature || msg.includes("log") || msg.includes("audit")) {
+      if (this.containsFuzzy(words, 'logs', ['audit', 'historique', 'suivi'])) {
+        featuresToAdd.push("logs");
+        replyParts.push("✓ Module de logs activé.");
+      }
     }
-    if (msg.includes("level") || msg.includes("xp") || msg.includes("rang")) {
-      featuresToAdd.push("leveling");
-      replyParts.push("✓ Système de leveling XP activé.");
+    if (shouldAddFeature || msg.includes("level") || msg.includes("xp")) {
+      if (this.containsFuzzy(words, 'leveling', ['xp', 'levels', 'rang', 'niveaux'])) {
+        featuresToAdd.push("leveling");
+        replyParts.push("✓ Système de leveling XP activé.");
+      }
     }
-    if (msg.includes("welcome") || msg.includes("bienvenue") || msg.includes("accueil")) {
-      featuresToAdd.push("welcome");
-      replyParts.push("✓ Messages de bienvenue configurés.");
+    if (shouldAddFeature || msg.includes("welcome") || msg.includes("bienvenue")) {
+      if (this.containsFuzzy(words, 'bienvenue', ['welcome', 'accueil', 'join'])) {
+        featuresToAdd.push("welcome");
+        replyParts.push("✓ Messages de bienvenue configurés.");
+      }
     }
 
     // 4. Extraction de la personnalité
-    if (msg.includes("sois") || msg.includes("comporte-toi") || msg.includes("personnalité") || msg.includes("prompt")) {
+    if (this.containsFuzzy(words, 'sois', ['comporte-toi', 'personnalité', 'prompt'])) {
       const match = userMessage.match(/(?:sois|comporte-toi comme|personnalité d[e''])?\s+([^,.]+)/i);
       if (match && match[1]) {
         newPrompt = `Tu es un assistant qui se comporte comme : ${match[1].trim()}`;
@@ -615,6 +774,11 @@ export class ArcantAIEngine {
       currentPrompt = systemContext.split("Personnalité (Prompt) :")[1]?.split("\n")[0]?.trim() || "";
     }
 
+    // Invalider les caches du serveur pour forcer le rechargement en direct
+    if (serverId) {
+      delete this.cache[`server_${serverId}`];
+    }
+
     return {
       reply: replyMessage,
       update: {
@@ -632,26 +796,27 @@ export class ArcantAIEngine {
   }
 
   /**
-   * Réponse intelligente contextuelle avec enrichissement DB.
+   * Réponse intelligente contextuelle avec enrichissement DB et tolérance aux fautes de frappe.
    */
   private static getSmartReply(
-    msg: string, 
+    msg: string,
+    words: string[],
     mode: AIContextMode, 
     dbContext: string,
     serverSettingsText: string
   ): string {
     // Salutations
-    if (msg.includes("bonjour") || msg.includes("salut") || msg.includes("yo") || msg.includes("hello") || msg.includes("hey")) {
+    if (this.containsFuzzy(words, 'bonjour', ['salut', 'yo', 'hello', 'hey', 'bonsoir'])) {
       return `Bonjour ! Je suis l'IA d'Arcant, le moteur unifié qui propulse le site web, l'API, le bot Discord et la base de données. ${dbContext}\nComment puis-je vous aider ?${serverSettingsText}`;
     }
 
     // Identification
-    if (msg.includes("qui es-tu") || msg.includes("qui es tu") || msg.includes("c'est quoi arcant")) {
+    if (this.containsFuzzy(words, 'qui', ['quoi', 'arcant']) && this.containsFuzzy(words, 'es-tu', ['es tu', 'est', 'cree'])) {
       return `Je suis l'intelligence artificielle propre à Arcant. Je ne suis ni Gemini, ni ChatGPT — je suis un moteur autonome intégré directement dans l'écosystème Arcant. ${dbContext} Je fonctionne de manière identique sur le site web, l'API REST, et le bot Discord.${serverSettingsText}`;
     }
 
     // Aide
-    if (msg.includes("help") || msg.includes("aide") || msg.includes("commande")) {
+    if (this.containsFuzzy(words, 'aide', ['help', 'commandes', 'fonctionnalités'])) {
       if (mode === 'discord') {
         return "Voici mes commandes : `.ask <question>` pour me poser une question, `.help` pour l'aide complète. Mon panneau web vous permet aussi de configurer mes réponses personnalisées et mes modules de sécurité.";
       }
@@ -659,17 +824,17 @@ export class ArcantAIEngine {
     }
 
     // Premium
-    if (msg.includes("premium") || msg.includes("pro") || msg.includes("upgrade")) {
+    if (this.containsFuzzy(words, 'premium', ['pro', 'upgrade', 'payer', 'achat'])) {
       return "Arcant Premium débloque l'analyse sémantique avancée, la génération d'architecture de serveurs par IA, et le système de bot personnalisé illimité. Rendez-vous sur la page Pricing du site web pour plus d'informations.";
     }
 
     // Stats
-    if (msg.includes("stat") || msg.includes("info") || msg.includes("données")) {
+    if (this.containsFuzzy(words, 'stats', ['statistiques', 'infos', 'données', 'donnees'])) {
       return `${dbContext} Toutes ces données sont synchronisées en temps réel entre le site web, l'API et le bot Discord.${serverSettingsText}`;
     }
 
     // Sécurité
-    if (msg.includes("sécurité") || msg.includes("raid") || msg.includes("protection") || msg.includes("anti") || msg.includes("config")) {
+    if (this.containsFuzzy(words, 'sécurité', ['raid', 'anti-raid', 'anti-link', 'anti-lien', 'protection', 'config'])) {
       return `Le module de sécurité d'Arcant inclut : Anti-Raid (Panic Button), Captcha par MP, Anti-Lien, Anti-Selfbot, Scanner d'âge de compte, Limite de mentions, et Protection Staff anti-mass ban. Tout est configurable depuis le dashboard.${serverSettingsText}`;
     }
 

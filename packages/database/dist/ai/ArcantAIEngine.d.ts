@@ -12,10 +12,24 @@ interface AIContext {
     } | undefined;
 }
 export declare class ArcantAIEngine {
+    private static cache;
+    private static getFromCache;
+    private static setToCache;
+    /**
+     * Calcule la distance de Levenshtein entre deux chaînes.
+     * Indispensable pour la tolérance aux fautes d'orthographe.
+     */
+    private static getLevenshteinDistance;
+    /**
+     * Vérifie si deux chaînes sont similaires avec un seuil de distance maximal.
+     */
+    private static isFuzzyMatch;
+    /**
+     * Recherche si l'une des chaînes fournies correspond à la cible de façon tolérante.
+     */
+    private static containsFuzzy;
     /**
      * Analyse et génère une réponse unifiée pour le Bot Discord, l'API ou le Site Web.
-     * L'IA est propre à Arcant — aucune dépendance externe (pas de Gemini, pas d'OpenAI).
-     * Elle utilise un moteur de règles intelligent avec détection de patterns avancés.
      */
     static processMessage(userMessage: string, context: AIContext): Promise<{
         reply: string;
@@ -23,7 +37,7 @@ export declare class ArcantAIEngine {
         data?: any;
     }>;
     /**
-     * Récupère les statistiques réelles de la DB MongoDB.
+     * Récupère les statistiques réelles de la DB MongoDB (Optimisé avec Cache 30 secondes).
      */
     static getDBStats(): Promise<{
         serversCount: number;
@@ -42,11 +56,10 @@ export declare class ArcantAIEngine {
     private static handleServerGeneration;
     /**
      * Mode Copilot (Site Web) — Configuration interactive de bots.
-     * Modifie les fonctionnalités et met à jour à chaud les paramètres de la base de données.
      */
     private static handleCopilot;
     /**
-     * Réponse intelligente contextuelle avec enrichissement DB.
+     * Réponse intelligente contextuelle avec enrichissement DB et tolérance aux fautes de frappe.
      */
     private static getSmartReply;
     /**
