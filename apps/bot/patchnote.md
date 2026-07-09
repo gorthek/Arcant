@@ -5,6 +5,15 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.6.4
+*Dernière modification : 09 Juillet 2026*
+
+### 🤖 Cœur du Bot & Intelligence Artificielle unifiée
+- **[Validation d'Actions Critiques]** Interception de `triggerAction` (comme `delete_all_channels` ou `lock_server`) reçus de l'IA locale. Le bot valide que l'utilisateur détient le rôle Administrateur avant de purger ou de verrouiller le serveur.
+- **[Support des Slash Commands & Auteur ID]** Extension de la commande slash `/ask` pour supporter les prompts interactifs avec authentification de l'ID utilisateur.
+
+---
+
 ## 🔴 Version 1.6.3
 *Dernière modification : 09 Juillet 2026*
 

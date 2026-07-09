@@ -40,6 +40,29 @@ export class LocalAIClient {
 
     return result.reply;
   }
+
+  /**
+   * Analyse un message et renvoie le payload d'action et de mise à jour complet.
+   */
+  public async generateResponseWithAction(
+    prompt: string,
+    systemContext: string = '',
+    serverId?: string,
+    userId?: string
+  ): Promise<{ reply: string; update?: any; data?: any }> {
+    const isServerGen = systemContext.includes("architecte") || systemContext.includes("categories");
+    const isCopilot = !isServerGen && (systemContext.includes("Copilot") || systemContext.includes("JSON"));
+    const mode = isServerGen ? 'server_generation' as const : isCopilot ? 'copilot' as const : 'discord' as const;
+
+    const result = await ArcantAIEngine.processMessage(prompt, {
+      mode,
+      serverId,
+      systemContext,
+      userId
+    });
+
+    return result;
+  }
 }
 
 export const localAI = new LocalAIClient();

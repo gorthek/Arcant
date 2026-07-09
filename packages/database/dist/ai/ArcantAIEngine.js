@@ -132,6 +132,71 @@ class ArcantAIEngine {
         if (mode === 'server_generation' || systemContext?.includes("architecte") || systemContext?.includes("categories")) {
             return this.handleServerGeneration(userMessage);
         }
+        // --- MACHINE D'ÉTAT DE CONFIRMATION INTERACTIVE ---
+        const pendingKey = `pending_action_${serverId}_${userId}`;
+        const pendingAction = serverId && userId ? this.getFromCache(pendingKey) : null;
+        if (serverId && userId && pendingAction && pendingAction.expiry > Date.now()) {
+            // Invalider le statut en attente après lecture (sécurité anti-boucle)
+            delete this.cache[pendingKey];
+            const cleanMsg = msg.toLowerCase();
+            if (cleanMsg === 'oui' || cleanMsg === 'yes' || cleanMsg === 'confirmer' || cleanMsg === 'valider' || cleanMsg === 'ouep' || cleanMsg === 'y' || cleanMsg === 'o') {
+                // Exécution validée par l'utilisateur
+                if (pendingAction.action === 'delete_all_channels') {
+                    return {
+                        reply: "🔄 **Confirmation reçue.** Suppression de tous les salons en cours...",
+                        update: { triggerAction: 'delete_all_channels' }
+                    };
+                }
+                if (pendingAction.action === 'lock_server') {
+                    return {
+                        reply: "🔒 **Confirmation reçue.** Activation immédiate du mode Anti-Raid (Panic Mode)...",
+                        update: {
+                            triggerAction: 'lock_server',
+                            settings: { raidMode: true }
+                        }
+                    };
+                }
+                if (pendingAction.action === 'clear_rules') {
+                    try {
+                        await AIRule_1.AIRule.deleteMany({ serverId });
+                        delete this.cache[`rules_${serverId}`];
+                        return {
+                            reply: "🗑️ **Confirmation reçue.** Toutes les règles de réponses personnalisées ont été supprimées avec succès."
+                        };
+                    }
+                    catch (e) {
+                        return { reply: "❌ Erreur lors de la suppression des règles." };
+                    }
+                }
+            }
+            else {
+                // Annulation de l'action
+                return {
+                    reply: `❌ **Action annulée.** L'opération critique *"${pendingAction.action}"* n'a pas été exécutée.`
+                };
+            }
+        }
+        // -- Détection de demande de suppression des salons (DANGER)
+        if (serverId && (msg.includes("supprime tous les salons") || msg.includes("efface tous les salons") || msg.includes("supprime tous les channels") || msg.includes("clean salons") || msg.includes("supprimer tous les salons"))) {
+            this.setToCache(pendingKey, { action: 'delete_all_channels', expiry: Date.now() + 60000 });
+            return {
+                reply: "⚠️ **DANGER !** Vous êtes sur le point de **supprimer TOUS les salons et catégories** de ce serveur Discord. Cette action est définitive.\n\nVoulez-vous continuer ? Répondez par **OUI** ou **NON**."
+            };
+        }
+        // -- Détection de demande de verrouillage global
+        if (serverId && (msg.includes("verrouille tout le serveur") || msg.includes("bloque tout le serveur") || msg.includes("lock server") || msg.includes("panic total"))) {
+            this.setToCache(pendingKey, { action: 'lock_server', expiry: Date.now() + 60000 });
+            return {
+                reply: "🔒 **CONFIRMATION DE SÉCURITÉ** : Voulez-vous activer le **Mode Anti-Raid global** et bloquer l'écriture sur tous les salons pour tous les membres ?\n\nRépondez par **OUI** ou **NON** pour confirmer."
+            };
+        }
+        // -- Détection de demande de suppression des règles
+        if (serverId && (msg.includes("supprime toutes les règles") || msg.includes("efface toutes les règles") || msg.includes("vide les regles") || msg.includes("reset regles") || msg.includes("supprimer toutes les règles"))) {
+            this.setToCache(pendingKey, { action: 'clear_rules', expiry: Date.now() + 60000 });
+            return {
+                reply: "📝 **ATTENTION** : Vous allez supprimer **toutes les règles personnalisées** enregistrées sur ce serveur.\n\nVoulez-vous continuer ? Répondez par **OUI** ou **NON**."
+            };
+        }
         // 1. Mode Copilot (Site Web - Configuration interactive)
         if (mode === 'copilot' || systemContext?.includes("Copilot") || systemContext?.includes("JSON")) {
             return this.handleCopilot(userMessage, systemContext || '', serverId);

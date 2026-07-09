@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { localAI } from '../utils/LocalAIClient';
 
 export default {
@@ -21,13 +21,50 @@ export default {
       // Le contexte principal de l'IA d'Arcant
       const systemContext = "Tu es Arcant, une intelligence artificielle sur-entraînée. Tu réponds de manière concise, intelligente et précise.";
       
-      const response = await localAI.generateResponse(question, systemContext, interaction.guildId || undefined);
+      const result = await localAI.generateResponseWithAction(
+        question, 
+        systemContext, 
+        interaction.guildId || undefined,
+        interaction.user.id
+      );
       
       // Split if > 2000 chars (Discord limit)
-      if (response.length > 2000) {
-        await interaction.editReply(response.substring(0, 1997) + '...');
+      if (result.reply.length > 2000) {
+        await interaction.editReply(result.reply.substring(0, 1997) + '...');
       } else {
-        await interaction.editReply(response);
+        await interaction.editReply(result.reply);
+      }
+
+      // Si une action critique est déclenchée
+      if (result.update?.triggerAction && interaction.guild) {
+        const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => null);
+        if (!member || !member.permissions.has(PermissionFlagsBits.Administrator)) {
+          await interaction.followUp({
+            content: "❌ **Erreur de permissions** : Seuls les administrateurs du serveur peuvent valider cette action.",
+            ephemeral: true
+          });
+          return;
+        }
+
+        if (result.update.triggerAction === 'delete_all_channels') {
+          const channels = Array.from(interaction.guild.channels.cache.values());
+          for (const chan of channels) {
+            if (chan.id !== interaction.channelId) {
+              await chan.delete().catch(() => {});
+            }
+          }
+          await interaction.followUp("🧹 **Nettoyage terminé.** Tous les autres salons ont été supprimés.");
+        }
+
+        if (result.update.triggerAction === 'lock_server') {
+          const { Server } = require('@arcant/database');
+          await Server.findOneAndUpdate(
+            { serverId: interaction.guildId },
+            { raidMode: true },
+            { upsert: true }
+          );
+          await interaction.followUp("🔒 **Serveur verrouillé !** Le mode Anti-Raid a été activé en base de données.");
+        }
       }
     } catch (error) {
       console.error('[Command: ask] Erreur:', error);

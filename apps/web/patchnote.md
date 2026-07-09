@@ -5,6 +5,15 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.4
+*Dernière modification : 09 Juillet 2026*
+
+### 🌐 Confirmations Interactives & Actions Sécurisées
+- **[Confirmation Temporelle (Oui/Non)]** Ajout d'une machine d'état de confirmation en cache TTL de 60 secondes pour les commandes destructrices ou critiques (suppression totale des salons, suppression globale des règles personnalisées, verrouillage Anti-Raid). L'IA demande confirmation par écrit.
+- **[Droits Administrateur & Bot Execution]** Liaison avec le Bot Discord (messages et slash commandes). Si l'utilisateur confirme (OUI/YES), le Bot vérifie sa permission d'Administrateur sur le serveur avant de lancer le nettoyage.
+
+---
+
 ## 🟢 Version 2.2.3
 *Dernière modification : 09 Juillet 2026*
 

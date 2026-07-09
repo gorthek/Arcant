@@ -33,6 +33,21 @@ class LocalAIClient {
         }
         return result.reply;
     }
+    /**
+     * Analyse un message et renvoie le payload d'action et de mise à jour complet.
+     */
+    async generateResponseWithAction(prompt, systemContext = '', serverId, userId) {
+        const isServerGen = systemContext.includes("architecte") || systemContext.includes("categories");
+        const isCopilot = !isServerGen && (systemContext.includes("Copilot") || systemContext.includes("JSON"));
+        const mode = isServerGen ? 'server_generation' : isCopilot ? 'copilot' : 'discord';
+        const result = await database_1.ArcantAIEngine.processMessage(prompt, {
+            mode,
+            serverId,
+            systemContext,
+            userId
+        });
+        return result;
+    }
 }
 exports.LocalAIClient = LocalAIClient;
 exports.localAI = new LocalAIClient();

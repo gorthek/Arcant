@@ -15,6 +15,30 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.2.4",
+      date: "09 Juillet 2026",
+      title: "Confirmations Interactives & Actions Sécurisées",
+      type: "Mise à jour Majeure",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Sparkles className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Machine d'État de Confirmation Temporelle",
+          detail: "Intégration d'un cache de confirmation (TTL de 60s). Pour toute action critique (suppression globale des salons, verrouillage Anti-Raid, reset des règles de réponses), l'IA demande désormais une confirmation (OUI/NON) avant d'exécuter la commande.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts"]
+        },
+        {
+          type: "feature",
+          text: "Vérification de Droits Administrateur & Exécution",
+          detail: "Liaison des actions au Bot Discord (message et slash command ask). Si l'action est validée (OUI), le bot vérifie que le confirmateur possède la permission d'Administrateur avant de purger les salons ou de verrouiller le serveur.",
+          files: ["apps/bot/src/events/messageCreate.ts", "apps/bot/src/commands/ask.ts", "apps/bot/src/utils/LocalAIClient.ts"]
+        }
+      ]
+    },
+    {
       version: "v2.2.3",
       date: "09 Juillet 2026",
       title: "Moteur NLP & Synthétiseur Dynamique",

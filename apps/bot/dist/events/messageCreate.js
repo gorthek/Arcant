@@ -19,8 +19,30 @@ exports.default = {
                         await message.channel.sendTyping();
                     }
                     const { localAI } = require('../utils/LocalAIClient');
-                    const response = await localAI.generateResponse(prompt, "Tu es Arcant, l'assistant principal.", message.guildId || undefined);
-                    await message.reply(response);
+                    const result = await localAI.generateResponseWithAction(prompt, "Tu es Arcant, l'assistant principal.", message.guildId || undefined, message.author.id);
+                    await message.reply(result.reply);
+                    // Si une action critique est déclenchée par la confirmation de l'utilisateur
+                    if (result.update?.triggerAction && message.guild) {
+                        // Vérifier que le confirmateur est ADMINISTRATEUR
+                        if (!message.member?.permissions.has(discord_js_1.PermissionFlagsBits.Administrator)) {
+                            await message.reply("❌ **Erreur de permissions** : Seuls les administrateurs du serveur peuvent valider cette action.");
+                            return;
+                        }
+                        if (result.update.triggerAction === 'delete_all_channels') {
+                            const channels = Array.from(message.guild.channels.cache.values());
+                            for (const chan of channels) {
+                                if (chan.id !== message.channelId) {
+                                    await chan.delete().catch(() => { });
+                                }
+                            }
+                            await message.channel.send("🧹 **Nettoyage terminé.** Tous les autres salons ont été supprimés.");
+                        }
+                        if (result.update.triggerAction === 'lock_server') {
+                            const { Server } = require('@arcant/database');
+                            await Server.findOneAndUpdate({ serverId: message.guildId }, { raidMode: true }, { upsert: true });
+                            await message.reply("🔒 **Serveur verrouillé !** Le mode Anti-Raid a été activé en base de données.");
+                        }
+                    }
                 }
                 catch (error) {
                     console.error(`[MainBot] L'IA a planté sur une commande, ignorée pour éviter le crash:`, error);
