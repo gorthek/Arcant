@@ -15,6 +15,36 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.2.5",
+      date: "09 Juillet 2026",
+      title: "Éditeur Visuel de Serveur Premium (Discord Mockup)",
+      type: "Mise à jour d'Interface",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Sparkles className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "improvement",
+          text: "Simulation Visuelle de Sidebar Discord",
+          detail: "Refonte complète de l'éditeur de serveurs pour afficher un simulateur de salon sous forme de panneau de contrôle Discord. Intègre des icônes sémantiques (# et 🔊) pour différencier les canaux textuels et vocaux en un coup d'œil.",
+          files: ["apps/web/src/components/dashboard/roles/ServerVisualEditor.tsx"]
+        },
+        {
+          type: "feature",
+          text: "Sélection de Couleurs & Rôles Avancée",
+          detail: "Intégration d'un sélecteur de couleurs interactif avec 10 presets de couleurs harmonieux conformes à la charte Discord, des boutons d'ajout et suppression de rôles avec animations de transitions fluides framer-motion.",
+          files: ["apps/web/src/components/dashboard/roles/ServerVisualEditor.tsx"]
+        },
+        {
+          type: "feature",
+          text: "Création Rapide de Catégories et Salons",
+          detail: "Ajout de boutons d'action rapide permettant d'insérer instantanément de nouvelles catégories et d'ajouter des salons textuels ou vocaux directement sous la catégorie sélectionnée.",
+          files: ["apps/web/src/components/dashboard/roles/ServerVisualEditor.tsx"]
+        }
+      ]
+    },
+    {
       version: "v2.2.4",
       date: "09 Juillet 2026",
       title: "Confirmations Interactives & Actions Sécurisées",

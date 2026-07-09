@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.5
+*Dernière modification : 09 Juillet 2026*
+
+### 🌐 Éditeur Visuel de Serveur Premium (Discord Mockup)
+- **[Simulateur Discord Sidebar]** Refonte complète de l'interface d'édition sous forme de barre latérale de serveur Discord authentique, avec icônes sémantiques (# et 🔊) pour distinguer les salons en un clin d'œil.
+- **[Sélectionneur de Couleurs de Rôles]** Ajout d'une barre de 10 couleurs prédéfinies thématiques pour coloriser les rôles à chaud, avec animations de sélection fluides.
+- **[Création de salons & catégories]** Ajout d'actions rapides pour insérer instantanément des nouvelles catégories, ou des salons textuels/vocaux à n'importe quel endroit de la hiérarchie.
+
+---
+
 ## 🟢 Version 2.2.4
 *Dernière modification : 09 Juillet 2026*
 

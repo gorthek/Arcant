@@ -5,6 +5,14 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.6.5
+*Dernière modification : 09 Juillet 2026*
+
+### 🤖 Cœur du Bot & Intelligence Artificielle unifiée
+- **[Validation de Schéma Visuel]** Pleine compatibilité avec les arborescences modifiées par l'Éditeur Visuel Premium (ajout à la volée de salons, modifications dynamiques de couleurs de rôles, suppressions de catégories).
+
+---
+
 ## 🔴 Version 1.6.4
 *Dernière modification : 09 Juillet 2026*
 
