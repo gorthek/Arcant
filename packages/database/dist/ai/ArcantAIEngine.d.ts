@@ -1,4 +1,4 @@
-export type AIContextMode = 'site' | 'discord' | 'api' | 'copilot';
+export type AIContextMode = 'site' | 'discord' | 'api' | 'copilot' | 'server_generation';
 interface AIContext {
     mode: AIContextMode;
     serverId?: string | undefined;
@@ -36,7 +36,13 @@ export declare class ArcantAIEngine {
      */
     private static handleAPIMode;
     /**
+     * Mode Server Generation (Génération d'architecture de serveur Discord)
+     * Analyse et produit un JSON structuré thématique de rôles et salons.
+     */
+    private static handleServerGeneration;
+    /**
      * Mode Copilot (Site Web) — Configuration interactive de bots.
+     * Modifie les fonctionnalités et met à jour à chaud les paramètres de la base de données.
      */
     private static handleCopilot;
     /**

@@ -198,10 +198,15 @@ Rien d'autre que du JSON.`;
                 aiResponse = aiResponse.replace(/```json/g, '').replace(/```/g, '').trim();
                 try {
                     const parsed = JSON.parse(aiResponse);
-                    // Mettre à jour la base de données
+                    // Mettre à jour la base de données (Bot)
                     botConfig.systemPrompt = parsed.update?.systemPrompt || botConfig.systemPrompt;
                     botConfig.features = parsed.update?.features || botConfig.features;
                     await botConfig.save();
+                    // Mettre à jour les paramètres du serveur si demandés par le Copilot
+                    if (parsed.update?.settings && botConfig.serverId) {
+                        const { Server } = require('@arcant/database');
+                        await Server.findOneAndUpdate({ serverId: botConfig.serverId }, parsed.update.settings, { upsert: true });
+                    }
                     // Recharger le bot à chaud
                     await BotManager_1.botManager.reloadBot(botId, botConfig.features, botConfig.systemPrompt);
                     res.writeHead(200, { 'Content-Type': 'application/json' });

@@ -5,6 +5,15 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.6.0
+*Dernière modification : 09 Juillet 2026*
+
+### 🤖 Cœur du Bot & Intelligence Artificielle unifiée
+- **[Mode Server Generation]** Liaison et décodage du nouveau mode de génération d'architecture de serveur du client IA locale, fournissant des modèles JSON directement exploitables par le générateur de serveur.
+- **[Liaison de paramètres MongoDB via Copilot]** Le bot intercepte les requêtes de configuration du Copilot Web pour persister directement les modifications (ex: activation de l'anti-lien, de l'anti-raid, des mots blacklistés) en base de données MongoDB.
+
+---
+
 ## 🟢 Version 1.5.1
 *Dernière modification : 08 Juillet 2026*
 

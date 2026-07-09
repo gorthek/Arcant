@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.0
+*Dernière modification : 09 Juillet 2026*
+
+### 🌐 Moteur d'IA Locale Suprême & Génération Thématique
+- **[Générateur Intelligent Local]** Implémentation d'un parseur sémantique local dans notre IA unifiée. Il génère automatiquement les salons, rôles et permissions Discord en fonction de 5 grands thèmes (Gaming, RP, Anime, Études, Communauté).
+- **[Liaison de Paramètres DB via Copilot]** Le Copilot du Dashboard Web peut désormais modifier les réglages de sécurité réels du serveur dans MongoDB (statut anti-lien, anti-raid, mots bannis, sensibilité) directement à l'écrit.
+- **[Remplacement de Contexte Réel]** Le Bot Discord utilise les vraies valeurs MongoDB de sécurité pour répondre dynamiquement aux questions des membres sur le serveur.
+
+---
+
 ## 🟢 Version 2.1.1
 *Dernière modification : 08 Juillet 2026*
 

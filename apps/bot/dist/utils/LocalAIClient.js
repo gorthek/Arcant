@@ -11,14 +11,19 @@ class LocalAIClient {
      */
     async generateResponse(prompt, systemContext = '', serverId) {
         // Détermine le mode depuis le contexte
-        const isCopilot = systemContext.includes("Copilot") || systemContext.includes("JSON");
-        const mode = isCopilot ? 'copilot' : 'discord';
+        const isServerGen = systemContext.includes("architecte") || systemContext.includes("categories");
+        const isCopilot = !isServerGen && (systemContext.includes("Copilot") || systemContext.includes("JSON"));
+        const mode = isServerGen ? 'server_generation' : isCopilot ? 'copilot' : 'discord';
         // Appel du moteur d'IA unifié partagé avec la nouvelle API
         const result = await database_1.ArcantAIEngine.processMessage(prompt, {
             mode,
             serverId,
             systemContext
         });
+        // Si c'est de la génération de serveur, on renvoie directement l'objet data sérialisé
+        if (isServerGen) {
+            return JSON.stringify(result.data || {});
+        }
         // Si c'est un format Copilot, on renvoie la structure sous forme de chaîne JSON
         if (isCopilot) {
             return JSON.stringify({

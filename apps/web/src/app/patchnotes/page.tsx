@@ -15,6 +15,36 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.2.0",
+      date: "09 Juillet 2026",
+      title: "Moteur d'IA Locale Suprême & Génération Thématique",
+      type: "Mise à jour Majeure",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Sparkles className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Générateur de Serveur 100% Intelligent & Local",
+          detail: "Développement d'un parseur sémantique complet dans notre IA unifiée locale. Il analyse automatiquement l'intention du prompt pour générer des configurations sur-mesure adaptées à 5 thèmes majeurs : Gaming, RP/Roleplay, Anime/Manga, Études/Projets, et Communauté générale. Les salons de jeux (Valorant, LoL, etc.) et de matières s'adaptent de façon 100% dynamique.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts", "apps/bot/src/utils/LocalAIClient.ts"]
+        },
+        {
+          type: "feature",
+          text: "Configuration Interactive de Sécurité via le Copilot",
+          detail: "Le Copilot IA du dashboard est désormais capable de configurer les paramètres réels du serveur en base de données (MongoDB) à l'écrit. Vous pouvez lui demander d'activer l'anti-lien, le mode anti-raid (Panic Button), d'ajouter/retirer des mots bannis ou d'ajuster la sensibilité anti-spam.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts", "apps/bot/src/index.ts"]
+        },
+        {
+          type: "improvement",
+          text: "Intégration Réelle de Sécurité dans l'IA du Bot",
+          detail: "L'IA répond désormais de façon dynamique aux questions relatives à la sécurité et à la configuration en injectant les vrais réglages MongoDB (statut anti-raid, anti-lien, mots bannis) du serveur concerné.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts"]
+        }
+      ]
+    },
+    {
       version: "v2.1.1",
       date: "08 Juillet 2026",
       title: "Optimisation de Rendu & Multi-navigateurs",
