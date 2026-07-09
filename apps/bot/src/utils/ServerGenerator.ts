@@ -100,20 +100,26 @@ Génère une architecture riche avec des règles de sécurité logiques.`;
 
       console.log(`[ServerGenerator] Début de la synchronisation pour le serveur ${serverId}...`);
 
+      // Récupérer la liste à jour de tous les salons via l'API Discord (indispensable pour éviter le cache obsolète)
+      let fetchedChannels = await guild.channels.fetch();
+      let channelsList = Array.from(fetchedChannels.values());
+
       // Optionnel : Suppression de tous les anciens salons (Purge complète)
       if (options.clearExisting) {
-        console.log(`[ServerGenerator] Purge complète demandée pour le serveur ${serverId}. Suppression de tous les salons...`);
-        const channelsToPurge = Array.from(guild.channels.cache.values());
-        for (const channel of channelsToPurge) {
+        console.log(`[ServerGenerator] Purge complète demandée pour le serveur ${serverId}. Suppression de ${channelsList.length} salons...`);
+        for (const channel of channelsList) {
+          if (!channel) continue;
           try {
             await channel.delete('Purge Arcant IA avant ré-application');
             await this.sleep(150); // Pause anti-rate limit
           } catch (e) {
-            console.warn(`[ServerGenerator] Impossible de supprimer le salon ${channel.name}:`, e);
+            console.warn(`[ServerGenerator] Impossible de supprimer le salon ${channel?.name || 'inconnu'}:`, e);
           }
         }
-        // Attendre un peu que le cache Discord se mette à jour
+        // Attendre et ré-actualiser la liste des salons après la purge (qui doit être vide)
         await this.sleep(1000);
+        fetchedChannels = await guild.channels.fetch();
+        channelsList = Array.from(fetchedChannels.values());
       }
 
       const createdRoles = new Map<string, string>();
@@ -142,12 +148,11 @@ Génère une architecture riche avec des règles de sécurité logiques.`;
         }
       }
 
-      // 4. Création des Catégories et Salons (Simplifié pour l'instant : on crée si ça n'existe pas)
-      // Une vraie synchro bidirectionnelle parfaite comparerait et supprimerait l'excédent.
+      // 4. Création des Catégories et Salons (En utilisant channelsList à la place du cache)
       if (structure.categories && Array.isArray(structure.categories)) {
         for (const catDef of structure.categories) {
           try {
-            let category = guild.channels.cache.find(c => c.name.toLowerCase() === catDef.name.toLowerCase() && c.type === ChannelType.GuildCategory);
+            let category = channelsList.find(c => c && c.name.toLowerCase() === catDef.name.toLowerCase() && c.type === ChannelType.GuildCategory);
             const catOverwrites = options.managePerms ? this.parsePermissions(catDef.permissions, createdRoles, guild) : [];
             
             if (!category) {
@@ -171,7 +176,7 @@ Génère une architecture riche avec des règles de sécurité logiques.`;
                 if (chanDef.type === 'voice') chanType = ChannelType.GuildVoice;
                 else if (chanDef.type === 'forum') chanType = ChannelType.GuildForum;
 
-                let channel = guild.channels.cache.find(c => c.name.toLowerCase() === chanDef.name.toLowerCase() && c.parentId === category?.id);
+                let channel = channelsList.find(c => c && c.name.toLowerCase() === chanDef.name.toLowerCase() && c.parentId === category?.id);
                 
                 if (!channel) {
                   await guild.channels.create({

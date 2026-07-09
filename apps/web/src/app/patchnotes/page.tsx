@@ -15,6 +15,30 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.2.7",
+      date: "09 Juillet 2026",
+      title: "Résolution des conflits de Cache & Sync Discord",
+      type: "Correctif de performance",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Sparkles className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "improvement",
+          text: "Lecture en temps réel via l'API REST Discord",
+          detail: "Remplacement de l'utilisation du cache local discord.js (qui pouvait être partiel ou obsolète au démarrage) par un appel direct à guild.channels.fetch() pour récupérer et purger 100% des salons sans aucun résidu.",
+          files: ["apps/bot/src/utils/ServerGenerator.ts"]
+        },
+        {
+          type: "improvement",
+          text: "Élimination des doublons de salons",
+          detail: "L'IA utilise désormais la liste complète et actualisée des salons réels du serveur pour faire correspondre les catégories existantes et éviter les duplications lors des ré-applications partielles.",
+          files: ["apps/bot/src/utils/ServerGenerator.ts"]
+        }
+      ]
+    },
+    {
       version: "v2.2.6",
       date: "09 Juillet 2026",
       title: "Purge & Déploiement Direct de Serveur",

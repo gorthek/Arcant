@@ -5,6 +5,14 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.6.7
+*Dernière modification : 09 Juillet 2026*
+
+### 🤖 Cœur du Bot & Intelligence Artificielle unifiée
+- **[Fetch REST Direct]** Remplacement du cache de salons local par un fetch direct via l'API Discord, assurant une purge intégrale et évitant la duplication de salons sous l'effet de caches périmés.
+
+---
+
 ## 🔴 Version 1.6.6
 *Dernière modification : 09 Juillet 2026*
 

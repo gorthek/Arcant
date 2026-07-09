@@ -5,6 +5,15 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.7
+*Dernière modification : 09 Juillet 2026*
+
+### 🌐 Résolution des conflits de Cache & Sync Discord
+- **[Appels Directs API REST Discord]** Remplacement du cache local `guild.channels.cache` par `guild.channels.fetch()` pour interroger l'API REST de Discord directement. Cela garantit que 100% des salons existants sont récupérés et purgés, sans laisser aucun résidu.
+- **[Élimination des Doublons]** Les recherches de salons et de catégories pour la ré-application s'effectuent également dans cette collection absolue, résolvant définitivement les doublons de catégories.
+
+---
+
 ## 🟢 Version 2.2.6
 *Dernière modification : 09 Juillet 2026*
 
