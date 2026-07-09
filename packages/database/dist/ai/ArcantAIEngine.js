@@ -6,7 +6,7 @@ const Server_1 = require("../models/Server");
 const CustomBot_1 = require("../models/CustomBot");
 const User_1 = require("../models/User");
 class ArcantAIEngine {
-    // Cache en mémoire pour réduire la charge DB et la latence
+    // Cache en mémoire TTL
     static cache = {};
     static getFromCache(key) {
         const entry = this.cache[key];
@@ -21,18 +21,68 @@ class ArcantAIEngine {
             expiry: Date.now() + ttlMs
         };
     }
+    // --- LOGIQUE NLP LOCALE & STEMMING ---
+    static FRENCH_STOPWORDS = new Set([
+        'de', 'la', 'le', 'les', 'des', 'pour', 'avec', 'dans', 'sur', 'en', 'aux', 'par', 'dans', 'un', 'une',
+        'ce', 'cet', 'cette', 'ces', 'je', 'tu', 'il', 'elle', 'nous', 'vous', 'ils', 'elles', 'mon', 'ton',
+        'son', 'ma', 'ta', 'sa', 'mes', 'tes', 'ses', 'du', 'au', 'qui', 'que', 'quoi', 'dont', 'ou', 'où'
+    ]);
     /**
-     * Calcule la distance de Levenshtein entre deux chaînes.
-     * Indispensable pour la tolérance aux fautes d'orthographe.
+     * Nettoie et fragmente le message en tokens utiles.
+     */
+    static tokenize(text) {
+        const cleanText = text.toLowerCase()
+            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, " ")
+            .replace(/['’]/g, " ");
+        return cleanText.split(/\s+/)
+            .filter(w => w.length > 0 && !this.FRENCH_STOPWORDS.has(w));
+    }
+    /**
+     * Stemmer ultra-rapide pour ramener les mots français à leur racine.
+     */
+    static stem(word) {
+        const w = word.trim();
+        if (w.startsWith("modér") || w.startsWith("moder") || w.startsWith("modo"))
+            return "moder";
+        if (w.startsWith("sécur") || w.startsWith("secur") || w.startsWith("protect"))
+            return "secur";
+        if (w.startsWith("serveur") || w.startsWith("guild") || w.startsWith("disc"))
+            return "serveur";
+        if (w.startsWith("salon") || w.startsWith("channel") || w.startsWith("chan"))
+            return "salon";
+        if (w.startsWith("éco") || w.startsWith("eco") || w.startsWith("argent") || w.startsWith("boutique"))
+            return "eco";
+        if (w.startsWith("stat") || w.startsWith("info") || w.startsWith("donnée"))
+            return "stats";
+        if (w.startsWith("aide") || w.startsWith("help") || w.startsWith("command"))
+            return "aide";
+        if (w.startsWith("blague") || w.startsWith("rire") || w.startsWith("drôle") || w.startsWith("drole"))
+            return "blague";
+        if (w.startsWith("créat") || w.startsWith("creat") || w.startsWith("conçu") || w.startsWith("developpeur"))
+            return "creator";
+        if (w.startsWith("premium") || w.startsWith("upgrade") || w.startsWith("pay"))
+            return "premium";
+        if (w.startsWith("level") || w.startsWith("xp") || w.startsWith("niveau"))
+            return "level";
+        if (w.startsWith("ticket") || w.startsWith("support"))
+            return "ticket";
+        if (w.startsWith("bienvenue") || w.startsWith("welcome") || w.startsWith("accueil"))
+            return "welcome";
+        if (w.startsWith("bonjour") || w.startsWith("salut") || w.startsWith("hello") || w.startsWith("coucou"))
+            return "hello";
+        if (w.startsWith("merci") || w.startsWith("thanks") || w.startsWith("super"))
+            return "thanks";
+        return w;
+    }
+    /**
+     * Calcule la distance de Levenshtein entre deux chaînes. Tolère les typos.
      */
     static getLevenshteinDistance(a, b) {
         const matrix = [];
-        for (let i = 0; i <= b.length; i++) {
+        for (let i = 0; i <= b.length; i++)
             matrix[i] = [i];
-        }
-        for (let j = 0; j <= a.length; j++) {
+        for (let j = 0; j <= a.length; j++)
             matrix[0][j] = j;
-        }
         for (let i = 1; i <= b.length; i++) {
             for (let j = 1; j <= a.length; j++) {
                 if (b.charAt(i - 1) === a.charAt(j - 1)) {
@@ -48,44 +98,36 @@ class ArcantAIEngine {
         }
         return matrix[b.length][a.length];
     }
-    /**
-     * Vérifie si deux chaînes sont similaires avec un seuil de distance maximal.
-     */
     static isFuzzyMatch(word, target, maxDistance = 2) {
         if (word.length < 3 || target.length < 3)
             return word === target;
         const distance = this.getLevenshteinDistance(word, target);
         return distance <= maxDistance;
     }
-    /**
-     * Recherche si l'une des chaînes fournies correspond à la cible de façon tolérante.
-     */
     static containsFuzzy(words, target, synonyms = []) {
-        const allTargets = [target, ...synonyms];
-        for (const w of words) {
-            for (const t of allTargets) {
-                if (t.length < 4) {
-                    if (w === t)
+        const targetStems = [this.stem(target), ...synonyms.map(s => this.stem(s))];
+        const wordStems = words.map(w => this.stem(w));
+        for (const ws of wordStems) {
+            for (const ts of targetStems) {
+                if (ts.length < 4) {
+                    if (ws === ts)
                         return true;
                 }
                 else {
-                    const maxDist = t.length > 6 ? 2 : 1;
-                    if (this.isFuzzyMatch(w, t, maxDist))
+                    const maxDist = ts.length > 6 ? 2 : 1;
+                    if (this.isFuzzyMatch(ws, ts, maxDist))
                         return true;
                 }
             }
         }
         return false;
     }
-    /**
-     * Analyse et génère une réponse unifiée pour le Bot Discord, l'API ou le Site Web.
-     */
+    // --- LOGIQUE DU MOTEUR D'IA ---
     static async processMessage(userMessage, context) {
         const msg = userMessage.toLowerCase().trim();
         const { mode, serverId, systemContext, userId } = context;
-        // Découper le message en mots pour l'analyse fuzzy
-        const cleanMsg = msg.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
-        const words = cleanMsg.split(/\s+/).filter(w => w.length > 0);
+        // Analyse lexicale du message
+        const tokens = this.tokenize(msg);
         // 0. Mode Server Generation (Génération d'architecture de serveur Discord)
         if (mode === 'server_generation' || systemContext?.includes("architecte") || systemContext?.includes("categories")) {
             return this.handleServerGeneration(userMessage);
@@ -98,11 +140,7 @@ class ArcantAIEngine {
         if (mode === 'api') {
             return this.handleAPIMode(userMessage, context);
         }
-        // -- Détection de l'intention d'apprentissage autonome
-        // Exemples : 
-        // "quand je dis 'bonsoir', réponds 'bonne soirée à toi !'"
-        // "quand on dit 'site', réponds 'voici l'url : https://arcant.fr'"
-        // "quand quelqu'un dit 'ping', réponds 'pong !'"
+        // -- Détection de l'apprentissage autonome (Self-Learning)
         if (serverId && (msg.includes("quand je dis") || msg.includes("quand on dit") || msg.includes("quand quelqu'un dit") || msg.includes("apprends que quand"))) {
             const learnRegex = /(?:quand je dis|quand on dit|quand quelqu'un dit|apprends que quand)\s+['"\s]?([^'"]+)['"\s]?,?\s+(?:tu dois répondre|tu dois repondre|réponds|reponds|répond|repond)\s+['"\s]?([^'"]+)['"\s]?/i;
             const learnMatch = userMessage.match(learnRegex);
@@ -117,24 +155,18 @@ class ArcantAIEngine {
                         creatorId: userId || 'AI_AUTONOMOUS'
                     });
                     await newRule.save();
-                    // Invalider le cache des règles pour ce serveur
-                    delete this.cache[`rules_${serverId}`];
+                    delete this.cache[`rules_${serverId}`]; // Invalider cache
                     return {
                         reply: `💡 **Apprentissage réussi !** Désormais, quand quelqu'un dira *"${trigger}"* sur ce serveur, je répondrai *"${response}"*.`
                     };
                 }
                 catch (err) {
-                    console.error("[ArcantAI] Erreur lors de l'apprentissage autonome:", err);
-                    return {
-                        reply: "❌ Je n'ai pas pu enregistrer cette règle en base de données. Réessayez plus tard."
-                    };
+                    console.error("[ArcantAI] Erreur apprentissage autonome:", err);
+                    return { reply: "❌ Je n'ai pas pu enregistrer cette règle. Réessayez plus tard." };
                 }
             }
         }
-        // -- Détection de l'intention d'oubli/suppression autonome de règle
-        // Exemples :
-        // "oublie la règle 'bonsoir'"
-        // "supprime la règle 'bonsoir'"
+        // -- Détection de l'oubli autonome de règle (Self-Forgetting)
         if (serverId && (msg.includes("oublie la règle") || msg.includes("supprime la règle") || msg.includes("oublie le mot-clé") || msg.includes("oublie la regle") || msg.includes("supprime la regle"))) {
             const forgetRegex = /(?:oublie la règle|oublie la regle|supprime la règle|supprime la regle|oublie le mot-clé|oublie le mot-cle)\s+['"\s]?([^'"]+)['"\s]?/i;
             const forgetMatch = userMessage.match(forgetRegex);
@@ -146,7 +178,6 @@ class ArcantAIEngine {
                         trigger: { $regex: new RegExp(`^${triggerToForget}$`, 'i') }
                     });
                     if (deleteResult.deletedCount > 0) {
-                        // Invalider le cache des règles pour ce serveur
                         delete this.cache[`rules_${serverId}`];
                         return {
                             reply: `🧹 **Règle oubliée !** J'ai supprimé la règle associée au déclencheur *"${forgetMatch[1]}"*.`
@@ -159,28 +190,25 @@ class ArcantAIEngine {
                     }
                 }
                 catch (err) {
-                    console.error("[ArcantAI] Erreur lors de l'oubli autonome:", err);
-                    return {
-                        reply: "❌ Une erreur est survenue lors de la tentative de suppression de la règle."
-                    };
+                    console.error("[ArcantAI] Erreur oubli autonome:", err);
+                    return { reply: "❌ Une erreur est survenue lors de la suppression de la règle." };
                 }
             }
         }
-        // 3. Recherche de règles personnalisées dans la DB (avec Cache & Similarité Fuzzy)
+        // 3. Recherche de règles personnalisées dans la DB (Cache & Fuzzy Matching)
         if (serverId) {
             try {
                 const cacheKey = `rules_${serverId}`;
                 let rules = this.getFromCache(cacheKey);
                 if (!rules) {
                     rules = await AIRule_1.AIRule.find({ serverId });
-                    this.setToCache(cacheKey, rules, 10000); // Cache de 10 secondes
+                    this.setToCache(cacheKey, rules, 10000);
                 }
-                // Récupérer les infos de serveurs (avec Cache)
                 const serverCacheKey = `server_${serverId}`;
                 let serverInfo = this.getFromCache(serverCacheKey);
                 if (!serverInfo) {
                     serverInfo = await Server_1.Server.findOne({ serverId });
-                    this.setToCache(serverCacheKey, serverInfo, 20000); // Cache de 20 secondes
+                    this.setToCache(serverCacheKey, serverInfo, 20000);
                 }
                 const botCacheKey = `bot_${serverId}`;
                 let botInfo = this.getFromCache(botCacheKey);
@@ -195,12 +223,12 @@ class ArcantAIEngine {
                         isMatched = true;
                     }
                     else {
-                        // Recherche tolérante par mots (Fuzzy Matcher)
+                        // Analyse fuzzy des déclencheurs
                         const triggerWords = trigger.split(/\s+/).filter((w) => w.length >= 3);
                         if (triggerWords.length > 0) {
                             let matchesAll = true;
                             for (const tw of triggerWords) {
-                                if (!words.some(w => this.isFuzzyMatch(w, tw, tw.length > 5 ? 2 : 1))) {
+                                if (!tokens.some(w => this.isFuzzyMatch(w, tw, tw.length > 5 ? 2 : 1))) {
                                     matchesAll = false;
                                     break;
                                 }
@@ -210,7 +238,6 @@ class ArcantAIEngine {
                     }
                     if (isMatched) {
                         let responseText = rule.response;
-                        // Remplacement des variables dynamiques de façon précise
                         const userMention = userId ? `<@${userId}>` : `<@user>`;
                         responseText = responseText.replace(/{user}/g, userMention);
                         responseText = responseText.replace(/{server_name}/g, serverInfo?.name || "le serveur");
@@ -226,7 +253,7 @@ class ArcantAIEngine {
                 console.error("[ArcantAI] Erreur de lecture des règles DB:", err);
             }
         }
-        // 4. Enrichir le contexte avec les données réelles de la DB (Optimisé avec Cache)
+        // 4. Enrichir le contexte avec les données de la DB
         let enrichedContext = '';
         let serverSettingsText = '';
         try {
@@ -251,13 +278,10 @@ class ArcantAIEngine {
         catch (e) {
             enrichedContext = '[Contexte Arcant] Données DB indisponibles.';
         }
-        // 5. Réponse intelligente contextuelle
-        const reply = this.getSmartReply(msg, words, mode, enrichedContext, serverSettingsText);
+        // 5. Réponse intelligente par classification d'intentions
+        const reply = this.getSmartReply(msg, tokens, mode, enrichedContext, serverSettingsText);
         return { reply };
     }
-    /**
-     * Récupère les statistiques réelles de la DB MongoDB (Optimisé avec Cache 30 secondes).
-     */
     static async getDBStats() {
         const cacheKey = 'db_stats';
         const cached = this.getFromCache(cacheKey);
@@ -278,9 +302,6 @@ class ArcantAIEngine {
             return { serversCount: 0, botsCount: 0, usersCount: 0, aiRulesCount: 0 };
         }
     }
-    /**
-     * Mode API — Retourne du JSON structuré pour les appels programmatiques.
-     */
     static async handleAPIMode(userMessage, context) {
         const msg = userMessage.toLowerCase();
         const dbStats = await this.getDBStats();
@@ -316,299 +337,154 @@ class ArcantAIEngine {
         };
     }
     /**
-     * Mode Server Generation (Génération d'architecture de serveur Discord)
-     * Analyse et produit un JSON structuré thématique de rôles et salons.
+     * Syntétiseur Dynamique de Serveur (NLP & Extraction d'Entités)
+     * Génère une architecture sur-mesure mot par mot en fonction du prompt.
      */
     static handleServerGeneration(userMessage) {
         const prompt = userMessage.toLowerCase();
-        // Détection thématique
-        const gamingKeywords = ['jeu', 'gaming', 'gamer', 'play', 'valorant', 'lol', 'league', 'minecraft', 'fortnite', 'esport', 'coop', 'potes', 'stream', 'twitch', 'csgo', 'fifa', 'apex', 'overwatch', 'cod', 'warzone'];
-        const rpKeywords = ['rp', 'roleplay', 'gta', 'police', 'citoyen', 'mairie', 'secours', 'pompier', 'ville', 'gendarmerie', 'realiste', 'job', 'entreprise', 'mafia', 'gang'];
-        const animeKeywords = ['anime', 'manga', 'otaku', 'japon', 'naruto', 'one piece', 'demon slayer', 'dbz', 'ghibli', 'dessin', 'animation', 'snk', 'bleach', 'hunter'];
-        const studyKeywords = ['etude', 'cours', 'travail', 'dev', 'code', 'prog', 'school', 'ecole', 'bibliotheque', 'aide', 'entraide', 'projets', 'work', 'universite', 'lycee'];
-        let gamingScore = 0;
-        let rpScore = 0;
-        let animeScore = 0;
-        let studyScore = 0;
-        const words = prompt.split(/\s+/);
-        for (const w of words) {
-            const cleanW = w.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-            if (gamingKeywords.some(kw => kw.includes(cleanW) || cleanW.includes(kw)))
-                gamingScore++;
-            if (rpKeywords.some(kw => kw.includes(cleanW) || cleanW.includes(kw)))
-                rpScore++;
-            if (animeKeywords.some(kw => kw.includes(cleanW) || cleanW.includes(kw)))
-                animeScore++;
-            if (studyKeywords.some(kw => kw.includes(cleanW) || cleanW.includes(kw)))
-                studyScore++;
-        }
-        let theme = 'community';
-        let maxScore = 0;
-        if (gamingScore > maxScore) {
-            maxScore = gamingScore;
-            theme = 'gaming';
-        }
-        if (rpScore > maxScore) {
-            maxScore = rpScore;
-            theme = 'rp';
-        }
-        if (animeScore > maxScore) {
-            maxScore = animeScore;
-            theme = 'anime';
-        }
-        if (studyScore > maxScore) {
-            maxScore = studyScore;
-            theme = 'study';
-        }
-        // Personnalisation des chaînes de jeux ou de matières
-        const specificGames = [];
-        if (prompt.includes('valorant'))
-            specificGames.push('Valorant');
-        if (prompt.includes('league') || prompt.includes('lol'))
-            specificGames.push('League of Legends');
-        if (prompt.includes('minecraft'))
-            specificGames.push('Minecraft');
-        if (prompt.includes('fortnite'))
-            specificGames.push('Fortnite');
-        if (prompt.includes('apex'))
-            specificGames.push('Apex Legends');
-        if (prompt.includes('csgo') || prompt.includes('cs:go') || prompt.includes('counter'))
-            specificGames.push('CS:GO');
-        const specificSubjects = [];
-        if (prompt.includes('math'))
-            specificSubjects.push('Mathématiques');
-        if (prompt.includes('physique') || prompt.includes('chimie'))
-            specificSubjects.push('Sciences');
-        if (prompt.includes('code') || prompt.includes('dev') || prompt.includes('informatique'))
-            specificSubjects.push('Informatique');
-        let roles = [];
-        let categories = [];
-        switch (theme) {
-            case 'gaming':
-                roles = [
-                    { name: "👑 | Fondateur", color: "#14b8a6" },
-                    { name: "🛠️ | Staff", color: "#10b981" },
-                    { name: "💎 | VIP", color: "#3b82f6" },
-                    { name: "🎮 | Gamer", color: "#a855f7" },
-                ];
-                categories = [
-                    {
-                        name: "📢 | ACCUEIL",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "ReadMessageHistory"], deny: ["SendMessages"] }
-                        ],
-                        channels: [
-                            { name: "📌-nouveautés", type: "text" },
-                            { name: "📜-règlement", type: "text" },
-                            { name: "🎁-annonces", type: "text" }
-                        ]
-                    },
-                    {
-                        name: "💬 | CHAT GENERAL",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "SendMessages", "ReadMessageHistory"] }
-                        ],
-                        channels: [
-                            { name: "💬-général", type: "text" },
-                            { name: "🤖-commands", type: "text" },
-                            { name: "📷-medias", type: "text" }
-                        ]
-                    }
-                ];
-                const gameChannels = specificGames.length > 0
-                    ? specificGames.map(g => ({ name: `🎮-${g.toLowerCase().replace(/\s+/g, '-')}`, type: "text" }))
-                    : [{ name: "🎮-recherche-de-groupe", type: "text" }, { name: "🏆-clips-gaming", type: "text" }];
-                categories.push({
-                    name: "🎮 | ZONE GAMING",
-                    permissions: [
-                        { roleName: "🎮 | Gamer", allow: ["ViewChannel", "SendMessages", "ReadMessageHistory", "Connect", "Speak"] }
-                    ],
-                    channels: [
-                        ...gameChannels,
-                        { name: "🔊 Salon Vocal 1", type: "voice" },
-                        { name: "🔊 Duo/Trio 1", type: "voice" }
-                    ]
-                });
-                break;
-            case 'rp':
-                roles = [
-                    { name: "👑 | Fondateur", color: "#ef4444" },
-                    { name: "👮 | Police", color: "#3b82f6" },
-                    { name: "🚑 | EMS/Secours", color: "#eab308" },
-                    { name: "🚗 | Citoyen", color: "#10b981" }
-                ];
-                categories = [
-                    {
-                        name: "🏢 | HÔTEL DE VILLE",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "ReadMessageHistory"], deny: ["SendMessages"] }
-                        ],
-                        channels: [
-                            { name: "📢-annonces-ville", type: "text" },
-                            { name: "📜-lois-du-serveur", type: "text" },
-                            { name: "📝-dossier-citoyen", type: "text" }
-                        ]
-                    },
-                    {
-                        name: "💬 | SECTEUR PUBLIC",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "SendMessages", "ReadMessageHistory"] }
-                        ],
-                        channels: [
-                            { name: "💬-discussions-rp", type: "text" },
-                            { name: "🌐-réseaux-sociaux", type: "text" },
-                            { name: "🏪-petites-annonces", type: "text" }
-                        ]
-                    },
-                    {
-                        name: "📻 | SECTEUR SERVICES",
-                        permissions: [
-                            { roleName: "👮 | Police", allow: ["ViewChannel", "SendMessages"] },
-                            { roleName: "🚑 | EMS/Secours", allow: ["ViewChannel", "SendMessages"] },
-                            { roleName: "@everyone", deny: ["ViewChannel"] }
-                        ],
-                        channels: [
-                            { name: "📟-rapport-intervention", type: "text" },
-                            { name: "🔊 Centrale Radio", type: "voice" },
-                            { name: "🔊 Fréquence Police", type: "voice" },
-                            { name: "🔊 Fréquence EMS", type: "voice" }
-                        ]
-                    }
-                ];
-                break;
-            case 'anime':
-                roles = [
-                    { name: "🏮 | Hokage", color: "#f97316" },
-                    { name: "🗡️ | Shinobi", color: "#ec4899" },
-                    { name: "🌸 | Otaku", color: "#f472b6" },
-                ];
-                categories = [
-                    {
-                        name: "⛩️ | ACCUEIL",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "ReadMessageHistory"], deny: ["SendMessages"] }
-                        ],
-                        channels: [
-                            { name: "📌-règlement", type: "text" },
-                            { name: "📢-annonces", type: "text" }
-                        ]
-                    },
-                    {
-                        name: "🏮 | SALONS OTAKU",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "SendMessages", "ReadMessageHistory"] }
-                        ],
-                        channels: [
-                            { name: "💬-général", type: "text" },
-                            { name: "📚-manga-animes", type: "text" },
-                            { name: "🖼️-fanarts", type: "text" }
-                        ]
-                    },
-                    {
-                        name: "🏮 | SALONS VOCAUX",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "Connect", "Speak"] }
-                        ],
-                        channels: [
-                            { name: "🔊 Discussion 1", type: "voice" },
-                            { name: "🔊 Co-Working Anime", type: "voice" }
-                        ]
-                    }
-                ];
-                break;
-            case 'study':
-                roles = [
-                    { name: "👑 | Enseignant/Staff", color: "#3b82f6" },
-                    { name: "📚 | Tuteur/Expert", color: "#10b981" },
-                    { name: "✏️ | Étudiant", color: "#6b7280" }
-                ];
-                const subjectChannels = specificSubjects.length > 0
-                    ? specificSubjects.map(s => ({ name: `📝-${s.toLowerCase().replace(/\s+/g, '-')}`, type: "text" }))
-                    : [{ name: "📝-entraide-générale", type: "text" }, { name: "💻-code-entraide", type: "text" }];
-                categories = [
-                    {
-                        name: "📋 | INFORMATIONS",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "ReadMessageHistory"], deny: ["SendMessages"] }
-                        ],
-                        channels: [
-                            { name: "📌-ressources", type: "text" },
-                            { name: "📢-annonces-etudes", type: "text" }
-                        ]
-                    },
-                    {
-                        name: "📚 | MATIÈRES D'ÉTUDE",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "SendMessages", "ReadMessageHistory"] }
-                        ],
-                        channels: [
-                            ...subjectChannels,
-                            { name: "💬-salon-detente", type: "text" }
-                        ]
-                    },
-                    {
-                        name: "🔊 | SALLES D'ÉTUDE",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "Connect", "Speak"] }
-                        ],
-                        channels: [
-                            { name: "🔊 Salle d'étude silencieuse", type: "voice" },
-                            { name: "🔊 Travail de groupe 1", type: "voice" },
-                            { name: "🔊 Travail de groupe 2", type: "voice" }
-                        ]
-                    }
-                ];
-                break;
-            default:
-                roles = [
-                    { name: "👑 | Créateur", color: "#06b6d4" },
-                    { name: "💎 | VIP", color: "#eab308" },
-                    { name: "👥 | Membre", color: "#94a3b8" }
-                ];
-                categories = [
-                    {
-                        name: "📢 | INFORMATIONS",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "ReadMessageHistory"], deny: ["SendMessages"] }
-                        ],
-                        channels: [
-                            { name: "📌-accueil", type: "text" },
-                            { name: "📜-règlement", type: "text" },
-                            { name: "📢-annonces", type: "text" }
-                        ]
-                    },
-                    {
-                        name: "💬 | DISCUSSIONS",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "SendMessages", "ReadMessageHistory"] }
-                        ],
-                        channels: [
-                            { name: "💬-général", type: "text" },
-                            { name: "🎪-événements", type: "text" },
-                            { name: "🎥-medias", type: "text" },
-                            { name: "🤖-commandes-bot", type: "text" }
-                        ]
-                    },
-                    {
-                        name: "🔊 | CHANNELS VOCAUX",
-                        permissions: [
-                            { roleName: "@everyone", allow: ["ViewChannel", "Connect", "Speak"] }
-                        ],
-                        channels: [
-                            { name: "🔊 Salon Public 1", type: "voice" },
-                            { name: "🔊 Salon Public 2", type: "voice" },
-                            { name: "🔊 Gaming Voc 1", type: "voice" }
-                        ]
-                    }
-                ];
-                break;
-        }
-        return {
-            reply: `Structure de type "${theme.toUpperCase()}" générée avec succès pour votre serveur.`,
-            data: {
-                roles,
-                categories
+        const tokens = this.tokenize(prompt);
+        // 1. Synthèse des Rôles
+        const roles = [
+            { name: "👑 | Fondateur", color: "#14b8a6" }
+        ];
+        // Extraction dynamique de rôles personnalisés
+        const roleMatches = userMessage.match(/(?:rôle|role|grade)\s+['"\s]?([\w\-\s\|\u00C0-\u00FF]+)['"\s]?/gi);
+        if (roleMatches) {
+            for (const m of roleMatches) {
+                const cleanRole = m.replace(/(?:rôle|role|grade)\s+/i, '').replace(/['"]/g, '').trim();
+                if (cleanRole.length > 2 && !roles.some(r => r.name.toLowerCase().includes(cleanRole.toLowerCase()))) {
+                    const colors = ["#f43f5e", "#ec4899", "#d946ef", "#a855f7", "#8b5cf6", "#6366f1", "#3b82f6", "#0ea5e9", "#06b6d4", "#14b8a6", "#10b981", "#22c55e", "#84cc16", "#eab308", "#f97316"];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    roles.push({ name: `👥 | ${cleanRole}`, color: randomColor });
+                }
             }
+        }
+        // Rôles thématiques standards si détectés
+        if (this.containsFuzzy(tokens, 'staff', ['mod', 'admin', 'moderateur'])) {
+            roles.push({ name: "🛠️ | Staff", color: "#10b981" });
+        }
+        if (this.containsFuzzy(tokens, 'vip', ['premium', 'soutien'])) {
+            roles.push({ name: "💎 | VIP", color: "#3b82f6" });
+        }
+        if (this.containsFuzzy(tokens, 'gaming', ['jeu', 'player', 'gamer', 'joueur'])) {
+            roles.push({ name: "🎮 | Gamer", color: "#a855f7" });
+        }
+        if (this.containsFuzzy(tokens, 'rp', ['police', 'gta'])) {
+            roles.push({ name: "👮 | Police", color: "#3b82f6" });
+            roles.push({ name: "🚑 | EMS/Secours", color: "#eab308" });
+        }
+        // 2. Synthèse Dynamique des Catégories & Salons
+        const categories = [];
+        // Catégorie ACCUEIL (toujours créée avec permissions de lecture seule pour everyone)
+        const infoChannels = [
+            { name: "📌-accueil", type: "text" },
+            { name: "📜-reglement", type: "text" }
+        ];
+        if (this.containsFuzzy(tokens, 'annonce', ['news', 'annonces'])) {
+            infoChannels.push({ name: "📢-annonces", type: "text" });
+        }
+        categories.push({
+            name: "📢 | INFORMATIONS",
+            permissions: [
+                { roleName: "@everyone", allow: ["ViewChannel", "ReadMessageHistory"], deny: ["SendMessages"] }
+            ],
+            channels: infoChannels
+        });
+        // Catégorie ESPACE DISCUSSIONS
+        const talkChannels = [{ name: "💬-general", type: "text" }];
+        if (this.containsFuzzy(tokens, 'meme', ['memes', 'media', 'images'])) {
+            talkChannels.push({ name: "📷-medias", type: "text" });
+        }
+        if (this.containsFuzzy(tokens, 'bot', ['bots', 'commandes'])) {
+            talkChannels.push({ name: "🤖-commandes-bot", type: "text" });
+        }
+        categories.push({
+            name: "💬 | SECTEUR PUBLIC",
+            permissions: [
+                { roleName: "@everyone", allow: ["ViewChannel", "SendMessages", "ReadMessageHistory"] }
+            ],
+            channels: talkChannels
+        });
+        // Catégorie JEUX (si Gaming détecté)
+        const hasGaming = this.containsFuzzy(tokens, 'gaming', ['jeu', 'gamer', 'valorant', 'lol', 'league', 'minecraft', 'fortnite', 'esport', 'twitch', 'csgo', 'apex', 'cod']);
+        if (hasGaming) {
+            const gameChannels = [];
+            if (prompt.includes('valorant'))
+                gameChannels.push({ name: "🎮-valorant", type: "text" });
+            if (prompt.includes('league') || prompt.includes('lol'))
+                gameChannels.push({ name: "🎮-league-of-legends", type: "text" });
+            if (prompt.includes('minecraft'))
+                gameChannels.push({ name: "🎮-minecraft", type: "text" });
+            if (prompt.includes('fortnite'))
+                gameChannels.push({ name: "🎮-fortnite", type: "text" });
+            if (prompt.includes('apex'))
+                gameChannels.push({ name: "🎮-apex-legends", type: "text" });
+            if (gameChannels.length === 0) {
+                gameChannels.push({ name: "🎮-recherche-de-groupe", type: "text" });
+                gameChannels.push({ name: "🏆-clips-gaming", type: "text" });
+            }
+            categories.push({
+                name: "🎮 | ZONE GAMING",
+                permissions: [
+                    { roleName: "@everyone", allow: ["ViewChannel", "SendMessages", "ReadMessageHistory", "Connect", "Speak"] }
+                ],
+                channels: gameChannels
+            });
+        }
+        // Catégorie ÉTUDES (si Scolaire/Pro détecté)
+        const hasStudy = this.containsFuzzy(tokens, 'etude', ['cours', 'travail', 'dev', 'code', 'school', 'ecole', 'projets', 'work']);
+        if (hasStudy) {
+            const studyChannels = [];
+            if (prompt.includes('math'))
+                studyChannels.push({ name: "📝-mathématiques", type: "text" });
+            if (prompt.includes('code') || prompt.includes('dev') || prompt.includes('informatique'))
+                studyChannels.push({ name: "💻-programmation", type: "text" });
+            if (studyChannels.length === 0) {
+                studyChannels.push({ name: "📚-entraide-générale", type: "text" });
+            }
+            categories.push({
+                name: "📚 | MATIÈRES D'ÉTUDE",
+                permissions: [
+                    { roleName: "@everyone", allow: ["ViewChannel", "SendMessages", "ReadMessageHistory"] }
+                ],
+                channels: studyChannels
+            });
+        }
+        // Catégorie STAFF PRIVÉE (si Staff demandé ou implicite)
+        const hasStaff = this.containsFuzzy(tokens, 'staff', ['mod', 'admin', 'moderateur', 'prive', 'privé', 'secret']);
+        if (hasStaff) {
+            categories.push({
+                name: "🔒 | ESPACE STAFF",
+                permissions: [
+                    { roleName: "🛠️ | Staff", allow: ["ViewChannel", "SendMessages", "ReadMessageHistory", "Connect", "Speak"] },
+                    { roleName: "@everyone", deny: ["ViewChannel"] }
+                ],
+                channels: [
+                    { name: "🛡️-discussions-staff", type: "text" },
+                    { name: "📟-rapports-audit", type: "text" },
+                    { name: "🔊 Réunion Staff", type: "voice" }
+                ]
+            });
+        }
+        // Catégorie SALONS VOCAUX (toujours créée avec salons par défaut ou duos)
+        const voiceChannels = [
+            { name: "🔊 Salon Vocal 1", type: "voice" },
+            { name: "🔊 Salon Vocal 2", type: "voice" }
+        ];
+        if (prompt.includes("duo") || prompt.includes("trio")) {
+            voiceChannels.push({ name: "🔊 Salon Duo 1", type: "voice" });
+            voiceChannels.push({ name: "🔊 Salon Trio 1", type: "voice" });
+        }
+        categories.push({
+            name: "🔊 | SALONS VOCAUX",
+            permissions: [
+                { roleName: "@everyone", allow: ["ViewChannel", "Connect", "Speak"] }
+            ],
+            channels: voiceChannels
+        });
+        return {
+            reply: `Architecture dynamique personnalisée générée en analysant les entités de votre prompt.`,
+            data: { roles, categories }
         };
     }
     /**
@@ -619,6 +495,7 @@ class ArcantAIEngine {
         const replyParts = [];
         const featuresToAdd = [];
         let newPrompt = "";
+        let extractedBotName = "";
         // 1. Lire les paramètres de sécurité existants depuis MongoDB (si disponibles)
         let currentRaidMode = false;
         let currentAntiLink = false;
@@ -647,29 +524,34 @@ class ArcantAIEngine {
                 console.error("[ArcantAI] Copilot failed to fetch server configs:", err);
             }
         }
-        const cleanMsg = msg.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
-        const words = cleanMsg.split(/\s+/).filter(w => w.length > 0);
+        const tokens = this.tokenize(msg);
         // Dictionnaire des synonymes élargis si Premium
         const antiLinkSyns = isPremium ? ['link', 'liens', 'website', 'url', 'pub'] : ['lien', 'liens'];
         const raidSyns = isPremium ? ['raid', 'panic', 'urgence', 'panicbutton', 'bloquer'] : ['raid', 'panic'];
         // 2. Traitement d'intents de configuration de sécurité en direct
         // -- Anti-Lien
-        if (this.containsFuzzy(words, 'active', ['on', 'activer', 'bloque', 'bloquer']) && this.containsFuzzy(words, 'anti-lien', antiLinkSyns)) {
+        if (this.containsFuzzy(tokens, 'active', ['on', 'activer', 'bloque', 'bloquer']) && this.containsFuzzy(tokens, 'anti-lien', antiLinkSyns)) {
             currentAntiLink = true;
             replyParts.push("✓ Bloqueur de liens (Anti-Lien) activé.");
         }
-        else if (this.containsFuzzy(words, 'désactive', ['off', 'desactiver', 'autorise', 'permettre']) && this.containsFuzzy(words, 'anti-lien', antiLinkSyns)) {
+        else if (this.containsFuzzy(tokens, 'désactive', ['off', 'desactiver', 'autorise', 'permettre']) && this.containsFuzzy(tokens, 'anti-lien', antiLinkSyns)) {
             currentAntiLink = false;
             replyParts.push("✓ Bloqueur de liens (Anti-Lien) désactivé.");
         }
         // -- Anti-Raid / Panic Button
-        if (this.containsFuzzy(words, 'active', ['on', 'activer', 'verrouille', 'verrouiller']) && this.containsFuzzy(words, 'anti-raid', raidSyns)) {
+        if (this.containsFuzzy(tokens, 'active', ['on', 'activer', 'verrouille', 'verrouiller']) && this.containsFuzzy(tokens, 'anti-raid', raidSyns)) {
             currentRaidMode = true;
             replyParts.push("🚨 Mode Anti-Raid activé (Panic Button armé). Le serveur est verrouillé.");
         }
-        else if (this.containsFuzzy(words, 'désactive', ['off', 'desactiver', 'déverrouille', 'deverrouiller']) && this.containsFuzzy(words, 'anti-raid', raidSyns)) {
+        else if (this.containsFuzzy(tokens, 'désactive', ['off', 'desactiver', 'déverrouille', 'deverrouiller']) && this.containsFuzzy(tokens, 'anti-raid', raidSyns)) {
             currentRaidMode = false;
             replyParts.push("✓ Mode Anti-Raid désactivé. Le serveur est déverrouillé.");
+        }
+        // -- Renommer le bot (Extraction de nom)
+        const nameMatch = userMessage.match(/(?:renomme le bot en|change le nom du bot en|nomme le bot)\s+['"\s]?([\w\-\s]+)['"\s]?/i);
+        if (nameMatch && nameMatch[1]) {
+            extractedBotName = nameMatch[1].trim();
+            replyParts.push(`✓ Le bot a été renommé en "${extractedBotName}".`);
         }
         // -- Sensibilité Anti-Spam
         const spamMatch = msg.match(/(?:sensibilité|sensibilite|spam)\s+(?:à|a|de)\s+(\d+|haute|basse|moyenne|high|low|medium)/);
@@ -713,51 +595,51 @@ class ArcantAIEngine {
         }
         // 3. Détection des modules standards du bot (avec Tolérance Fuzzy)
         const activeKeywords = ['active', 'activer', 'ajoute', 'ajouter', 'installe', 'installer', 'on'];
-        const shouldAddFeature = this.containsFuzzy(words, 'active', activeKeywords);
+        const shouldAddFeature = this.containsFuzzy(tokens, 'active', activeKeywords);
         if (shouldAddFeature || msg.includes("aide") || msg.includes("help")) {
-            if (this.containsFuzzy(words, 'aide', ['help', 'menu'])) {
+            if (this.containsFuzzy(tokens, 'aide', ['help', 'menu'])) {
                 featuresToAdd.push("help");
                 replyParts.push("✓ Module d'aide configuré.");
             }
         }
         if (shouldAddFeature || msg.includes("modér") || msg.includes("mod") || msg.includes("bannir")) {
-            if (this.containsFuzzy(words, 'modération', ['mod', 'moderation', 'ban', 'kick', 'bannir'])) {
+            if (this.containsFuzzy(tokens, 'modération', ['mod', 'moderation', 'ban', 'kick', 'bannir'])) {
                 featuresToAdd.push("mod");
                 replyParts.push("✓ Module de modération configuré.");
             }
         }
         if (shouldAddFeature || msg.includes("ticket") || msg.includes("support")) {
-            if (this.containsFuzzy(words, 'ticket', ['tickets', 'support', 'aide-staff'])) {
+            if (this.containsFuzzy(tokens, 'ticket', ['tickets', 'support', 'aide-staff'])) {
                 featuresToAdd.push("tickets");
                 replyParts.push("✓ Système de tickets activé.");
             }
         }
         if (shouldAddFeature || msg.includes("éco") || msg.includes("eco") || msg.includes("argent")) {
-            if (this.containsFuzzy(words, 'économie', ['eco', 'economy', 'argent', 'boutique', 'shop'])) {
+            if (this.containsFuzzy(tokens, 'économie', ['eco', 'economy', 'argent', 'boutique', 'shop'])) {
                 featuresToAdd.push("economy");
                 replyParts.push("✓ Module d'économie activé.");
             }
         }
         if (shouldAddFeature || msg.includes("log") || msg.includes("audit")) {
-            if (this.containsFuzzy(words, 'logs', ['audit', 'historique', 'suivi'])) {
+            if (this.containsFuzzy(tokens, 'logs', ['audit', 'historique', 'suivi'])) {
                 featuresToAdd.push("logs");
                 replyParts.push("✓ Module de logs activé.");
             }
         }
         if (shouldAddFeature || msg.includes("level") || msg.includes("xp")) {
-            if (this.containsFuzzy(words, 'leveling', ['xp', 'levels', 'rang', 'niveaux'])) {
+            if (this.containsFuzzy(tokens, 'leveling', ['xp', 'levels', 'rang', 'niveaux'])) {
                 featuresToAdd.push("leveling");
                 replyParts.push("✓ Système de leveling XP activé.");
             }
         }
         if (shouldAddFeature || msg.includes("welcome") || msg.includes("bienvenue")) {
-            if (this.containsFuzzy(words, 'bienvenue', ['welcome', 'accueil', 'join'])) {
+            if (this.containsFuzzy(tokens, 'bienvenue', ['welcome', 'accueil', 'join'])) {
                 featuresToAdd.push("welcome");
                 replyParts.push("✓ Messages de bienvenue configurés.");
             }
         }
         // 4. Extraction de la personnalité
-        if (this.containsFuzzy(words, 'sois', ['comporte-toi', 'personnalité', 'prompt'])) {
+        if (this.containsFuzzy(tokens, 'sois', ['comporte-toi', 'personnalité', 'prompt'])) {
             const match = userMessage.match(/(?:sois|comporte-toi comme|personnalité d[e''])?\s+([^,.]+)/i);
             if (match && match[1]) {
                 newPrompt = `Tu es un assistant qui se comporte comme : ${match[1].trim()}`;
@@ -787,13 +669,14 @@ class ArcantAIEngine {
         if (systemContext.includes("Personnalité (Prompt) :")) {
             currentPrompt = systemContext.split("Personnalité (Prompt) :")[1]?.split("\n")[0]?.trim() || "";
         }
-        // Invalider les caches du serveur pour forcer le rechargement en direct
+        // Invalider les caches
         if (serverId) {
             delete this.cache[`server_${serverId}`];
         }
         return {
             reply: replyMessage,
             update: {
+                botName: extractedBotName || undefined,
                 systemPrompt: newPrompt || currentPrompt || "Tu es l'assistant principal d'Arcant.",
                 features: Array.from(new Set([...currentFeatures, ...featuresToAdd])),
                 settings: {
@@ -807,7 +690,7 @@ class ArcantAIEngine {
         };
     }
     /**
-     * Réponse intelligente contextuelle avec enrichissement DB et tolérance aux fautes de frappe.
+     * Réponse intelligente par classification d'intentions
      */
     static getSmartReply(msg, words, mode, dbContext, serverSettingsText) {
         // 1. Salutations

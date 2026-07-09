@@ -15,43 +15,36 @@ export declare class ArcantAIEngine {
     private static cache;
     private static getFromCache;
     private static setToCache;
+    private static FRENCH_STOPWORDS;
     /**
-     * Calcule la distance de Levenshtein entre deux chaînes.
-     * Indispensable pour la tolérance aux fautes d'orthographe.
+     * Nettoie et fragmente le message en tokens utiles.
+     */
+    private static tokenize;
+    /**
+     * Stemmer ultra-rapide pour ramener les mots français à leur racine.
+     */
+    private static stem;
+    /**
+     * Calcule la distance de Levenshtein entre deux chaînes. Tolère les typos.
      */
     private static getLevenshteinDistance;
-    /**
-     * Vérifie si deux chaînes sont similaires avec un seuil de distance maximal.
-     */
     private static isFuzzyMatch;
-    /**
-     * Recherche si l'une des chaînes fournies correspond à la cible de façon tolérante.
-     */
     private static containsFuzzy;
-    /**
-     * Analyse et génère une réponse unifiée pour le Bot Discord, l'API ou le Site Web.
-     */
     static processMessage(userMessage: string, context: AIContext): Promise<{
         reply: string;
         update?: any;
         data?: any;
     }>;
-    /**
-     * Récupère les statistiques réelles de la DB MongoDB (Optimisé avec Cache 30 secondes).
-     */
     static getDBStats(): Promise<{
         serversCount: number;
         botsCount: number;
         usersCount: number;
         aiRulesCount: number;
     }>;
-    /**
-     * Mode API — Retourne du JSON structuré pour les appels programmatiques.
-     */
     private static handleAPIMode;
     /**
-     * Mode Server Generation (Génération d'architecture de serveur Discord)
-     * Analyse et produit un JSON structuré thématique de rôles et salons.
+     * Syntétiseur Dynamique de Serveur (NLP & Extraction d'Entités)
+     * Génère une architecture sur-mesure mot par mot en fonction du prompt.
      */
     private static handleServerGeneration;
     /**
@@ -59,7 +52,7 @@ export declare class ArcantAIEngine {
      */
     private static handleCopilot;
     /**
-     * Réponse intelligente contextuelle avec enrichissement DB et tolérance aux fautes de frappe.
+     * Réponse intelligente par classification d'intentions
      */
     private static getSmartReply;
     /**

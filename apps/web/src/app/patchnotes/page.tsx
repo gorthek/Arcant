@@ -15,6 +15,36 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.2.3",
+      date: "09 Juillet 2026",
+      title: "Moteur NLP & Synthétiseur Dynamique",
+      type: "Mise à jour Majeure",
+      color: "from-teal-400 to-emerald-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-900/20",
+      icon: <Sparkles className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Moteur NLP Complet & Stemmer",
+          detail: "Intégration d'un tokenizer sémantique filtrant les mots vides (stopwords) et d'un stemmer français ramenant chaque mot à sa racine (ex: modérateurs, modérer -> moder) pour une classification d'intentions ultra-performante et résiliente.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts"]
+        },
+        {
+          type: "feature",
+          text: "Synthétiseur Dynamique de Serveurs",
+          detail: "Le générateur n'utilise plus de modèles pré-écrits. Il construit l'architecture du serveur programmatiquement à partir des entités extraites du prompt (rôles entre guillemets, salons vocaux duos/trios, salons staff privés, etc.).",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts"]
+        },
+        {
+          type: "feature",
+          text: "Renommage de Bot à Chaud",
+          detail: "Le Copilot du Dashboard Web peut désormais renommer le bot en direct via le chat. Par exemple : « renomme le bot en Garde Royal » met immédiatement à jour le nom du bot dans MongoDB.",
+          files: ["packages/database/src/ai/ArcantAIEngine.ts", "apps/bot/src/index.ts"]
+        }
+      ]
+    },
+    {
       version: "v2.2.2",
       date: "09 Juillet 2026",
       title: "IA Autonome (Self-Learning & Dialogue)",

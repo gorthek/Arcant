@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.3
+*Dernière modification : 09 Juillet 2026*
+
+### 🌐 Moteur NLP & Synthétiseur Dynamique
+- **[Stemmer & Tokenizer Français]** Intégration d'un tokenizer filtrant les mots grammaticaux et d'un stemmer ramenant les déclinaisons à leur racine. Cela permet une compréhension d'intentions de niveau supérieur.
+- **[Synthèse de Serveur par Extraction]** Remplacement des templates rigides par une génération de serveurs 100% dynamique qui extrait les entités (rôles spécifiés entre guillemets, salons vocaux duos/trios, salons staff privés configurés pour les modérateurs, salons scolaires par matières).
+- **[Renommage Bot à Chaud]** Possibilité de renommer votre bot personnalisé directement en discutant avec le Copilot (ex: *« renomme le bot en Garde Royal »*).
+
+---
+
 ## 🟢 Version 2.2.2
 *Dernière modification : 09 Juillet 2026*
 

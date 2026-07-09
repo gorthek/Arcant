@@ -208,6 +208,9 @@ Rien d'autre que du JSON.`;
           // Mettre à jour la base de données (Bot)
           botConfig.systemPrompt = parsed.update?.systemPrompt || botConfig.systemPrompt;
           botConfig.features = parsed.update?.features || botConfig.features;
+          if (parsed.update?.botName) {
+            botConfig.botName = parsed.update.botName;
+          }
           await botConfig.save();
 
           // Mettre à jour les paramètres du serveur si demandés par le Copilot

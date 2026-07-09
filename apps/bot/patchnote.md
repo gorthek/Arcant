@@ -5,6 +5,15 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.6.3
+*Dernière modification : 09 Juillet 2026*
+
+### 🤖 Cœur du Bot & Intelligence Artificielle unifiée
+- **[Analyse NLP avancée]** Liaison avec notre nouveau tokenizer français et stemmer de mots pour une compréhension d'intentions très résiliente et tolérante aux déclinaisons grammaticales.
+- **[Renommage en Direct]** Intégration de la mise à jour à chaud du nom du bot personnalisé (`botName`) en base de données lorsque déclenchée par le Copilot.
+
+---
+
 ## 🔴 Version 1.6.2
 *Dernière modification : 09 Juillet 2026*
 
