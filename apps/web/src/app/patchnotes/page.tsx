@@ -15,6 +15,24 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.2.9",
+      date: "11 Juillet 2026",
+      title: "Voyage Cosmique Interactif 3D au Défilement",
+      type: "Mise à jour d'Interface",
+      color: "from-purple-500 via-indigo-500 to-teal-400",
+      border: "border-indigo-500/50",
+      bgHover: "hover:bg-indigo-950/20",
+      icon: <Sparkles className="text-indigo-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Scène 3D Interactive en 3 Phases (Trou Noir, Supernova, Terre)",
+          detail: "Refonte de l'arrière-plan R3F. En haut, affichage d'un Trou Noir supermassif avec disque d'accrétion de 800 particules et météores en orbite. Lors du scroll, il explose en une Supernova de 2000 points. En bas de page, l'explosion se dissipe pour former une magnifique Planète Terre cybernétique avec atmosphère et nodes de serveurs procéduraux.",
+          files: ["apps/web/src/components/landing/SpaceCanvas.tsx"]
+        }
+      ]
+    },
+    {
       version: "v2.2.8",
       date: "11 Juillet 2026",
       title: "Refonte Galactique 3D (Qui Sommes-Nous)",
