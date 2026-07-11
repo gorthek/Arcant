@@ -21,7 +21,12 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
   const earthGroupRef = useRef<THREE.Group>(null);
   const earthMeshRef = useRef<THREE.Mesh>(null);
   const atmosphereRef = useRef<THREE.Mesh>(null);
-  const diskRef = useRef<THREE.Mesh>(null);
+  
+  // Accretion disk and lensing meshes
+  const diskRef = useRef<THREE.Points>(null);
+  const diskMeshRef = useRef<THREE.Mesh>(null);
+  const rearLensingRef = useRef<THREE.Mesh>(null);
+  const frontLensingRef = useRef<THREE.Mesh>(null);
 
   const mouse = useRef({ x: 0, y: 0 });
 
@@ -35,23 +40,42 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // 1. Generate Accretion Disk particles for the Black Hole
-  const diskCount = 800;
+  // 1. Generate soft radial glow texture for realistic gaseous blending
+  const particleTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 30);
+      grad.addColorStop(0, "rgba(255, 255, 255, 1)");
+      grad.addColorStop(0.2, "rgba(255, 255, 255, 0.85)");
+      grad.addColorStop(0.55, "rgba(255, 255, 255, 0.2)");
+      grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 64, 64);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+  }, []);
+
+  // 2. Generate Accretion Disk particles for the Black Hole
+  const diskCount = 1200;
   const [diskPositions, diskColors] = useMemo(() => {
     const pos = new Float32Array(diskCount * 3);
     const col = new Float32Array(diskCount * 3);
-    const colorInner = new THREE.Color("#f97316"); // Orange-500
-    const colorOuter = new THREE.Color("#d946ef"); // Fuchsia-500
+    const colorInner = new THREE.Color("#ea580c"); // Orange-600 (hot inner disk)
+    const colorOuter = new THREE.Color("#a21caf"); // Fuchsia-700 (cool outer disk)
 
     for (let i = 0; i < diskCount; i++) {
-      const radius = 0.95 + Math.pow(Math.random(), 1.5) * 1.6;
+      const radius = 0.95 + Math.pow(Math.random(), 1.6) * 2.2;
       const angle = Math.random() * Math.PI * 2;
       
       pos[i * 3] = Math.cos(angle) * radius;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 0.08;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 0.05;
       pos[i * 3 + 2] = Math.sin(angle) * radius;
 
-      const mixedColor = colorInner.clone().lerp(colorOuter, (radius - 0.95) / 1.6);
+      const mixedColor = colorInner.clone().lerp(colorOuter, (radius - 0.95) / 2.2);
       col[i * 3] = mixedColor.r;
       col[i * 3 + 1] = mixedColor.g;
       col[i * 3 + 2] = mixedColor.b;
@@ -59,28 +83,28 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
     return [pos, col];
   }, []);
 
-  // 2. Generate Supernova explosion particles
-  const supernovaCount = 2000;
+  // 3. Generate Supernova explosion particles
+  const supernovaCount = 3500;
   const [supernovaPositions, supernovaColors] = useMemo(() => {
     const pos = new Float32Array(supernovaCount * 3);
     const col = new Float32Array(supernovaCount * 3);
-    const colorCenter = new THREE.Color("#fef08a"); // Yellow-200
-    const colorBlast = new THREE.Color("#ec4899"); // Pink-500
-    const colorDust = new THREE.Color("#3b82f6"); // Blue-500
+    const colorCore = new THREE.Color("#ffffff"); // Bright white hot core
+    const colorFire = new THREE.Color("#ea580c"); // Flame orange
+    const colorDust = new THREE.Color("#4f46e5"); // Indigo dust gas
 
     for (let i = 0; i < supernovaCount; i++) {
-      // Condensed in a tiny sphere
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(Math.random() * 2 - 1);
-      const r = Math.pow(Math.random(), 2) * 0.12;
+      const r = Math.pow(Math.random(), 1.5) * 0.15; // initially highly condensed core
 
       pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       pos[i * 3 + 2] = r * Math.cos(phi);
 
-      const mixedColor = colorCenter.clone();
-      if (Math.random() < 0.4) {
-        mixedColor.lerp(colorBlast, Math.random());
+      const mixedColor = colorCore.clone();
+      const rand = Math.random();
+      if (rand < 0.3) {
+        mixedColor.lerp(colorFire, Math.random());
       } else {
         mixedColor.lerp(colorDust, Math.random());
       }
@@ -92,110 +116,117 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
     return [pos, col];
   }, []);
 
-  // 3. Generate Meteors Orbiting Black Hole
-  const meteorCount = 18;
+  // 4. Generate Meteors
+  const meteorCount = 16;
   const meteorRefs = useRef<(THREE.Mesh | null)[]>([]);
   
   const meteorsData = useMemo(() => {
     const list: Omit<MeteorProps, "meshRef">[] = [];
     for (let i = 0; i < meteorCount; i++) {
       list.push({
-        radius: 1.35 + Math.random() * 1.6,
-        speed: 0.6 + Math.random() * 1.4,
+        radius: 1.4 + Math.random() * 1.8,
+        speed: 0.5 + Math.random() * 1.2,
         angle: Math.random() * Math.PI * 2,
-        scale: 0.04 + Math.random() * 0.09,
-        inclinationX: (Math.random() - 0.5) * 0.35,
-        inclinationZ: (Math.random() - 0.5) * 0.35,
+        scale: 0.035 + Math.random() * 0.07,
+        inclinationX: (Math.random() - 0.5) * 0.45,
+        inclinationZ: (Math.random() - 0.5) * 0.45,
       });
     }
     return list;
   }, []);
 
-  // 4. Procedural Cyber Earth Texture
+  // 5. Procedural Cyber Earth Dot-Matrix Texture Map
   const cyberEarthTexture = useMemo(() => {
+    // A. Draw solid continente outline onto a temp canvas
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = 512;
+    tempCanvas.height = 256;
+    const tempCtx = tempCanvas.getContext("2d");
+    if (tempCtx) {
+      tempCtx.fillStyle = "#000000";
+      tempCtx.fillRect(0, 0, 512, 256);
+
+      const drawSolidLand = (cx: number, cy: number, r: number) => {
+        tempCtx.fillStyle = "#ffffff";
+        tempCtx.beginPath();
+        tempCtx.arc(cx, cy, r, 0, Math.PI * 2);
+        tempCtx.fill();
+        for (let i = 0; i < 9; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * r * 1.25;
+          const size = Math.random() * r * 0.45;
+          tempCtx.beginPath();
+          tempCtx.arc(cx + Math.cos(angle) * dist, cy + Math.sin(angle) * dist, size, 0, Math.PI * 2);
+          tempCtx.fill();
+        }
+      };
+
+      // North America
+      drawSolidLand(150, 85, 42);
+      // South America
+      drawSolidLand(175, 175, 38);
+      // Eurasia & Europe
+      drawSolidLand(340, 75, 52);
+      drawSolidLand(300, 65, 32);
+      // Africa
+      drawSolidLand(305, 145, 42);
+      // Asia & India
+      drawSolidLand(375, 105, 48);
+      // Australia
+      drawSolidLand(435, 175, 24);
+      // Antarctica
+      drawSolidLand(256, 235, 32);
+    }
+
+    // B. Draw high-end dot matrix on the main canvas
     const canvas = document.createElement("canvas");
     canvas.width = 1024;
     canvas.height = 512;
     const ctx = canvas.getContext("2d");
     if (ctx) {
-      // Space ocean background
-      ctx.fillStyle = "#02020a";
+      ctx.fillStyle = "#010105"; // cosmic pitch black
       ctx.fillRect(0, 0, 1024, 512);
 
-      // Latitudinal & longitudinal grid lines
-      ctx.strokeStyle = "rgba(99, 102, 241, 0.08)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < 1024; x += 32) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, 512);
-        ctx.stroke();
-      }
-      for (let y = 0; y < 512; y += 32) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(1024, y);
-        ctx.stroke();
-      }
+      const dotSpacing = 8;
+      for (let y = 0; y < 512; y += dotSpacing) {
+        for (let x = 0; x < 1024; x += dotSpacing) {
+          const tx = Math.floor(x / 2);
+          const ty = Math.floor(y / 2);
+          let isLand = false;
+          if (tempCtx) {
+            const pixel = tempCtx.getImageData(tx, ty, 1, 1).data;
+            if (pixel[0] > 120) {
+              isLand = true;
+            }
+          }
 
-      // Draw stylized sci-fi glowing continents
-      const drawContinent = (cx: number, cy: number, r: number, colorCenter: string, colorEdge: string) => {
-        const grad = ctx.createRadialGradient(cx, cy, r * 0.1, cx, cy, r);
-        grad.addColorStop(0, colorCenter);
-        grad.addColorStop(1, colorEdge);
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.fill();
+          if (isLand) {
+            // Land dot: bright tech cyan/teal
+            ctx.fillStyle = "#06b6d4";
+            ctx.beginPath();
+            ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+            ctx.fill();
 
-        // Extra organic islands
-        ctx.fillStyle = colorEdge;
-        for (let i = 0; i < 14; i++) {
-          const angle = Math.random() * Math.PI * 2;
-          const dist = Math.random() * r * 1.25;
-          const size = Math.random() * r * 0.4;
-          const lx = cx + Math.cos(angle) * dist;
-          const ly = cy + Math.sin(angle) * dist;
-          ctx.beginPath();
-          ctx.arc(lx, ly, size, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      };
+            // Glowing white network nodes
+            if (Math.random() < 0.016) {
+              ctx.fillStyle = "#ffffff";
+              ctx.beginPath();
+              ctx.arc(x, y, 3.2, 0, Math.PI * 2);
+              ctx.fill();
 
-      // Americas
-      drawContinent(320, 260, 95, "#06b6d4", "#0891b2"); // Cyan-500, Cyan-600
-      drawContinent(230, 170, 50, "#0891b2", "#0f766e");
-      drawContinent(350, 360, 75, "#06b6d4", "#0891b2");
-
-      // Europe & Africa & Asia
-      drawContinent(660, 280, 100, "#10b981", "#059669"); // Emerald-500, Emerald-600
-      drawContinent(740, 180, 115, "#06b6d4", "#0891b2");
-      drawContinent(590, 150, 65, "#10b981", "#059669");
-
-      // Australia
-      drawContinent(860, 370, 48, "#2dd4bf", "#14b8a6"); // Teal-400, Teal-500
-
-      // Antarctica
-      drawContinent(512, 485, 75, "#6366f1", "#4f46e5"); // Indigo-500, Indigo-600
-
-      // Technical white glowing nodes (servers/data cities) only on lands
-      ctx.fillStyle = "#ffffff";
-      for (let i = 0; i < 40; i++) {
-        const tx = Math.floor(Math.random() * 1024);
-        const ty = Math.floor(Math.random() * 512);
-        
-        // Sample green/blue values to verify if coordinate sits on continent
-        const pixelData = ctx.getImageData(tx, ty, 1, 1).data;
-        if (pixelData[1] > 25 || pixelData[2] > 25) {
-          ctx.beginPath();
-          ctx.arc(tx, ty, 3.8, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.strokeStyle = "rgba(255,255,255,0.4)";
-          ctx.lineWidth = 0.8;
-          ctx.beginPath();
-          ctx.arc(tx, ty, 8, 0, Math.PI * 2);
-          ctx.stroke();
+              ctx.strokeStyle = "rgba(255,255,255,0.45)";
+              ctx.lineWidth = 0.6;
+              ctx.beginPath();
+              ctx.arc(x, y, 9, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+          } else {
+            // Ocean dot: faint indigo node
+            ctx.fillStyle = "#1e1b4b";
+            ctx.beginPath();
+            ctx.arc(x, y, 0.75, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       }
     }
@@ -206,33 +237,45 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
   }, []);
 
   useFrame((state, delta) => {
-    // A. Gentle mouse parallax applied to camera angle target
+    // A. Smooth mouse parallax
     state.camera.position.x = THREE.MathUtils.lerp(
       state.camera.position.x,
-      mouse.current.x * 1.8,
+      mouse.current.x * 2.2,
       0.05
     );
     state.camera.position.y = THREE.MathUtils.lerp(
       state.camera.position.y,
-      3.2 + mouse.current.y * 1.2,
+      3.2 + mouse.current.y * 1.5,
       0.05
     );
     state.camera.lookAt(0, 0, 0);
 
     // B. PHASE 1: Trou Noir (0.0 to 0.35 scroll)
     if (blackHoleGroupRef.current) {
-      // Slow constant spin
-      blackHoleGroupRef.current.rotation.y += delta * 0.1;
+      blackHoleGroupRef.current.rotation.y += delta * 0.12;
 
-      // Spin accretion disk
+      // Fast rotation of gaseous points
       if (diskRef.current) {
-        diskRef.current.rotation.y += delta * 0.45;
+        diskRef.current.rotation.y += delta * 0.65;
+      }
+      
+      // Accretion disk solid mesh slow spin
+      if (diskMeshRef.current) {
+        diskMeshRef.current.rotation.z -= delta * 0.2;
       }
 
-      // Linear scale down from 1 to 0 between 0.30 and 0.45 scrollProgress
+      // Reverse spin on vertical gravitational lensing halos
+      if (rearLensingRef.current) {
+        rearLensingRef.current.rotation.z += delta * 0.15;
+      }
+      if (frontLensingRef.current) {
+        frontLensingRef.current.rotation.z -= delta * 0.25;
+      }
+
+      // Linear scale down to 0 between 0.28 and 0.45 scrollProgress
       const bhScale = scrollProgress < 0.28 
         ? 1 
-        : Math.max(0, 1 - (scrollProgress - 0.28) * 6.5);
+        : Math.max(0, 1 - (scrollProgress - 0.28) * 6.0);
       
       blackHoleGroupRef.current.scale.setScalar(bhScale);
     }
@@ -241,13 +284,12 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
     meteorsData.forEach((met, index) => {
       const mesh = meteorRefs.current[index];
       if (mesh) {
-        // Increment angle
-        met.angle += delta * met.speed * 0.8;
+        met.angle += delta * met.speed * 0.9;
         
-        // Expand radius rapidly when scroll goes past 0.30 (Explosion blast)
+        // Blast outward at scrollProgress > 0.30
         const currentRadius = scrollProgress < 0.3
           ? met.radius
-          : met.radius * (1 + (scrollProgress - 0.3) * 15.0);
+          : met.radius * (1 + (scrollProgress - 0.3) * 16.0);
 
         const x = Math.cos(met.angle) * currentRadius;
         const z = Math.sin(met.angle) * currentRadius;
@@ -257,10 +299,10 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
         mesh.rotation.x += delta * met.speed;
         mesh.rotation.y += delta * met.speed * 0.5;
 
-        // Fade out met
+        // Fade out
         const metOpacity = scrollProgress < 0.3
-          ? 0.7
-          : Math.max(0, 0.7 - (scrollProgress - 0.3) * 3.5);
+          ? 0.75
+          : Math.max(0, 0.75 - (scrollProgress - 0.3) * 3.8);
         
         const mat = mesh.material as THREE.MeshBasicMaterial;
         if (mat) {
@@ -271,23 +313,23 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
 
     // C. PHASE 2: Supernova Blast (0.3 to 0.75 scroll)
     if (supernovaRef.current) {
-      supernovaRef.current.rotation.y += delta * 0.08;
+      supernovaRef.current.rotation.y += delta * 0.05;
 
-      // Blast scale triggers at scroll > 0.3
+      // Exponential scale representing supernova shockwave
       const snScale = scrollProgress < 0.3 
         ? 0.01 
-        : 0.01 + (scrollProgress - 0.3) * 45.0;
+        : 0.01 + (scrollProgress - 0.3) * 58.0;
       
       supernovaRef.current.scale.setScalar(snScale);
 
       // Opacity envelope
       let snOpacity = 0;
-      if (scrollProgress >= 0.25 && scrollProgress < 0.48) {
-        // Rapid fade in during blast start
-        snOpacity = Math.min(1.0, (scrollProgress - 0.25) * 4.3);
-      } else if (scrollProgress >= 0.48 && scrollProgress < 0.8) {
-        // Slow fade out as it scatters away
-        snOpacity = Math.max(0.0, 1.0 - (scrollProgress - 0.48) * 3.1);
+      if (scrollProgress >= 0.26 && scrollProgress < 0.45) {
+        // Fast fade in
+        snOpacity = Math.min(1.0, (scrollProgress - 0.26) * 5.2);
+      } else if (scrollProgress >= 0.45 && scrollProgress < 0.82) {
+        // Smooth fading out
+        snOpacity = Math.max(0.0, 1.0 - (scrollProgress - 0.45) * 2.8);
       }
       
       const mat = supernovaRef.current.material as THREE.PointsMaterial;
@@ -298,23 +340,23 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
 
     // D. PHASE 3: Terre Cybernétique (0.55 to 1.0 scroll)
     if (earthGroupRef.current) {
-      // Continuous slow rotation
-      earthGroupRef.current.rotation.y += delta * 0.06;
+      // Rotation Y
+      earthGroupRef.current.rotation.y += delta * 0.08;
 
-      // Gentle counter-rotation of atmosphere/clouds
+      // Atmosphere rotation
       if (atmosphereRef.current) {
-        atmosphereRef.current.rotation.y -= delta * 0.02;
-        atmosphereRef.current.rotation.x += delta * 0.015;
+        atmosphereRef.current.rotation.y -= delta * 0.035;
+        atmosphereRef.current.rotation.x += delta * 0.02;
       }
 
-      // Smooth zoom/scale in between 0.55 and 0.88 scrollProgress
+      // Scale up between 0.55 and 0.88 scrollProgress
       const earthScale = scrollProgress < 0.55
         ? 0
-        : Math.min(1.28, (scrollProgress - 0.55) * 3.88);
+        : Math.min(1.3, (scrollProgress - 0.55) * 3.9);
       
       earthGroupRef.current.scale.setScalar(earthScale);
 
-      // Fade in material opacity
+      // Opacities
       const earthOpacity = scrollProgress < 0.55
         ? 0
         : Math.min(1.0, (scrollProgress - 0.55) * 3.0);
@@ -325,23 +367,60 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
       }
       if (atmosphereRef.current) {
         const mat = atmosphereRef.current.material as THREE.MeshBasicMaterial;
-        if (mat) mat.opacity = earthOpacity * 0.16; // Maintain subtle transparency limit
+        if (mat) mat.opacity = earthOpacity * 0.18; // atmosphere neon glow limit
       }
     }
   });
 
   return (
     <>
-      {/* ================= PHASE 1 : TROU NOIR ================= */}
-      <group ref={blackHoleGroupRef} position={[0, 0.4, 0]}>
-        {/* Singularity core (pure black void absorbing light) */}
+      {/* ================= PHASE 1 : TROU NOIR (GARGANTUA STYLE) ================= */}
+      <group ref={blackHoleGroupRef} position={[0, 0.35, 0]}>
+        
+        {/* Central Singularity Void */}
         <mesh castShadow receiveShadow>
-          <sphereGeometry args={[0.55, 32, 32]} />
+          <sphereGeometry args={[0.8, 32, 32]} />
           <meshBasicMaterial color="#000000" />
         </mesh>
 
-        {/* Accretion Disk (glowing dust ring) */}
-        <points ref={diskRef} rotation={[Math.PI / 2.3, 0.2, 0]}>
+        {/* Vertical Lensing Ring - Back (deflected background light) */}
+        <mesh ref={rearLensingRef} position={[0, 0, -0.08]}>
+          <ringGeometry args={[0.82, 1.45, 64]} />
+          <meshBasicMaterial
+            color="#f97316" // Orange-500
+            transparent
+            opacity={0.65}
+            side={THREE.DoubleSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+
+        {/* Vertical Lensing Ring - Front (deflected foreground light) */}
+        <mesh ref={frontLensingRef} position={[0, 0, 0.08]} rotation={[0.12, 0, 0]}>
+          <ringGeometry args={[0.82, 1.25, 64]} />
+          <meshBasicMaterial
+            color="#f43f5e" // Rose-500
+            transparent
+            opacity={0.5}
+            side={THREE.DoubleSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+
+        {/* Flat Accretion Disk Ring Mesh */}
+        <mesh ref={diskMeshRef} rotation={[Math.PI / 2.15, 0.05, 0]}>
+          <ringGeometry args={[0.95, 3.5, 64]} />
+          <meshBasicMaterial
+            color="#ea580c" // Orange-600
+            transparent
+            opacity={0.3}
+            side={THREE.DoubleSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+
+        {/* Accretion Disk gaseous particles */}
+        <points ref={diskRef} rotation={[Math.PI / 2.15, 0.05, 0]}>
           <bufferGeometry>
             <bufferAttribute
               attach="attributes-position"
@@ -353,7 +432,8 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
             />
           </bufferGeometry>
           <pointsMaterial
-            size={0.038}
+            size={0.16} // Large size + soft texture creates a continuous hot gas cloud
+            map={particleTexture}
             vertexColors
             transparent
             opacity={0.9}
@@ -363,7 +443,7 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
           />
         </points>
 
-        {/* Floating meteor group */}
+        {/* Ceinture de Météores */}
         {meteorsData.map((met, index) => (
           <mesh
             key={`meteor-${index}`}
@@ -373,16 +453,16 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
           >
             <dodecahedronGeometry args={[met.scale, 0]} />
             <meshBasicMaterial
-              color="#4b5563" // Slate grey rocks
+              color="#4b5563"
               transparent
-              opacity={0.7}
-              wireframe={Math.random() < 0.25} // some rocks are wireframes
+              opacity={0.75}
+              wireframe={Math.random() < 0.2}
             />
           </mesh>
         ))}
       </group>
 
-      {/* ================= PHASE 2 : SUPERNOVA ================= */}
+      {/* ================= PHASE 2 : SUPERNOVA GAS CLOUD ================= */}
       <points ref={supernovaRef} position={[0, 0, 0]}>
         <bufferGeometry>
           <bufferAttribute
@@ -395,7 +475,8 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.045}
+          size={0.35} // Large size with soft radial map creates continuous gas cloud merging
+          map={particleTexture}
           vertexColors
           transparent
           opacity={0}
@@ -405,15 +486,16 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
         />
       </points>
 
-      {/* ================= PHASE 3 : TERRE CYBERNETIQUE ================= */}
+      {/* ================= PHASE 3 : TERRE CYBERNETIQUE DOT-MATRIX ================= */}
       <group ref={earthGroupRef} position={[0, -0.4, 0]}>
-        {/* Core sphere with dynamic canvas texture */}
+        
+        {/* Core sphere with high-end dot matrix cyber texture */}
         <mesh ref={earthMeshRef} castShadow receiveShadow>
           <sphereGeometry args={[1.35, 64, 64]} />
           <meshStandardMaterial
             map={cyberEarthTexture}
             roughness={0.4}
-            metalness={0.7}
+            metalness={0.65}
             transparent
             opacity={0}
           />
@@ -431,14 +513,16 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
           />
         </mesh>
 
-        {/* Technical Orbit rings around the earth */}
+        {/* Technical Data Ring 1 */}
         <mesh rotation={[Math.PI / 4, Math.PI / 6, 0]}>
-          <torusGeometry args={[2.0, 0.006, 8, 100]} />
-          <meshBasicMaterial color="#6366f1" transparent opacity={0.15} />
+          <torusGeometry args={[1.95, 0.008, 8, 100]} />
+          <meshBasicMaterial color="#6366f1" transparent opacity={0.22} />
         </mesh>
+        
+        {/* Technical Data Ring 2 */}
         <mesh rotation={[-Math.PI / 3, Math.PI / 4, 0]}>
-          <torusGeometry args={[2.3, 0.004, 8, 100]} />
-          <meshBasicMaterial color="#10b981" transparent opacity={0.12} />
+          <torusGeometry args={[2.25, 0.005, 8, 100]} />
+          <meshBasicMaterial color="#10b981" transparent opacity={0.18} />
         </mesh>
       </group>
     </>
@@ -453,14 +537,12 @@ export function SpaceCanvas() {
     setIsClient(true);
     
     const handleScroll = () => {
-      // Calculate scroll progress percentage [0.0, 1.0]
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       if (totalHeight > 0) {
         setScrollProgress(window.scrollY / totalHeight);
       }
     };
     
-    // Initial run
     handleScroll();
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -482,10 +564,10 @@ export function SpaceCanvas() {
         gl={{ antialias: true, alpha: true }}
         className="w-full h-full opacity-70"
       >
-        <ambientLight intensity={0.6} />
+        <ambientLight intensity={0.65} />
         {/* Neon lighting to bring the textures alive */}
-        <directionalLight position={[5, 3, 5]} intensity={2.0} color="#2dd4bf" />
-        <pointLight position={[-5, -3, 4]} intensity={1.5} color="#8b5cf6" />
+        <directionalLight position={[6, 3, 6]} intensity={2.2} color="#2dd4bf" />
+        <pointLight position={[-6, -3, 4]} intensity={1.8} color="#8b5cf6" />
         
         <Suspense fallback={null}>
           <CosmicScene scrollProgress={scrollProgress} />

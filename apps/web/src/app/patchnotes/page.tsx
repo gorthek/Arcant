@@ -15,6 +15,30 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.3.0",
+      date: "11 Juillet 2026",
+      title: "Rendu 3D Cosmique Premium & Black Hole Gargantua",
+      type: "Mise à jour d'Interface",
+      color: "from-purple-500 via-pink-500 to-orange-400",
+      border: "border-purple-500/50",
+      bgHover: "hover:bg-purple-950/20",
+      icon: <Sparkles className="text-purple-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Trou Noir Interstellar (Gargantua)",
+          detail: "Refonte géométrique du Trou Noir avec l'ajout de deux anneaux de distorsion gravitationnelle verticaux (lumière courbée par la gravité), un disque d'accrétion dense de 1200 particules en rotation rapide et une singularité noire pure.",
+          files: ["apps/web/src/components/landing/SpaceCanvas.tsx"]
+        },
+        {
+          type: "feature",
+          text: "Explosion Gazeuse Supernova & Globe Dot-Matrix",
+          detail: "Remplacement des confettis par un nuage gazeux brûlant de 3500 points avec texture radiale adoucie. Refonte de la Terre en un globe technologique matriciel (dot-matrix) avec radars pulsants sur les continents et anneaux d'orbits d'informations.",
+          files: ["apps/web/src/components/landing/SpaceCanvas.tsx"]
+        }
+      ]
+    },
+    {
       version: "v2.2.9",
       date: "11 Juillet 2026",
       title: "Voyage Cosmique Interactif 3D au Défilement",
