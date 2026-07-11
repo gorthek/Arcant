@@ -15,6 +15,30 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v2.2.8",
+      date: "11 Juillet 2026",
+      title: "Refonte Galactique 3D (Qui Sommes-Nous)",
+      type: "Mise à jour d'Interface",
+      color: "from-purple-400 to-indigo-400",
+      border: "border-purple-500/50",
+      bgHover: "hover:bg-purple-900/20",
+      icon: <Sparkles className="text-purple-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Fond Spatial 3D (SpaceCanvas)",
+          detail: "Intégration d'une galaxie spirale interactive de 3 500 particules en arrière-plan. Elle pivote selon la souris (parallaxe 3D) et descend de manière fluide en Y au fur et à mesure du défilement de la page (scroll-parallax).",
+          files: ["apps/web/src/components/landing/SpaceCanvas.tsx"]
+        },
+        {
+          type: "improvement",
+          text: "Refonte Sémantique & Graphique Cosmique",
+          detail: "Transformation complète de la page de présentation d'un univers démoniaque vers un thème stellaire. Remplacement des flammes et du volcan par des anneaux d'orbitation et des étincelles, glassmorphism de zinc-950, et réécriture spatiale des descriptions.",
+          files: ["apps/web/src/app/about/page.tsx"]
+        }
+      ]
+    },
+    {
       version: "v2.2.7",
       date: "11 Juillet 2026",
       title: "Effets Visuels 3D Interactifs (React Three Fiber)",
