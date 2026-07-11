@@ -4,6 +4,19 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { Navbar } from "./Navbar";
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+const InteractiveScene = dynamic(
+  () => import("./InteractiveScene").then((mod) => mod.InteractiveScene),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full flex items-center justify-center text-teal-500/40 font-medium">
+        Chargement de l'expérience 3D...
+      </div>
+    ),
+  }
+);
 
 export function Hero() {
   const [mounted, setMounted] = useState(false);
@@ -80,7 +93,7 @@ export function Hero() {
       <Navbar />
 
       <main 
-        className="relative pt-40 pb-20 flex flex-col items-center justify-center min-h-[90vh] text-center px-6 z-10"
+        className="relative pt-36 pb-20 flex items-center justify-center min-h-[95vh] px-6 z-10"
       >
         {/* Glow effect Breathing */}
         <motion.div 
@@ -89,79 +102,87 @@ export function Hero() {
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[800px] h-[600px] md:h-[800px] bg-teal-600/15 rounded-full blur-[150px] pointer-events-none" 
         />
 
-        <div className="flex flex-col items-center justify-center relative z-10 w-full">
-          <motion.div
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 1200 }}
-            className="flex flex-col items-center justify-center relative z-20"
-          >
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+          
+          {/* Colonne Gauche : Contenu Texte et Actions */}
+          <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left relative z-20 w-full">
+            <motion.div
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 1200 }}
+              className="flex flex-col items-center lg:items-start relative z-20 w-full"
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ duration: 1, type: "spring", bounce: 0.5 }}
+                className="mb-8"
+              >
+                <Sparkles className="w-12 h-12 text-teal-400 animate-pulse" />
+              </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ duration: 1, type: "spring", bounce: 0.5 }}
-          className="mb-8"
-        >
-          <Sparkles className="w-12 h-12 text-teal-400 animate-pulse" />
-        </motion.div>
+              <motion.h1 
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut", type: "spring", stiffness: 50 }}
+                className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight"
+              >
+                L'expérience Discord Ultime, <br className="hidden md:block" />
+                propulsée par <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400 relative inline-block">
+                  Custom AI
+                  <motion.div 
+                    className="absolute -bottom-2 left-0 w-full h-[4px] bg-teal-400 rounded-full"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ delay: 1, duration: 0.8 }}
+                  />
+                </span>
+              </motion.h1>
 
-        <motion.h1 
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut", type: "spring", stiffness: 50 }}
-          className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 max-w-5xl leading-tight"
-        >
-          L'expérience Discord Ultime, <br className="hidden md:block" />
-          propulsée par <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400 relative inline-block">
-            Custom AI
+              <motion.p 
+                initial={{ opacity: 0, filter: "blur(10px)" }}
+                animate={{ opacity: 1, filter: "blur(0px)" }}
+                transition={{ duration: 1, delay: 0.3 }}
+                className="text-lg md:text-xl text-gray-400 max-w-2xl mb-12 w-full"
+              >
+                Gérez vos serveurs, génerez des communautés de A à Z avec notre IA, et protégez vos membres avec nos outils de sécurité avancés.
+              </motion.p>
+            </motion.div>
+
             <motion.div 
-              className="absolute -bottom-2 left-0 w-full h-[4px] bg-teal-400 rounded-full"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 1, duration: 0.8 }}
-            />
-          </span>
-        </motion.h1>
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="flex flex-col sm:flex-row gap-6 w-full justify-center lg:justify-start"
+            >
+              <motion.a 
+                href="https://discord.com/oauth2/authorize?client_id=1521523509589704714&permissions=8&integration_type=0&scope=bot+applications.commands"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="group relative px-8 py-4 rounded-full bg-gradient-to-r from-teal-500 to-emerald-600 font-bold text-lg overflow-hidden shadow-[0_0_40px_rgba(20,184,166,0.3)] block text-center"
+              >
+                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out skew-x-12" />
+                <span className="relative z-10 flex items-center justify-center gap-2">Ajouter à Discord</span>
+              </motion.a>
 
-        <motion.p 
-          initial={{ opacity: 0, filter: "blur(10px)" }}
-          animate={{ opacity: 1, filter: "blur(0px)" }}
-          transition={{ duration: 1, delay: 0.3 }}
-          className="text-lg md:text-xl text-gray-400 max-w-2xl mb-12"
-        >
-          Gérez vos serveurs, générez des communautés de A à Z avec notre IA, et protégez vos membres avec nos outils de sécurité avancés.
-        </motion.p>
-        </motion.div>
+              <motion.a 
+                href="/dashboard"
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 rounded-full bg-white/5 border border-white/10 font-bold text-lg backdrop-blur-md transition-all flex items-center justify-center"
+              >
+                Voir le Dashboard
+              </motion.a>
+            </motion.div>
+          </div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="flex flex-col sm:flex-row gap-6"
-        >
-          <motion.a 
-            href="https://discord.com/oauth2/authorize?client_id=1521523509589704714&permissions=8&integration_type=0&scope=bot+applications.commands"
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="group relative px-8 py-4 rounded-full bg-gradient-to-r from-teal-500 to-emerald-600 font-bold text-lg overflow-hidden shadow-[0_0_40px_rgba(20,184,166,0.3)] block text-center"
-          >
-            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out skew-x-12" />
-            <span className="relative z-10 flex items-center justify-center gap-2">Ajouter à Discord</span>
-          </motion.a>
-
-          <motion.a 
-            href="/dashboard"
-            whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 rounded-full bg-white/5 border border-white/10 font-bold text-lg backdrop-blur-md transition-all flex items-center justify-center"
-          >
-            Voir le Dashboard
-          </motion.a>
-        </motion.div>
-        
+          {/* Colonne Droite : Scène 3D Interactive */}
+          <div className="lg:col-span-5 h-[380px] sm:h-[450px] lg:h-[500px] w-full relative z-20 flex justify-center items-center">
+            <InteractiveScene />
+          </div>
+          
         </div>
       </main>
 

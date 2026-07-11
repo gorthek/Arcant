@@ -12,7 +12,8 @@ import {
   X, 
   Palette, 
   ChevronDown, 
-  ShieldAlert 
+  ShieldAlert,
+  MessageSquare
 } from 'lucide-react';
 
 interface Role {
@@ -22,7 +23,7 @@ interface Role {
 
 interface Channel {
   name: string;
-  type: 'text' | 'voice';
+  type: 'text' | 'voice' | 'forum';
 }
 
 interface Category {
@@ -123,9 +124,9 @@ export default function ServerVisualEditor({
     setStructure(newStructure);
   };
 
-  const addChannel = (catIndex: number, type: 'text' | 'voice') => {
+  const addChannel = (catIndex: number, type: 'text' | 'voice' | 'forum') => {
     const newStructure = { ...structure };
-    const prefix = type === 'text' ? '💬-' : '🔊 ';
+    const prefix = type === 'text' ? '💬-' : type === 'forum' ? '📢-' : '🔊 ';
     newStructure.categories[catIndex].channels.push({
       name: `${prefix}salon-${newStructure.categories[catIndex].channels.length + 1}`,
       type
@@ -320,6 +321,13 @@ export default function ServerVisualEditor({
                         <Hash className="w-3.5 h-3.5" />
                       </button>
                       <button 
+                        onClick={() => addChannel(cIdx, 'forum')}
+                        className="p-1 hover:text-teal-400 text-zinc-500 hover:bg-zinc-800 rounded transition"
+                        title="Ajouter un forum"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                      </button>
+                      <button 
                         onClick={() => addChannel(cIdx, 'voice')}
                         className="p-1 hover:text-teal-400 text-zinc-500 hover:bg-zinc-800 rounded transition"
                         title="Ajouter un salon vocal"
@@ -350,6 +358,8 @@ export default function ServerVisualEditor({
                           <div className="flex items-center gap-2 flex-1">
                             {chan.type === 'voice' ? (
                               <Volume2 className="w-4 h-4 text-zinc-500 flex-shrink-0" />
+                            ) : chan.type === 'forum' ? (
+                              <MessageSquare className="w-4 h-4 text-zinc-500 flex-shrink-0" />
                             ) : (
                               <Hash className="w-4 h-4 text-zinc-500 flex-shrink-0" />
                             )}

@@ -177,18 +177,32 @@ Génère une architecture riche avec des règles de sécurité logiques.`;
                 else if (chanDef.type === 'forum') chanType = ChannelType.GuildForum;
 
                 let channel = channelsList.find(c => c && c.name.toLowerCase() === chanDef.name.toLowerCase() && c.parentId === category?.id);
-                
-                if (!channel) {
-                  await guild.channels.create({
-                    name: chanDef.name,
-                    type: chanType,
-                    parent: category.id,
-                    permissionOverwrites: chanOverwrites,
-                    reason: 'Création via Arcant IA',
-                  });
+                                if (!channel) {
+                  try {
+                    await guild.channels.create({
+                      name: chanDef.name,
+                      type: chanType,
+                      parent: category.id,
+                      permissionOverwrites: chanOverwrites,
+                      reason: 'Création via Arcant IA',
+                    });
+                  } catch (err) {
+                    console.warn(`[ServerGenerator] Échec de la création du salon ${chanDef.name} de type ${chanDef.type}. Tentative de repli en salon textuel standard...`, err);
+                    if (chanType === ChannelType.GuildForum) {
+                      await guild.channels.create({
+                        name: chanDef.name,
+                        type: ChannelType.GuildText,
+                        parent: category.id,
+                        permissionOverwrites: chanOverwrites,
+                        reason: 'Repli salon textuel (Manque de feature Community)',
+                      }).catch(e => console.error(`[ServerGenerator] Échec repli textuel:`, e));
+                    }
+                  }
                   await this.sleep(300);
                 } else {
-                  await channel.edit({ permissionOverwrites: chanOverwrites });
+                  await channel.edit({ permissionOverwrites: chanOverwrites }).catch(e => {
+                    console.warn(`[ServerGenerator] Impossible de mettre à jour les permissions du salon ${chanDef.name}:`, e);
+                  });
                 }
               }
             }

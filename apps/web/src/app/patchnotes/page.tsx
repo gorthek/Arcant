@@ -16,25 +16,25 @@ export default function PatchnotesPage() {
   const webPatches = [
     {
       version: "v2.2.7",
-      date: "09 Juillet 2026",
-      title: "Résolution des conflits de Cache & Sync Discord",
-      type: "Correctif de performance",
+      date: "11 Juillet 2026",
+      title: "Effets Visuels 3D Interactifs (React Three Fiber)",
+      type: "Mise à jour d'Interface",
       color: "from-teal-400 to-emerald-400",
       border: "border-teal-500/50",
       bgHover: "hover:bg-teal-900/20",
       icon: <Sparkles className="text-teal-400" size={24} />,
       changes: [
         {
-          type: "improvement",
-          text: "Lecture en temps réel via l'API REST Discord",
-          detail: "Remplacement de l'utilisation du cache local discord.js (qui pouvait être partiel ou obsolète au démarrage) par un appel direct à guild.channels.fetch() pour récupérer et purger 100% des salons sans aucun résidu.",
-          files: ["apps/bot/src/utils/ServerGenerator.ts"]
+          type: "feature",
+          text: "Noyau 3D Interactif (Three.js)",
+          detail: "Intégration d'une scène 3D dynamique dans l'en-tête de la page d'accueil avec un noyau morphologique (MeshDistortionMaterial), des anneaux rotatifs et des étincelles de particules réagissant en temps réel à l'orientation du pointeur de la souris.",
+          files: ["apps/web/src/components/landing/InteractiveScene.tsx"]
         },
         {
           type: "improvement",
-          text: "Élimination des doublons de salons",
-          detail: "L'IA utilise désormais la liste complète et actualisée des salons réels du serveur pour faire correspondre les catégories existantes et éviter les duplications lors des ré-applications partielles.",
-          files: ["apps/bot/src/utils/ServerGenerator.ts"]
+          text: "Mise en page Hero Responsive & Dynamic Import",
+          detail: "Refonte du layout Hero en grille à deux colonnes pour positionner le texte d'un côté et la scène 3D de l'autre. Chargement asynchrone sans SSR côté serveur pour éliminer tout avertissement d'hydratation côté client.",
+          files: ["apps/web/src/components/landing/Hero.tsx"]
         }
       ]
     },
@@ -360,8 +360,8 @@ export default function PatchnotesPage() {
       bgHover: "hover:bg-teal-900/20",
       icon: <Sparkles className="text-teal-400" size={24} />,
       changes: [
-        { 
-          type: "feature", 
+        {
+          type: "feature",
           text: "Console Suprême CEO : Accès global en base de données pour le Bot Owner.",
           detail: "Permet au Bot Owner d'accéder à l'ensemble de la base de données via une console de contournement automatique par ID Discord.",
           files: ["apps/web/src/app/dashboard/admin-global/page.tsx"],
@@ -379,8 +379,8 @@ export default function PatchnotesPage() {
       bgHover: "hover:bg-teal-900/20",
       icon: <Bot className="text-teal-400" size={24} />,
       changes: [
-        { 
-          type: "feature", 
+        {
+          type: "feature",
           text: "Refonte du générateur de bots en Agent Copilot IA.",
           detail: "L'utilisateur discute directement avec l'IA dans un chat interactif pour configurer ses modules et ses prompts.",
           files: ["apps/web/src/components/dashboard/roles/OwnerDashboard.tsx"]
@@ -397,8 +397,8 @@ export default function PatchnotesPage() {
       bgHover: "hover:bg-teal-900/20",
       icon: <CheckCircle2 className="text-teal-400" size={24} />,
       changes: [
-        { 
-          type: "feature", 
+        {
+          type: "feature",
           text: "Déploiement de la page de Paramètres du Profil Utilisateur (/settings).",
           detail: "Création de la page des paramètres de profil contenant les préférences utilisateur, les clés API, et la facturation.",
           files: ["apps/web/src/app/settings/page.tsx"]
@@ -415,8 +415,8 @@ export default function PatchnotesPage() {
       bgHover: "hover:bg-purple-900/20",
       icon: <Settings2 className="text-purple-400" size={24} />,
       changes: [
-        { 
-          type: "feature", 
+        {
+          type: "feature",
           text: "Déploiement complet du Dashboard Utilisateur.",
           detail: "Une interface complète pour gérer les modules, les configurations, et visualiser les statistiques en temps réel.",
           files: ["apps/web/src/app/dashboard/page.tsx"]
@@ -433,8 +433,8 @@ export default function PatchnotesPage() {
       bgHover: "hover:bg-purple-900/20",
       icon: <Sparkles className="text-purple-400" size={24} />,
       changes: [
-        { 
-          type: "feature", 
+        {
+          type: "feature",
           text: "Refonte totale du système de paiement : fusion Boutique.",
           detail: "Abonnements récurrents et crédits d'IA unifiés dans une interface e-commerce moderne.",
           files: ["apps/web/src/app/pricing/page.tsx"]
@@ -451,8 +451,8 @@ export default function PatchnotesPage() {
       bgHover: "hover:bg-orange-900/20",
       icon: <Rocket className="text-orange-400" size={24} />,
       changes: [
-        { 
-          type: "feature", 
+        {
+          type: "feature",
           text: "Création de la landing page avec effets 3D.",
           detail: "Déploiement de l'interface d'accueil principale avec effets d'étoiles, néons et cartes d'achats.",
           files: ["apps/web/src/app/page.tsx"]
@@ -620,13 +620,13 @@ export default function PatchnotesPage() {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
       <StardustBackground />
       <Navbar />
-      
+
       <main className="relative pt-32 pb-20 z-10 max-w-5xl mx-auto px-6">
-        
+
         {/* En-tête */}
         <div className="text-center mb-10 relative">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-teal-600/15 rounded-full blur-[150px] pointer-events-none" />
-          
+
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -634,8 +634,8 @@ export default function PatchnotesPage() {
           >
             <AlertCircle size={18} className="animate-pulse" /> Changelog Officiel
           </motion.div>
-          
-          <motion.h1 
+
+          <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, type: "spring" }}
@@ -649,21 +649,19 @@ export default function PatchnotesPage() {
         <div className="flex justify-center gap-4 mb-8">
           <button
             onClick={() => { setActiveTab("web"); setSearchQuery(""); }}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border ${
-              activeTab === "web"
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border ${activeTab === "web"
                 ? "bg-teal-500 text-black border-teal-400 shadow-[0_0_20px_rgba(20,184,166,0.4)]"
                 : "bg-zinc-950/80 border-white/5 text-gray-400 hover:text-white"
-            }`}
+              }`}
           >
             <Globe size={14} /> Site Web
           </button>
           <button
             onClick={() => { setActiveTab("bot"); setSearchQuery(""); }}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border ${
-              activeTab === "bot"
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border ${activeTab === "bot"
                 ? "bg-teal-500 text-black border-teal-400 shadow-[0_0_20px_rgba(20,184,166,0.4)]"
                 : "bg-zinc-950/80 border-white/5 text-gray-400 hover:text-white"
-            }`}
+              }`}
           >
             <Bot size={14} /> Bot Discord
           </button>
@@ -674,7 +672,7 @@ export default function PatchnotesPage() {
           <div className="absolute -inset-1 bg-gradient-to-r from-teal-500 to-indigo-500 rounded-2xl blur-md opacity-25 group-hover:opacity-100 transition duration-1000" />
           <div className="relative flex items-center bg-zinc-950/80 border border-white/10 rounded-2xl px-4 py-3.5 shadow-2xl">
             <Search className="text-teal-400 mr-3" size={20} />
-            <input 
+            <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -682,7 +680,7 @@ export default function PatchnotesPage() {
               className="w-full bg-transparent border-none text-white outline-none placeholder:text-gray-600 text-sm font-semibold"
             />
             {searchQuery && (
-              <button 
+              <button
                 onClick={() => setSearchQuery("")}
                 className="text-gray-400 hover:text-white p-1"
               >
@@ -690,7 +688,7 @@ export default function PatchnotesPage() {
               </button>
             )}
           </div>
-          
+
           {/* Quick Shortcuts */}
           <div className="flex flex-wrap gap-2 justify-center mt-4">
             <span className="text-xs text-gray-500 font-bold self-center">Accès Rapide :</span>
@@ -698,11 +696,10 @@ export default function PatchnotesPage() {
               <button
                 key={v}
                 onClick={() => setSearchQuery(v)}
-                className={`px-3 py-1 rounded-full text-[10px] font-black border transition-all ${
-                  searchQuery === v 
-                    ? "bg-teal-500 text-black border-teal-400 shadow-[0_0_10px_rgba(20,184,166,0.5)]" 
+                className={`px-3 py-1 rounded-full text-[10px] font-black border transition-all ${searchQuery === v
+                    ? "bg-teal-500 text-black border-teal-400 shadow-[0_0_10px_rgba(20,184,166,0.5)]"
                     : "bg-white/5 border-white/10 text-gray-400 hover:text-white hover:border-white/20"
-                }`}
+                  }`}
               >
                 v{v}
               </button>
@@ -711,25 +708,25 @@ export default function PatchnotesPage() {
         </div>
 
         {/* Section Explicative */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="bg-gradient-to-br from-zinc-900/80 to-black border border-zinc-800/80 backdrop-blur-xl rounded-3xl p-8 md:p-10 mb-20 relative overflow-hidden group shadow-2xl"
         >
           <div className="absolute -inset-2 bg-gradient-to-r from-teal-500/0 via-teal-500/10 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 blur-xl pointer-events-none" />
-          
+
           <div className="flex flex-col md:flex-row gap-8 items-center relative z-10">
             <div className="w-20 h-20 bg-teal-500/10 rounded-2xl border border-teal-500/30 flex items-center justify-center shrink-0">
               <Info className="w-10 h-10 text-teal-400" />
             </div>
-            
+
             <div>
               <h2 className="text-2xl font-black text-white mb-3">
                 Historique {activeTab === "web" ? "Site Web" : "Bot Discord"} ({filteredPatches.length} versions affichées)
               </h2>
               <p className="text-gray-400 leading-relaxed text-sm">
-                Découvrez toutes les étapes de l'évolution d'Arcant. 
+                Découvrez toutes les étapes de l'évolution d'Arcant.
                 Cliquez sur n'importe quelle version pour ouvrir sa fiche détaillée. Cliquez sur **chaque modification individuelle** pour voir le code source !
               </p>
             </div>
@@ -749,17 +746,16 @@ export default function PatchnotesPage() {
             <div className="space-y-12">
               {filteredPatches.map((patch, index) => {
                 const isEven = index % 2 === 0;
-                
+
                 return (
-                  <motion.div 
+                  <motion.div
                     key={patch.version}
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-                    className={`relative flex flex-col md:flex-row items-center justify-between w-full gap-8 md:gap-16 ${
-                      isEven ? "md:flex-row-reverse" : ""
-                    }`}
+                    className={`relative flex flex-col md:flex-row items-center justify-between w-full gap-8 md:gap-16 ${isEven ? "md:flex-row-reverse" : ""
+                      }`}
                   >
                     {/* Connecteur Point */}
                     <div className="absolute left-8 md:left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-black border-4 border-zinc-900 flex items-center justify-center z-20 shadow-[0_0_30px_rgba(0,0,0,1)]">
@@ -771,12 +767,12 @@ export default function PatchnotesPage() {
 
                     {/* Contenu */}
                     <div className={`w-full md:w-1/2 pl-24 md:pl-0 ${isEven ? "md:pr-16" : "md:pl-16"}`}>
-                      <div 
+                      <div
                         onClick={() => setSelectedPatch(patch)}
                         className={`group relative bg-zinc-950/50 border border-white/5 backdrop-blur-xl rounded-[2rem] p-8 ${patch.bgHover} transition-all duration-500 hover:border-teal-500/30 hover:scale-[1.02] cursor-pointer overflow-hidden shadow-xl`}
                       >
                         <div className={`absolute top-0 ${isEven ? 'right-0' : 'left-0'} w-32 h-32 bg-gradient-to-br ${patch.color} opacity-0 group-hover:opacity-10 blur-3xl transition-opacity duration-700`} />
-                        
+
                         <div className="flex flex-col gap-2 mb-6">
                           <div className="flex flex-wrap items-center gap-3">
                             <h2 className={`text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r ${patch.color}`}>
@@ -795,8 +791,8 @@ export default function PatchnotesPage() {
                         {/* Affiche les patchnotes pour cette version */}
                         <div className="space-y-3 relative z-10">
                           {patch.changes.map((change, i) => (
-                            <div 
-                              key={i} 
+                            <div
+                              key={i}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setSelectedChange(change);
@@ -810,7 +806,7 @@ export default function PatchnotesPage() {
                             </div>
                           ))}
                         </div>
-                        
+
                         <div className={`h-1 w-full mt-6 rounded-full bg-gradient-to-r ${patch.color} opacity-20 group-hover:opacity-100 transition-opacity duration-500`} />
                       </div>
                     </div>
@@ -828,14 +824,14 @@ export default function PatchnotesPage() {
       {/* POPUP / MODAL INTERACTIF CHANGELOG PREVIEW */}
       <AnimatePresence>
         {selectedPatch && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4"
             onClick={() => setSelectedPatch(null)}
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 30 }}
@@ -845,7 +841,7 @@ export default function PatchnotesPage() {
             >
               <div className={`absolute -top-24 -right-24 w-80 h-80 bg-gradient-to-br ${selectedPatch.color} opacity-10 rounded-full blur-[100px] pointer-events-none`} />
 
-              <button 
+              <button
                 onClick={() => setSelectedPatch(null)}
                 className="absolute top-6 right-6 w-8 h-8 rounded-full bg-white/5 border border-white/10 hover:border-white/20 text-gray-400 hover:text-white flex items-center justify-center transition-colors"
               >
@@ -869,8 +865,8 @@ export default function PatchnotesPage() {
 
               <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2 scrollbar-thin">
                 {selectedPatch.changes.map((change: any, i: number) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     onClick={() => setSelectedChange(change)}
                     className="flex items-start gap-4 p-4 rounded-2xl bg-zinc-900/30 border border-white/5 hover:border-teal-500/30 hover:bg-teal-500/5 transition-all cursor-help"
                   >
@@ -891,7 +887,7 @@ export default function PatchnotesPage() {
               </div>
 
               <div className="mt-8 pt-6 border-t border-white/10 flex justify-end">
-                <button 
+                <button
                   onClick={() => setSelectedPatch(null)}
                   className={`px-6 py-3 rounded-xl bg-gradient-to-r ${selectedPatch.color} text-black font-black text-xs transition-transform hover:scale-105 active:scale-95 shadow-lg`}
                 >
@@ -906,14 +902,14 @@ export default function PatchnotesPage() {
       {/* POPUP / MODAL INTERACTIF DETAIL D'UN COMMENTAIRE / CODE PREVIEW */}
       <AnimatePresence>
         {selectedChange && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] flex items-center justify-center p-4"
             onClick={() => setSelectedChange(null)}
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 30 }}
@@ -923,7 +919,7 @@ export default function PatchnotesPage() {
             >
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-indigo-500 shadow-[0_0_15px_rgba(20,184,166,0.6)]" />
 
-              <button 
+              <button
                 onClick={() => setSelectedChange(null)}
                 className="absolute top-6 right-6 w-8 h-8 rounded-full bg-white/5 border border-white/10 hover:border-white/20 text-gray-400 hover:text-white flex items-center justify-center transition-colors"
               >
@@ -986,7 +982,7 @@ export default function PatchnotesPage() {
               </div>
 
               <div className="mt-6 pt-4 border-t border-white/10 flex justify-end">
-                <button 
+                <button
                   onClick={() => setSelectedChange(null)}
                   className="px-6 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-black font-black text-xs transition-colors"
                 >

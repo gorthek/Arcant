@@ -11,6 +11,8 @@
     "packages/*"
   ],
   "dependencies": {
-    "@vercel/speed-insights": "^2.0.0"
+    "@react-three/fiber": "^9.6.1",
+    "@vercel/speed-insights": "^2.0.0",
+    "three": "^0.185.1"
   }
 }
