@@ -32,43 +32,41 @@ def create_singularity_material():
     
     return mat
 
-def create_glow_material(name, emission_strength=2.5):
+def create_glow_material(name, emission_strength=3.0):
     mat = bpy.data.materials.new(name=name)
     mat.use_nodes = True
     nodes = mat.node_tree.nodes
     links = mat.node_tree.links
     nodes.clear()
     
-    # Principled BSDF
-    bsdf = nodes.new(type="ShaderNodeBsdfPrincipled")
-    bsdf.location = (0, 0)
-    bsdf.inputs['Roughness'].default_value = 0.2
+    # 1. Attribute Node (vertex colors)
+    node_attr = nodes.new(type="ShaderNodeAttribute")
+    node_attr.attribute_name = "Color"
+    node_attr.location = (-400, 0)
     
-    # Attribute Node to read vertex colors (RGBA)
-    attr = nodes.new(type="ShaderNodeAttribute")
-    attr.attribute_name = "Color"
-    attr.location = (-300, 0)
+    # 2. Emission Node (glow effect)
+    node_emission = nodes.new(type="ShaderNodeEmission")
+    node_emission.location = (-100, 100)
+    node_emission.inputs['Strength'].default_value = emission_strength
+    links.new(node_attr.outputs['Color'], node_emission.inputs['Color'])
     
-    # Output node
-    output = nodes.new(type="ShaderNodeOutputMaterial")
-    output.location = (300, 0)
+    # 3. Transparent BSDF Node (handles fading borders)
+    node_transparent = nodes.new(type="ShaderNodeBsdfTransparent")
+    node_transparent.location = (-100, -100)
     
-    # Connect color to base color
-    links.new(attr.outputs['Color'], bsdf.inputs['Base Color'])
+    # 4. Mix Shader Node (blends Transparent and Emission based on vertex Alpha)
+    node_mix = nodes.new(type="ShaderNodeMixShader")
+    node_mix.location = (150, 0)
+    links.new(node_attr.outputs['Alpha'], node_mix.inputs['Factor'])
+    links.new(node_transparent.outputs['BSDF'], node_mix.inputs[1])
+    links.new(node_emission.outputs['Emission'], node_mix.inputs[2])
     
-    # Connect color to emission and set emission strength
-    if 'Emission Color' in bsdf.inputs:  # Blender 4.0+
-        links.new(attr.outputs['Color'], bsdf.inputs['Emission Color'])
-        bsdf.inputs['Emission Strength'].default_value = emission_strength
-    elif 'Emission' in bsdf.inputs:      # Blender 3.x
-        links.new(attr.outputs['Color'], bsdf.inputs['Emission'])
-        bsdf.inputs['Emission Strength'].default_value = emission_strength
-        
-    # Connect alpha channel for transparency
-    links.new(attr.outputs['Alpha'], bsdf.inputs['Alpha'])
-    links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
+    # 5. Output Material Node
+    node_output = nodes.new(type="ShaderNodeOutputMaterial")
+    node_output.location = (350, 0)
+    links.new(node_mix.outputs['Shader'], node_output.inputs['Surface'])
     
-    # Enable viewport transparency
+    # Viewport transparency settings
     mat.blend_method = 'BLEND'
     mat.shadow_method = 'NONE'
     
@@ -169,17 +167,27 @@ def build_disk_mesh(name, r_min, r_max, n_r, n_theta, is_vertical=False, z_offse
     mesh.from_pydata(vertices, [], faces)
     mesh.update()
     
-    # Create and assign Vertex Color Layer
-    if not mesh.color_attributes:
-        color_layer = mesh.color_attributes.new(name="Color", type="FLOAT_COLOR", domain="CORNER")
-    else:
-        color_layer = mesh.color_attributes[0]
-        
-    # Write colors to corners
-    for poly in mesh.polygons:
-        for loop_idx in poly.loop_indices:
-            v_idx = mesh.loops[loop_idx].vertex_index
-            color_layer.data[loop_idx].color = vertex_colors[v_idx]
+    # Create and assign Vertex Color Layer with backward compatibility (pre-3.2 vs 3.2+)
+    color_layer = None
+    if hasattr(mesh, "color_attributes"):
+        # Blender 3.2+ API
+        if not mesh.color_attributes:
+            color_layer = mesh.color_attributes.new(name="Color", type="FLOAT_COLOR", domain="CORNER")
+        else:
+            color_layer = mesh.color_attributes[0]
+    elif hasattr(mesh, "vertex_colors"):
+        # Blender 2.8x - 3.1 legacy API
+        if not mesh.vertex_colors:
+            color_layer = mesh.vertex_colors.new(name="Color")
+        else:
+            color_layer = mesh.vertex_colors[0]
+            
+    # Write colors to corners if the layer was successfully created
+    if color_layer:
+        for poly in mesh.polygons:
+            for loop_idx in poly.loop_indices:
+                v_idx = mesh.loops[loop_idx].vertex_index
+                color_layer.data[loop_idx].color = vertex_colors[v_idx]
             
     # Apply smooth shading
     bpy.context.view_layer.objects.active = obj

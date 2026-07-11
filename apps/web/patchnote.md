@@ -13,6 +13,7 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 - **[Fallback de Sécurité Procedural]** Mise en place d'un système de secours intelligent : si le fichier `black_hole.glb` n'est pas présent dans le dossier public, le site affiche l'ancien modèle procédural sans générer d'erreurs en console.
 - **[Optimisation WebGL & Blending]** Post-traitement automatique des matériaux du modèle 3D lors du chargement : application d'un mélange additif (`AdditiveBlending`) et suppression de l'écriture en profondeur (`depthWrite = false`) pour éliminer le clipping de transparence et sublimer le rendu émissif du disque d'accrétion.
 - **[Dossier de Ressources 3D]** Création du dossier `/3d` à la racine contenant un script Python de génération procédurale pour Blender (`generate_black_hole.py`) et une documentation complète étape par étape (`README.md`).
+- **[Compatibilité Blender Étendue]** Correction du script Python de génération du trou noir pour supporter les versions antérieures de Blender (de 2.8x à 3.1) en gérant l'ancien système de couleurs de sommets et en proposant un graphe de shaders d'émission/transparence universel.
 
 ---
 
