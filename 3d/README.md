@@ -1,40 +1,51 @@
-# Trou Noir 3D - Génération & Importation dans Blender
+# Trou Noir 3D - Génération & Importation avec Blender (Scripts Séparés)
 
-Ce dossier contient le script nécessaire pour générer un trou noir 3D ultra-stylisé de type "Gargantua" pour l'arrière-plan interactif de l'application.
+Pour concevoir ce trou noir "Gargantua" ultra-stylisé avec toutes ses animations de rotation et distorsions de fluides, la génération a été découpée en **3 scripts séparés** à exécuter dans l'ordre. Cela permet de construire la scène élément par élément et d'éviter les conflits de nettoyage de scène.
 
-## Étape 1 : Ouvrir Blender et préparer la scène
-1. Lancez **Blender** (version 3.2 ou supérieure recommandée, compatible Blender 4.x).
-2. Créez un nouveau projet général.
+## Étape 1 : Ouvrir Blender
+1. Lancez **Blender** (compatible de Blender 2.8x jusqu'à 4.x+).
+2. Créez un nouveau projet général et placez-vous sur l'onglet **Scripting** dans la barre des menus en haut.
 
-## Étape 2 : Exécuter le script de génération
-1. Dans la barre supérieure des onglets de Blender, cliquez sur **Scripting** (tout à droite).
-2. Cliquez sur le bouton **+ New** (Nouveau) au centre de l'éditeur de texte pour créer un nouveau fichier de script.
-3. Ouvrez le fichier [generate_black_hole.py](file:///c:/Users/gorth/Desktop/DEV/BOT-Velthor/3d/generate_black_hole.py) de ce projet, copiez l'intégralité de son contenu, et collez-le dans l'éditeur de texte de Blender.
-4. Cliquez sur le bouton **Run Script** (l'icône de lecture ▶️) situé en haut à droite de l'éditeur de script pour exécuter le script.
-5. Une fois exécuté, le script nettoie la scène par défaut et génère instantanément :
-   * La **Singularité** (le centre noir).
-   * Le **Disque d'Accrétion Plat** (avec une topologie en spirale ondulée et un gradient de couleurs émissives + transparence).
-   * L'**Anneau de Lentille Arrière** (LensingRing_Back) et l'**Anneau de Lentille Avant** (LensingRing_Front) pour l'effet de distorsion lumineuse.
-   * L'**Animation** de rotation du disque d'accrétion.
+---
 
-## Étape 3 : Exporter le modèle au format GLTF (.glb)
+## Étape 2 : Lancer les scripts dans l'ordre
+
+### 1. La Singularité (Event Horizon)
+Ce script nettoie la scène par défaut et crée la sphère centrale noire absolue.
+1. Dans l'éditeur de texte de l'onglet Scripting, cliquez sur **+ New** (Nouveau).
+2. Ouvrez le fichier [01_create_singularity.py](file:///c:/Users/gorth/Desktop/DEV/BOT-Velthor/3d/01_create_singularity.py), copiez son contenu, collez-le dans Blender et cliquez sur **Run Script** (le bouton de lecture ▶️).
+
+### 2. Le Disque d'Accrétion Fluide Animé
+Ce script génère le disque d'accrétion horizontal en spirale, déformé par une fonction d'ondes de fluides superposées, avec son gradient émissif thermique (vertex colors) et son animation de rotation loopable de 120 frames.
+1. Créez un nouveau bloc de texte dans l'éditeur Blender (cliquez sur l'icône de document ou le bouton New).
+2. Ouvrez le fichier [02_create_accretion_disk.py](file:///c:/Users/gorth/Desktop/DEV/BOT-Velthor/3d/02_create_accretion_disk.py), copiez son contenu, collez-le dans Blender et cliquez sur **Run Script** ▶️.
+
+### 3. Les Anneaux de Lentille Gravitationnelle Animés
+Ce script génère les anneaux de lumière déformés verticaux (Back et Front) qui ceinturent la singularité pour simuler la déflexion gravitationnelle. Ils intègrent une distorsion spatiale courbe (warp) et des animations de rotation lentes dans des sens opposés pour créer du contraste.
+1. Créez un troisième bloc de texte dans Blender.
+2. Ouvrez le fichier [03_create_lensing_rings.py](file:///c:/Users/gorth/Desktop/DEV/BOT-Velthor/3d/03_create_lensing_rings.py), copiez son contenu, collez-le dans Blender et cliquez sur **Run Script** ▶️.
+
+---
+
+## Étape 3 : Aperçu & Rendu (Optionnel mais recommandé)
+Dans le viewport de Blender, pour voir la transparence et le glow de votre trou noir :
+1. Appuyez sur la touche `Z` dans la vue 3D et sélectionnez **Material Preview** ou **Rendered** (au lieu de *Solid*).
+2. Appuyez sur la barre d'espace (ou cliquez sur Play dans la timeline de Blender) pour regarder le disque d'accrétion et les anneaux de lentille tourner en continu !
+
+---
+
+## Étape 4 : Exporter le modèle au format GLTF (.glb)
 1. Sélectionnez tous les objets générés dans la scène (appuyez sur la touche `A` dans le viewport 3D).
-2. Allez dans le menu supérieur : **File** -> **Export** -> **glTF 2.0 (.glb/.gltf)**.
-3. Dans les options d'exportation sur le panneau de droite :
-   * **Format** : Choisissez **glTF Binary (.glb)**.
-   * **Include** : Cochez **Selected Objects** (Objets sélectionnés).
-   * **Geometry** : Laissez les options par défaut (notamment *Apply Modifiers*).
-   * **Animation** : Cochez **Animation** (pour inclure l'animation de rotation).
+2. Allez dans le menu : **File** -> **Export** -> **glTF 2.0 (.glb/.gltf)**.
+3. Dans le panneau d'options d'exportation de droite, vérifiez ces réglages :
+   - **Format** : `glTF Binary (.glb)`.
+   - **Include** : Cochez **Selected Objects** (Objets sélectionnés).
+   - **Animation** : Cochez **Animation** (pour intégrer la rotation continue de 120 frames du disque et des anneaux).
 4. Nommez le fichier `black_hole.glb` et exportez-le.
 
-## Étape 4 : Déplacer le modèle dans l'application Web
-1. Créez un dossier nommé `models` dans le répertoire public du site s'il n'existe pas : `apps/web/public/models/`.
-2. Déplacez le fichier `black_hole.glb` que vous venez d'exporter dans ce dossier :
-   `apps/web/public/models/black_hole.glb`
+---
 
-## Étape 5 : Lancer le projet et admirer !
-Démarrez le serveur de développement :
-```bash
-npm run dev
-```
-Rendez-vous sur la page `/about` de votre navigateur. L'application détectera automatiquement la présence du fichier `black_hole.glb` et chargera votre magnifique trou noir 3D animé ! Si le fichier est manquant ou en cours de transfert, le système de secours (fallback) continuera de s'afficher sans casser l'expérience utilisateur.
+## Étape 5 : Intégration Web automatique
+1. Copiez/Déplacez le fichier `black_hole.glb` exporté dans le dossier du projet :
+   `apps/web/public/models/black_hole.glb`
+2. Lancez le serveur web local (`npm run dev`) et rendez-vous sur `/about`. Le site chargera instantanément le modèle 3D animé !
