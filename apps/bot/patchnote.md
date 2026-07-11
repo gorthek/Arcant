@@ -5,6 +5,14 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.6.7
+*Dernière modification : 11 Juillet 2026*
+
+### 🤖 Ressources & Intégration
+- **[Alignement Asset 3D]** Synchronisation et publication des scripts de génération 3D pour la refonte du site web. Création du dossier partagé de ressources 3D.
+
+---
+
 ## 🔴 Version 1.6.6
 *Dernière modification : 09 Juillet 2026*
 

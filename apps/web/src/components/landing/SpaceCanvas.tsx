@@ -30,6 +30,82 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
 
   const mouse = useRef({ x: 0, y: 0 });
 
+  // 3D Model state and animation mixer
+  const [glbModel, setGlbModel] = useState<any>(null);
+  const [glbError, setGlbError] = useState(false);
+  const mixerRef = useRef<THREE.AnimationMixer | null>(null);
+
+  // Load custom 3D model asynchronously with dynamic import of GLTFLoader to avoid SSR/bundler issues
+  useEffect(() => {
+    import("three/examples/jsm/loaders/GLTFLoader.js")
+      .then(({ GLTFLoader }) => {
+        const loader = new GLTFLoader();
+        loader.load(
+          "/models/black_hole.glb",
+          (gltf) => {
+            setGlbModel(gltf);
+            // Setup animation mixer if animations exist
+            if (gltf.animations && gltf.animations.length > 0) {
+              const mixer = new THREE.AnimationMixer(gltf.scene);
+              gltf.animations.forEach((clip) => {
+                mixer.clipAction(clip).play();
+              });
+              mixerRef.current = mixer;
+            }
+          },
+          undefined,
+          (error) => {
+            console.warn(
+              "Custom 3D black hole model not found or failed to load. Falling back to procedural rendering.",
+              error
+            );
+            setGlbError(true);
+          }
+        );
+      })
+      .catch((err) => {
+        console.error("Failed to load GLTFLoader dynamic import:", err);
+        setGlbError(true);
+      });
+
+    return () => {
+      if (mixerRef.current) {
+        mixerRef.current.stopAllAction();
+      }
+    };
+  }, []);
+
+  // Post-process loaded GLTF materials to ensure optimal WebGL glow and additive blending
+  useEffect(() => {
+    if (glbModel) {
+      glbModel.scene.traverse((child: any) => {
+        if (child.isMesh) {
+          // Identify meshes from our Blender generator script
+          if (child.name === "Singularity") {
+            // Event horizon is pure black
+            child.material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+          } else if (
+            child.name.includes("AccretionDisk") || 
+            child.name.includes("LensingRing")
+          ) {
+            if (child.material) {
+              // Enable transparency and additive blending to make it blend beautifully
+              child.material.transparent = true;
+              child.material.blending = THREE.AdditiveBlending;
+              child.material.depthWrite = false;
+              child.material.vertexColors = true;
+              
+              // Boost emission intensity if supported by the material
+              if ('emissiveIntensity' in child.material) {
+                child.material.emissiveIntensity = 3.0;
+              }
+            }
+          }
+        }
+      });
+    }
+  }, [glbModel]);
+
   // Handle mouse movements for gentle parallax
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
@@ -237,6 +313,11 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
   }, []);
 
   useFrame((state, delta) => {
+    // Update Blender animation mixer if available
+    if (mixerRef.current) {
+      mixerRef.current.update(delta);
+    }
+
     // A. Smooth mouse parallax
     state.camera.position.x = THREE.MathUtils.lerp(
       state.camera.position.x,
@@ -377,71 +458,77 @@ function CosmicScene({ scrollProgress }: { scrollProgress: number }) {
       {/* ================= PHASE 1 : TROU NOIR (GARGANTUA STYLE) ================= */}
       <group ref={blackHoleGroupRef} position={[0, 0.35, 0]}>
         
-        {/* Central Singularity Void */}
-        <mesh castShadow receiveShadow>
-          <sphereGeometry args={[0.8, 32, 32]} />
-          <meshBasicMaterial color="#000000" />
-        </mesh>
+        {glbModel ? (
+          <primitive object={glbModel.scene} />
+        ) : (
+          <>
+            {/* Central Singularity Void */}
+            <mesh castShadow receiveShadow>
+              <sphereGeometry args={[0.8, 32, 32]} />
+              <meshBasicMaterial color="#000000" />
+            </mesh>
 
-        {/* Vertical Lensing Ring - Back (deflected background light) */}
-        <mesh ref={rearLensingRef} position={[0, 0, -0.08]}>
-          <ringGeometry args={[0.82, 1.45, 64]} />
-          <meshBasicMaterial
-            color="#f97316" // Orange-500
-            transparent
-            opacity={0.65}
-            side={THREE.DoubleSide}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
+            {/* Vertical Lensing Ring - Back (deflected background light) */}
+            <mesh ref={rearLensingRef} position={[0, 0, -0.08]}>
+              <ringGeometry args={[0.82, 1.45, 64]} />
+              <meshBasicMaterial
+                color="#f97316" // Orange-500
+                transparent
+                opacity={0.65}
+                side={THREE.DoubleSide}
+                blending={THREE.AdditiveBlending}
+              />
+            </mesh>
 
-        {/* Vertical Lensing Ring - Front (deflected foreground light) */}
-        <mesh ref={frontLensingRef} position={[0, 0, 0.08]} rotation={[0.12, 0, 0]}>
-          <ringGeometry args={[0.82, 1.25, 64]} />
-          <meshBasicMaterial
-            color="#f43f5e" // Rose-500
-            transparent
-            opacity={0.5}
-            side={THREE.DoubleSide}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
+            {/* Vertical Lensing Ring - Front (deflected foreground light) */}
+            <mesh ref={frontLensingRef} position={[0, 0, 0.08]} rotation={[0.12, 0, 0]}>
+              <ringGeometry args={[0.82, 1.25, 64]} />
+              <meshBasicMaterial
+                color="#f43f5e" // Rose-500
+                transparent
+                opacity={0.5}
+                side={THREE.DoubleSide}
+                blending={THREE.AdditiveBlending}
+              />
+            </mesh>
 
-        {/* Flat Accretion Disk Ring Mesh */}
-        <mesh ref={diskMeshRef} rotation={[Math.PI / 2.15, 0.05, 0]}>
-          <ringGeometry args={[0.95, 3.5, 64]} />
-          <meshBasicMaterial
-            color="#ea580c" // Orange-600
-            transparent
-            opacity={0.3}
-            side={THREE.DoubleSide}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
+            {/* Flat Accretion Disk Ring Mesh */}
+            <mesh ref={diskMeshRef} rotation={[Math.PI / 2.15, 0.05, 0]}>
+              <ringGeometry args={[0.95, 3.5, 64]} />
+              <meshBasicMaterial
+                color="#ea580c" // Orange-600
+                transparent
+                opacity={0.3}
+                side={THREE.DoubleSide}
+                blending={THREE.AdditiveBlending}
+              />
+            </mesh>
 
-        {/* Accretion Disk gaseous particles */}
-        <points ref={diskRef} rotation={[Math.PI / 2.15, 0.05, 0]}>
-          <bufferGeometry>
-            <bufferAttribute
-              attach="attributes-position"
-              args={[diskPositions, 3]}
-            />
-            <bufferAttribute
-              attach="attributes-color"
-              args={[diskColors, 3]}
-            />
-          </bufferGeometry>
-          <pointsMaterial
-            size={0.16} // Large size + soft texture creates a continuous hot gas cloud
-            map={particleTexture}
-            vertexColors
-            transparent
-            opacity={0.9}
-            sizeAttenuation
-            depthWrite={false}
-            blending={THREE.AdditiveBlending}
-          />
-        </points>
+            {/* Accretion Disk gaseous particles */}
+            <points ref={diskRef} rotation={[Math.PI / 2.15, 0.05, 0]}>
+              <bufferGeometry>
+                <bufferAttribute
+                  attach="attributes-position"
+                  args={[diskPositions, 3]}
+                />
+                <bufferAttribute
+                  attach="attributes-color"
+                  args={[diskColors, 3]}
+                />
+              </bufferGeometry>
+              <pointsMaterial
+                size={0.16} // Large size + soft texture creates a continuous hot gas cloud
+                map={particleTexture}
+                vertexColors
+                transparent
+                opacity={0.9}
+                sizeAttenuation
+                depthWrite={false}
+                blending={THREE.AdditiveBlending}
+              />
+            </points>
+          </>
+        )}
 
         {/* Ceinture de Météores */}
         {meteorsData.map((met, index) => (

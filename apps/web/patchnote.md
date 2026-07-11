@@ -5,6 +5,17 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.7
+*Dernière modification : 11 Juillet 2026*
+
+### 🌐 Intégration du Trou Noir 3D Ultra-Stylisé & Rendu Blender
+- **[Support des Modèles GLTF 3D]** Ajout d'un chargeur dynamique asynchrone `GLTFLoader` pour importer des modèles 3D personnalisés dans le fond spatial interactif (`SpaceCanvas.tsx`) sans bloquer le rendu.
+- **[Fallback de Sécurité Procedural]** Mise en place d'un système de secours intelligent : si le fichier `black_hole.glb` n'est pas présent dans le dossier public, le site affiche l'ancien modèle procédural sans générer d'erreurs en console.
+- **[Optimisation WebGL & Blending]** Post-traitement automatique des matériaux du modèle 3D lors du chargement : application d'un mélange additif (`AdditiveBlending`) et suppression de l'écriture en profondeur (`depthWrite = false`) pour éliminer le clipping de transparence et sublimer le rendu émissif du disque d'accrétion.
+- **[Dossier de Ressources 3D]** Création du dossier `/3d` à la racine contenant un script Python de génération procédurale pour Blender (`generate_black_hole.py`) et une documentation complète étape par étape (`README.md`).
+
+---
+
 ## 🟢 Version 2.2.6
 *Dernière modification : 09 Juillet 2026*
 
