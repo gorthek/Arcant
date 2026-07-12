@@ -3,365 +3,320 @@
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { motion } from "framer-motion";
-import { 
-  Terminal as TerminalIcon, 
-  ShieldAlert, 
-  Play, 
-  Lock, 
-  Cpu, 
-  Layers, 
-  ChevronRight, 
-  AlertCircle,
-  User,
-  Eye,
-  RefreshCw
-} from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { Cpu, Lock, Play, User } from "lucide-react";
+
+interface Token {
+  text: string;
+  colorClass?: string;
+}
+
+const codeLines: Token[][] = [
+  [{ text: "// 🤖 ARCANT BOT ENGINE - CONCEPTION DYNAMIQUE ET SÉCURISÉE", colorClass: "text-emerald-500/80 italic font-medium" }],
+  [],
+  [
+    { text: "import", colorClass: "text-pink-500 font-bold" },
+    { text: " { Client, GatewayIntentBits } " },
+    { text: "from", colorClass: "text-pink-500 font-bold" },
+    { text: ' "discord.js";', colorClass: "text-yellow-300" }
+  ],
+  [
+    { text: "import", colorClass: "text-pink-500 font-bold" },
+    { text: " { BotManager } " },
+    { text: "from", colorClass: "text-pink-500 font-bold" },
+    { text: ' "./utils/BotManager";', colorClass: "text-yellow-300" }
+  ],
+  [],
+  [{ text: "/**", colorClass: "text-emerald-500/80 italic" }],
+  [{ text: " * 🛠️ COMMENT LE BOT EST FABRIQUÉ ET FONCTIONNE :", colorClass: "text-emerald-400 font-semibold italic" }],
+  [{ text: " *", colorClass: "text-emerald-500/80 italic" }],
+  [{ text: " * Arcant repose sur un principe d'isolation par sandbox cryptographique.", colorClass: "text-emerald-500/80 italic" }],
+  [{ text: " * Plutôt qu'un unique bot centralisé qui écoute tous les serveurs,", colorClass: "text-emerald-500/80 italic" }],
+  [{ text: " * nous instancions dynamiquement des clients Discord isolés pour chaque utilisateur.", colorClass: "text-emerald-500/80 italic" }],
+  [{ text: " */", colorClass: "text-emerald-500/80 italic" }],
+  [
+    { text: "export", colorClass: "text-pink-500 font-bold" },
+    { text: " " },
+    { text: "class", colorClass: "text-pink-500 font-bold" },
+    { text: " ArcantEngine {" }
+  ],
+  [
+    { text: "  private", colorClass: "text-pink-500" },
+    { text: " bots = " },
+    { text: "new", colorClass: "text-pink-500" },
+    { text: " " },
+    { text: "Map", colorClass: "text-teal-300" },
+    { text: "<" },
+    { text: "string", colorClass: "text-cyan-400" },
+    { text: ", " },
+    { text: "Client", colorClass: "text-teal-300" },
+    { text: ">();" }
+  ],
+  [],
+  [
+    { text: "  public", colorClass: "text-pink-500" },
+    { text: " " },
+    { text: "async", colorClass: "text-pink-500" },
+    { text: " spawnAgent(botId: " },
+    { text: "string", colorClass: "text-cyan-400" },
+    { text: ", token: " },
+    { text: "string", colorClass: "text-cyan-400" },
+    { text: ") {" }
+  ],
+  [
+    { text: "    if", colorClass: "text-pink-500" },
+    { text: " (" },
+    { text: "this", colorClass: "text-pink-500" },
+    { text: ".bots.has(botId)) " },
+    { text: "return", colorClass: "text-pink-500" },
+    { text: ";" }
+  ],
+  [],
+  [{ text: "    // 1. INSTANCIATION À CHAUD (RUNTIME SPAWNING)", colorClass: "text-emerald-500/80 italic" }],
+  [{ text: "    // Chaque bot possède son propre thread d'écoute d'événements.", colorClass: "text-emerald-500/80 italic" }],
+  [
+    { text: "    const", colorClass: "text-pink-500" },
+    { text: " client = " },
+    { text: "new", colorClass: "text-pink-500" },
+    { text: " " },
+    { text: "Client", colorClass: "text-teal-300" },
+    { text: "({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });" }
+  ],
+  [],
+  [{ text: "    // 2. EXCEPTION SHIELDING (ANTI-CRASH SYSTEM)", colorClass: "text-emerald-500/80 italic" }],
+  [
+    { text: "    client.on(" },
+    { text: '"messageCreate"', colorClass: "text-yellow-300" },
+    { text: ", " },
+    { text: "async", colorClass: "text-pink-500" },
+    { text: " (msg) => {" }
+  ],
+  [
+    { text: "      try", colorClass: "text-pink-500" },
+    { text: " {" }
+  ],
+  [{ text: "        if (msg.author.bot) return;" }],
+  [],
+  [{ text: "        // Routage IA Locale : Les messages sont analysés par le LLM.", colorClass: "text-emerald-500/80 italic" }],
+  [
+    { text: "        if", colorClass: "text-pink-500" },
+    { text: " (msg.mentions.has(client.user.id)) {" }
+  ],
+  [
+    { text: "          const", colorClass: "text-pink-500" },
+    { text: " reply = " },
+    { text: "await", colorClass: "text-pink-500" },
+    { text: " localAI.generateResponse(msg.content);" }
+  ],
+  [{ text: "          await msg.reply(reply);" }],
+  [{ text: "        }" }],
+  [
+    { text: "      } " },
+    { text: "catch", colorClass: "text-pink-500" },
+    { text: " (error) {" }
+  ],
+  [{ text: "        // Tout incident est intercepté pour empêcher la déconnexion globale", colorClass: "text-emerald-500/80 italic" }],
+  [
+    { text: "        console.error(" },
+    { text: '"[SAFEZONE] Intercepted crash:"', colorClass: "text-yellow-300" },
+    { text: ", error);" }
+  ],
+  [{ text: "      }" }],
+  [{ text: "    });" }],
+  [],
+  [{ text: "    // 3. SECURE CRYPTO-SANDBOXING (Token Vault AES-256-GCM)", colorClass: "text-emerald-500/80 italic" }],
+  [
+    { text: "    await", colorClass: "text-pink-500" },
+    { text: " client.login(token);" }
+  ],
+  [
+    { text: "    this", colorClass: "text-pink-500" },
+    { text: ".bots.set(botId, client);" }
+  ],
+  [{ text: "  }" }],
+  [{ text: "}" }]
+];
 
 export default function About() {
-  const [inputVal, setInputVal] = useState("");
-  const [history, setHistory] = useState<string[]>([
-    "ARCANT CYBER-CORE INTERPRETER v2.2.9",
-    "--------------------------------------------------",
-    "[STATUS]: Firewalls ACTIVE | Sandbox Encryption: AES-256-GCM | Protocol: SSL/TLS",
-    "[SYSTEM]: Entrée sécurisée. Les données sensibles sont masquées.",
-    "[SYSTEM]: Tapez 'help' ou cliquez sur les boutons ci-dessous pour déchiffrer.",
-    ""
-  ]);
-  const terminalEndRef = useRef<HTMLDivElement>(null);
-
-  // Auto scroll terminal on history update
-  useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [history]);
-
-  const handleCommand = (cmd: string) => {
-    const cleanedCmd = cmd.trim().toLowerCase();
-    let response: string[] = [];
-
-    if (cleanedCmd === "help") {
-      response = [
-        `> ${cmd}`,
-        "Instructions du terminal disponibles :",
-        "  help          - Affiche ce menu d'aide.",
-        "  team          - Affiche les profils sécurisés de Gorthek et Marvin (CEO).",
-        "  bot           - Révèle les spécifications et le fonctionnement du bot.",
-        "  diagnostics   - Exécute un scan de télémétrie des pare-feu et sandboxes.",
-        "  clear         - Réinitialise le buffer de l'écran du terminal."
-      ];
-    } else if (cleanedCmd === "team" || cleanedCmd === "cat team.yaml") {
-      response = [
-        `> ${cmd}`,
-        "[DECRYPTING CORE TEAM DATABASE... SUCCESS]",
-        "--------------------------------------------------",
-        "ceo_co_founder:",
-        "  name: \"Gorthek\"",
-        "  role: \"CEO & Lead Developer\"",
-        "  focus: \"Architecture Core, Spawner de Bots & Base de données\"",
-        "  bio: \"Passionné de sécurité et d'ingénierie backend réactive. Gorthek a conçu l'orchestration du BotManager d'Arcant et veille au cloisonnement strict de chaque client Discord.\"",
-        "",
-        "ceo_investor:",
-        "  name: \"Marvin\"",
-        "  role: \"CEO & Investisseur / Associé\"",
-        "  focus: \"Business Operations, Croissance Stratégique & Conformité SecOps\"",
-        "  bio: \"Pilier stratégique du projet. Marvin valide les standards de conformité et supervise l'expansion commerciale d'Arcant à travers les réseaux de serveurs Discord.\"",
-        "--------------------------------------------------"
-      ];
-    } else if (cleanedCmd === "bot" || cleanedCmd === "cat bot_specs.ts") {
-      response = [
-        `> ${cmd}`,
-        "[DECRYPTING BOT RUNTIME DATABASE... SUCCESS]",
-        "--------------------------------------------------",
-        "// 🛠️ ARCHITECTURE ET SÉCURITÉ DU BOT ARCANT",
-        "// Langages : TypeScript / Node.js | Librairie : discord.js",
-        "",
-        "1. DYNAMIC RUNTIME SPAWNING :",
-        "   Arcant n'exécute pas un seul processus lourd. Notre 'BotManager'",
-        "   instancie dynamiquement des clients Discord indépendants pour",
-        "   chaque serveur à chaud. Chaque bot est ainsi parfaitement autonome.",
-        "",
-        "2. EXCEPTION SHIELDING (ANTI-CRASH) :",
-        "   Tous les listeners et callbacks d'événements sont isolés dans des block",
-        "   try/catch sécurisés. Un dysfonctionnement sur un salon ou un serveur",
-        "   n'impacte jamais les autres instances en cours.",
-        "",
-        "3. CRYPTO-SANDBOXING :",
-        "   Les tokens d'accès clients sont chiffrés avec l'algorithme robuste",
-        "   AES-256-GCM au repos. Aucun jeton de connexion ne circule en clair.",
-        "--------------------------------------------------"
-      ];
-    } else if (cleanedCmd === "diagnostics" || cleanedCmd === "run diagnostics") {
-      response = [
-        `> ${cmd}`,
-        "[RUNNING TELEMETRY CHECKS...]",
-        "● Sandbox dynamic routes verification: OK",
-        "● AES-256-GCM Encryption key shake: OK",
-        "● Try/Catch wrapper exception catching: 100% RESPONSIVE",
-        "● Memory leaks: 0% detected | Threads: ISOLATED",
-        "[SUCCESS]: ALL SHIELDS OPERATIONAL. SYSTEM STABLE."
-      ];
-    } else if (cleanedCmd === "clear") {
-      setHistory([]);
-      return;
-    } else if (cleanedCmd === "") {
-      response = [">"];
-    } else {
-      response = [
-        `> ${cmd}`,
-        `bash: command not found: '${cmd}'. Tapez 'help' pour les commandes.`
-      ];
-    }
-
-    setHistory(prev => [...prev, ...response, ""]);
-  };
-
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleCommand(inputVal);
-    setInputVal("");
-  };
-
   return (
-    <div className="min-h-screen bg-[#02050c] text-white selection:bg-teal-500/30 font-sans flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#030408] text-white selection:bg-teal-500/30 font-sans flex flex-col relative overflow-x-hidden">
       
-      {/* Cyber Grid Background & Scanning lines */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* Subtle Cyber Grid */}
-        <div 
-          className="absolute inset-0 opacity-[0.06] bg-grid-pattern"
-          style={{
-            backgroundImage: "linear-gradient(rgba(20, 184, 166, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(20, 184, 166, 0.2) 1px, transparent 1px)",
-            backgroundSize: "40px 40px"
-          }}
-        />
-        {/* Neon Blur Blobs */}
-        <div className="absolute top-10 left-10 w-[400px] h-[400px] bg-teal-500/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[140px]" />
-        
-        {/* Scanlines Effect */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: "repeating-linear-gradient(0deg, #000, #000 1px, transparent 1px, transparent 2px)"
-          }}
-        />
+      {/* Premium Gradient Background & Lights */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-b from-[#080b16] via-[#04060b] to-[#020305]">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[20%] right-[-10%] w-[60%] h-[60%] bg-teal-500/5 rounded-full blur-[140px] pointer-events-none" />
       </div>
 
       <Navbar />
       
-      <main className="flex-grow relative pt-32 pb-20 z-10 w-full px-4 md:px-6">
+      <main className="flex-grow relative pt-36 pb-20 z-10 w-full px-4 md:px-6">
         
-        {/* Page Header */}
-        <div className="max-w-5xl mx-auto text-center mb-10 relative">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-950/40 border border-teal-500/30 text-teal-400 text-xs font-semibold tracking-widest uppercase mb-4 backdrop-blur-md font-mono"
-          >
-            <TerminalIcon size={12} className="animate-pulse" />
-            CONSOLE DE DECRYPTAGE ARCANT v2.2.9
-          </motion.div>
-
+        {/* Title Header */}
+        <div className="max-w-4xl mx-auto text-center mb-16 relative">
           <motion.h1 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-extrabold mb-4 font-mono text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-300 to-indigo-400 drop-shadow-[0_0_15px_rgba(20,184,166,0.3)] leading-tight uppercase tracking-tight"
+            className="text-4xl md:text-6xl font-black mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400"
           >
-            Qui sommes-nous ?
+            L'Équipage d'Arcant
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-sm md:text-base text-gray-400 max-w-2xl mx-auto font-normal"
+            transition={{ delay: 0.1 }}
+            className="text-gray-400 text-base md:text-lg leading-relaxed max-w-2xl mx-auto"
           >
-            Explorez notre terminal interactif ci-dessous pour découvrir le fonctionnement du bot, ou consultez nos fiches de dirigeants.
+            Derrière l'intelligence artificielle stellaire se cache une alliance humaine stratégique. Arcant a été fondé et est dirigé par Gorthek et Marvin pour apporter un niveau supérieur de sécurité et de réactivité à vos serveurs Discord.
           </motion.p>
         </div>
 
-        {/* Interactive CLI Terminal Section */}
-        <div className="max-w-4xl mx-auto mb-16">
+        {/* Founders Cards (Gorthek & Marvin) */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-24 relative z-10">
+          
+          {/* Gorthek Profile Card */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full bg-[#030914]/90 border border-teal-500/30 rounded-xl overflow-hidden backdrop-blur-xl shadow-[0_0_40px_rgba(20,184,166,0.1)] flex flex-col h-[480px]"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            whileHover={{ y: -4, borderColor: "rgba(20, 184, 166, 0.25)" }}
+            className="bg-[#0b0f19]/35 backdrop-blur-xl border border-white/5 p-8 rounded-3xl relative overflow-hidden group hover:bg-[#0b0f19]/50 transition-all duration-300"
           >
-            {/* Terminal Window Header */}
-            <div className="bg-[#071020] border-b border-teal-500/20 px-4 py-2.5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-red-500/75 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-yellow-500/75 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-green-500/75 inline-block" />
-                <span className="text-xs text-teal-400/70 font-mono ml-4">guest@arcant: ~</span>
-              </div>
-              <div className="flex items-center gap-3 text-xxs font-mono text-teal-400/80">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-ping" />
-                  SHIELD ACTIVE
-                </span>
-              </div>
-            </div>
-
-            {/* Terminal Buffer */}
-            <div className="flex-grow overflow-y-auto p-4 font-mono text-xs md:text-sm text-teal-400 space-y-1.5 leading-relaxed scrollbar-thin select-text bg-[#02060f]/60">
-              {history.map((line, index) => (
-                <div key={index} className="whitespace-pre-wrap break-words">
-                  {line}
-                </div>
-              ))}
-              <div ref={terminalEndRef} />
-            </div>
-
-            {/* Input Form */}
-            <form onSubmit={onSubmit} className="bg-[#050c18] border-t border-teal-500/20 p-2.5 flex items-center gap-2">
-              <span className="text-teal-500 font-mono text-sm pl-2 select-none">$</span>
-              <input
-                type="text"
-                value={inputVal}
-                onChange={(e) => setInputVal(e.target.value)}
-                placeholder="Tapez 'help', 'team', 'bot' ou 'diagnostics'..."
-                className="flex-grow bg-transparent border-none outline-none font-mono text-sm text-teal-300 placeholder-teal-700/60"
-                autoFocus
+            <div className="flex items-center gap-4 mb-6">
+              <img 
+                src="https://github.com/gorthek.png" 
+                alt="Gorthek" 
+                className="w-16 h-16 rounded-full object-cover border border-teal-500/20"
               />
-              <button 
-                type="submit"
-                className="px-4 py-1 bg-teal-950/60 border border-teal-500/30 hover:border-teal-400 text-teal-400 text-xs font-bold font-mono rounded transition-colors"
-              >
-                EXECUTE
-              </button>
-            </form>
+              <div>
+                <h3 className="text-xl font-bold text-white font-mono">Gorthek</h3>
+                <p className="text-teal-400 text-xs font-semibold uppercase tracking-widest font-mono">CEO & Lead Developer</p>
+              </div>
+            </div>
+            <p className="text-gray-400 text-sm leading-relaxed mb-6 font-normal">
+              Développeur backend et architecte système. Gorthek conçoit l'intégralité du système d'orchestration d'Arcant. C'est lui qui programme le BotManager pour le spawner de clients dynamiques et structure la base de données.
+            </p>
+            <div className="text-xxs font-mono text-gray-500 flex gap-2 flex-wrap">
+              <span className="px-2 py-0.5 rounded bg-white/5">#TypeScript</span>
+              <span className="px-2 py-0.5 rounded bg-white/5">#Node.js</span>
+              <span className="px-2 py-0.5 rounded bg-white/5">#discord.js</span>
+              <span className="px-2 py-0.5 rounded bg-white/5">#Security</span>
+            </div>
+          </motion.div>
 
-            {/* Quick Action Raccourcis Buttons */}
-            <div className="bg-[#030914] border-t border-teal-500/10 px-4 py-2 flex flex-wrap items-center gap-2 text-xxs font-mono text-gray-500 select-none">
-              <span className="mr-1">Accès rapide :</span>
-              <button 
-                onClick={() => handleCommand("help")}
-                className="px-2.5 py-0.5 border border-teal-500/20 hover:border-teal-500/60 text-teal-400/80 hover:text-teal-300 rounded bg-teal-950/20 transition-colors"
-              >
-                help
-              </button>
-              <button 
-                onClick={() => handleCommand("team")}
-                className="px-2.5 py-0.5 border border-teal-500/20 hover:border-teal-500/60 text-teal-400/80 hover:text-teal-300 rounded bg-teal-950/20 transition-colors"
-              >
-                team
-              </button>
-              <button 
-                onClick={() => handleCommand("bot")}
-                className="px-2.5 py-0.5 border border-teal-500/20 hover:border-teal-500/60 text-teal-400/80 hover:text-teal-300 rounded bg-teal-950/20 transition-colors"
-              >
-                bot specs
-              </button>
-              <button 
-                onClick={() => handleCommand("diagnostics")}
-                className="px-2.5 py-0.5 border border-teal-500/20 hover:border-teal-500/60 text-teal-400/80 hover:text-teal-300 rounded bg-teal-950/20 transition-colors"
-              >
-                diagnostics
-              </button>
-              <button 
-                onClick={() => handleCommand("clear")}
-                className="px-2.5 py-0.5 border border-red-500/20 hover:border-red-500/60 text-red-400/80 hover:text-red-400 rounded bg-red-950/10 transition-colors"
-              >
-                clear
-              </button>
+          {/* Marvin Profile Card */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            whileHover={{ y: -4, borderColor: "rgba(99, 102, 241, 0.25)" }}
+            className="bg-[#0b0f19]/35 backdrop-blur-xl border border-white/5 p-8 rounded-3xl relative overflow-hidden group hover:bg-[#0b0f19]/50 transition-all duration-300"
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <img 
+                src="/team/c9d88444f43843446209d94cb7779e89.png" 
+                alt="Marvin" 
+                className="w-16 h-16 rounded-full object-cover border border-indigo-500/20"
+                onError={(e) => { 
+                  (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1618331835717-801e976710b2?q=80&w=1000&auto=format&fit=crop"; 
+                }}
+              />
+              <div>
+                <h3 className="text-xl font-bold text-white font-mono">Marvin</h3>
+                <p className="text-indigo-400 text-xs font-semibold uppercase tracking-widest font-mono">CEO & Investisseur</p>
+              </div>
+            </div>
+            <p className="text-gray-400 text-sm leading-relaxed mb-6 font-normal">
+              Pilote stratégique et financier du projet. Marvin supervise l'expansion commerciale d'Arcant, gère les investissements structurels et valide la conformité réglementaire SecOps pour assurer un service irréprochable.
+            </p>
+            <div className="text-xxs font-mono text-gray-500 flex gap-2 flex-wrap">
+              <span className="px-2 py-0.5 rounded bg-white/5">#BusinessOps</span>
+              <span className="px-2 py-0.5 rounded bg-white/5">#Strategic</span>
+              <span className="px-2 py-0.5 rounded bg-white/5">#Compliance</span>
+              <span className="px-2 py-0.5 rounded bg-white/5">#Finance</span>
+            </div>
+          </motion.div>
+
+        </div>
+
+        {/* Bot Architecture Code Window */}
+        <div className="max-w-4xl mx-auto mb-20 relative z-10">
+          <div className="text-center mb-8">
+            <h2 className="text-xl md:text-2xl font-bold text-white font-mono uppercase tracking-wider flex items-center justify-center gap-2">
+              <Cpu className="text-teal-400 animate-pulse" size={20} />
+              CONCEPTION & ARCHITECTURE DU BOT
+            </h2>
+            <p className="text-gray-400 text-xs mt-2 max-w-lg mx-auto">
+              La fenêtre d'éditeur de code ci-dessous décrit comment nos processus d'isolation et de sandboxing garantissent la cybersécurité.
+            </p>
+          </div>
+
+          {/* Code Window Container */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-[#05070d]/80 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-md shadow-2xl"
+          >
+            {/* Header tab */}
+            <div className="bg-[#0a0d17]/90 px-4 py-3 flex items-center justify-between border-b border-white/5 select-none">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-red-500/60 inline-block" />
+                <span className="w-3 h-3 rounded-full bg-yellow-500/60 inline-block" />
+                <span className="w-3 h-3 rounded-full bg-green-500/60 inline-block" />
+                <span className="text-xs text-gray-400 font-mono ml-4">src/core/bot_engine.ts</span>
+              </div>
+              <div className="text-xxs font-mono text-teal-400/80 bg-teal-950/20 border border-teal-500/10 px-2 py-0.5 rounded">
+                TS - TypeScript
+              </div>
+            </div>
+            
+            {/* Syntax Highlighted Code Viewer */}
+            <div className="p-6 font-mono text-xs md:text-sm leading-relaxed overflow-x-auto text-gray-300 scrollbar-thin select-text bg-[#020409]/60">
+              <table className="w-full border-collapse">
+                <tbody>
+                  {codeLines.map((line, lineIndex) => (
+                    <tr key={lineIndex} className="hover:bg-white/5 transition-colors">
+                      <td className="w-8 text-right pr-4 text-gray-600 select-none text-xs border-r border-white/5 align-top py-0.5">
+                        {lineIndex + 1}
+                      </td>
+                      <td className="pl-4 align-top py-0.5 whitespace-pre">
+                        {line.length === 0 ? (
+                          <span>&nbsp;</span>
+                        ) : (
+                          line.map((token, tokenIndex) => (
+                            <span 
+                              key={tokenIndex} 
+                              className={token.colorClass || "text-gray-300"}
+                            >
+                              {token.text}
+                            </span>
+                          ))
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </motion.div>
         </div>
 
-        {/* Presenting The Leaders (CEO) Underneath */}
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold font-mono text-white tracking-tight uppercase flex items-center justify-center gap-2">
-              <User className="text-teal-400" size={24} />
-              Les Dirigeants d'Arcant
-            </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-teal-500 to-indigo-500 mx-auto mt-2.5 rounded-full" />
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 justify-center">
-            
-            {/* Gorthek Profile Card */}
-            <motion.div
-              whileHover={{ y: -6, borderColor: "rgba(20, 184, 166, 0.6)" }}
-              className="bg-[#030815]/80 border border-teal-500/20 rounded-2xl overflow-hidden shadow-lg transition-all group flex flex-col"
-            >
-              <div className="h-48 bg-zinc-950 relative overflow-hidden flex items-center justify-center border-b border-teal-500/10">
-                <div className="absolute inset-0 bg-gradient-to-t from-[#030815] via-transparent to-transparent z-10" />
-                <img 
-                  src="https://github.com/gorthek.png" 
-                  alt="Gorthek"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-90 saturate-50 hover:saturate-100" 
-                />
-                <div className="absolute bottom-4 left-6 z-20">
-                  <span className="px-3 py-1 bg-teal-950/80 border border-teal-500/30 rounded text-teal-400 text-xxs font-mono uppercase tracking-widest font-bold">
-                    CEO & Lead Developer
-                  </span>
-                </div>
-              </div>
-              <div className="p-6 flex-grow flex flex-col justify-between">
-                <div>
-                  <h3 className="text-xl font-bold font-mono text-white mb-1">Gorthek</h3>
-                  <p className="text-teal-400 font-mono text-xs mb-4">Ingénierie & Sécurité des Systèmes</p>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                    Développeur backend et expert en programmation système. Il orchestre l'architecture d'Arcant, gère le mécanisme d'instanciation des bots ainsi que la sécurité cryptographique des bases de données.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Marvin Profile Card */}
-            <motion.div
-              whileHover={{ y: -6, borderColor: "rgba(99, 102, 241, 0.6)" }}
-              className="bg-[#030815]/80 border border-teal-500/20 rounded-2xl overflow-hidden shadow-lg transition-all group flex flex-col"
-            >
-              <div className="h-48 bg-zinc-950 relative overflow-hidden flex items-center justify-center border-b border-teal-500/10">
-                <div className="absolute inset-0 bg-gradient-to-t from-[#030815] via-transparent to-transparent z-10" />
-                <img 
-                  src="/team/c9d88444f43843446209d94cb7779e89.png" 
-                  alt="Marvin"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-90 saturate-50 hover:saturate-100" 
-                  onError={(e) => { 
-                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1618331835717-801e976710b2?q=80&w=1000&auto=format&fit=crop"; 
-                  }}
-                />
-                <div className="absolute bottom-4 left-6 z-20">
-                  <span className="px-3 py-1 bg-indigo-950/80 border border-indigo-500/30 rounded text-indigo-400 text-xxs font-mono uppercase tracking-widest font-bold">
-                    CEO & Associé
-                  </span>
-                </div>
-              </div>
-              <div className="p-6 flex-grow flex flex-col justify-between">
-                <div>
-                  <h3 className="text-xl font-bold font-mono text-white mb-1">Marvin</h3>
-                  <p className="text-indigo-400 font-mono text-xs mb-4">Opérations Strategiques & Finance</p>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                    Dirigeant et pilier stratégique d'Arcant. Marvin supervise la viabilité économique, oriente la feuille de route du projet, gère les investissements et veille à la conformité réglementaire de nos solutions.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-
-          </div>
-        </div>
-
-        {/* CTA Call to Action */}
-        <div className="max-w-4xl mx-auto mt-20 relative z-20">
+        {/* CTA Section */}
+        <div className="max-w-4xl mx-auto relative z-10">
           <motion.div 
             whileHover={{ scale: 1.01 }}
-            className="text-center bg-[#030914]/60 border border-teal-500/20 p-10 rounded-2xl relative overflow-hidden group shadow-[0_0_30px_rgba(20,184,166,0.02)]"
+            className="text-center bg-[#0b0f19]/35 border border-white/5 p-12 rounded-3xl backdrop-blur-xl"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-teal-500/0 via-teal-500/5 to-teal-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-            
             <Lock className="w-10 h-10 text-teal-400/60 mx-auto mb-4 animate-pulse" />
             
-            <h2 className="text-xl md:text-2xl font-bold text-white mb-3 font-mono uppercase tracking-tight relative z-10">DÉPLOYER ARCANT SUR VOTRE SERVEUR</h2>
-            <p className="text-gray-400 mb-8 max-w-lg mx-auto text-sm relative z-10 font-normal">
+            <h2 className="text-xl md:text-2xl font-bold text-white mb-3 font-mono uppercase tracking-tight">DÉPLOYER ARCANT SUR VOTRE SERVEUR</h2>
+            <p className="text-gray-400 mb-8 max-w-md mx-auto text-sm">
               Connectez notre module d'intelligence artificielle stellaire et configurez vos modules de protection en toute simplicité.
             </p>
             <a 
               href="https://discord.com/oauth2/authorize?client_id=1521523509589704714"
               target="_blank"
               rel="noopener noreferrer"
-              className="relative z-10 inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-black font-bold py-3 px-8 rounded-full transition-all hover:shadow-[0_0_25px_rgba(20,184,166,0.5)] hover:scale-105 uppercase tracking-wider text-xs font-mono"
+              className="relative z-10 inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-black font-bold py-3 px-8 rounded-full transition-all hover:shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:scale-105 uppercase tracking-wider text-xs font-mono"
             >
               <Play size={12} className="fill-black" />
               Lancer l'Installation

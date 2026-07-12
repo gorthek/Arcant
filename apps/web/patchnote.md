@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.10
+*Dernière modification : 12 Juillet 2026*
+
+### 🌐 Version Épurée & Textes Visibles (Qui Sommes-Nous)
+- **[Design Épuré de l'Arrière-plan]** Remplacement de la grille géométrique et des scanlines CRT par un dégradé de couleurs fluide noir/indigo profond, incluant de discrets halos de lumière diffuse à faible opacité pour une atmosphère moderne et sobre (style Stripe/Linear).
+- **[Lisibilité Immédiate des Profils]** Présentation en clair dès le chargement de la page de l'histoire, des rôles et biographies des dirigeants (Gorthek & Marvin). Les biographies et les informations d'Arcant ne sont plus masquées derrière des commandes de terminal.
+- **[Éditeur de Code Statique Premium]** Intégration d'un éditeur de code statique affichant le fichier `bot_engine.ts` entièrement colorisé pour expliquer de manière technique et structurée le fonctionnement du bot (dynamic spawner, anti-crash try/catch et sandbox AES-256-GCM).
+
+---
+
 ## 🟢 Version 2.2.9
 *Dernière modification : 12 Juillet 2026*
 
