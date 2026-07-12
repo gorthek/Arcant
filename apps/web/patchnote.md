@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.11
+*Dernière modification : 12 Juillet 2026*
+
+### 🌐 Rapprochement & Unification Thématique Code (Qui Sommes-Nous)
+- **[Console de Code Unifiée]** Fusion de toutes les informations (Origine d'Arcant, biographies détaillées de Gorthek et Marvin, et spécifications d'architecture du bot) au sein d'une seule et unique grande fenêtre de code simulée (`qui_sommes_nous.ts`).
+- **[Suppression des Éléments Multiples]** Suppression des fiches biographiques séparées sous l'éditeur de code, rendant la lecture 100% cohérente avec le style code demandé.
+- **[Coloration Syntaxique Avancée]** Rendu soigné de chaque ligne de code avec des colorations TypeScript fidèles et lisibles directement dès le chargement de la page.
+
+---
+
 ## 🟢 Version 2.2.10
 *Dernière modification : 12 Juillet 2026*
 
