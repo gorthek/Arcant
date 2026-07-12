@@ -5,6 +5,17 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.15
+*Dernière modification : 12 Juillet 2026*
+
+### 🌐 Éditeur de Code Interactif Complet (Qui Sommes-Nous)
+- **[Système d'Onglets Clés]** Implémentation de 3 onglets cliquables pour naviguer dans l'éditeur : `qui_sommes_nous.ts` (manifeste projet/équipe), `bot_spawner.ts` (mécanisme de démarrage try-catch), et `security_vault.json` (chiffrement/isolation).
+- **[Simulateur de Terminal Réactif]** Ajout d'un bouton `RUN SCRIPT` déclenchant une simulation de déploiement en direct dans une console bash réactive au bas de l'éditeur (avec logs d'initialisation, décryptage AES, instanciation et confirmation de connexion).
+- **[Effet Spotlight Curseur]** Intégration d'un halo de lumière diffuse radiale qui suit en temps réel le curseur de la souris pour créer un éclairage dynamique du fond sombre.
+- **[Intégration Constellation]** Activation de l'animation de constellation magnétique améliorée comme arrière-plan par défaut de la page.
+
+---
+
 ## 🟢 Version 2.2.14
 *Dernière modification : 12 Juillet 2026*
 
