@@ -5,6 +5,20 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.13
+*Dernière modification : 12 Juillet 2026*
+
+### 🌐 Paragraphe Descriptif & Routes de Test d'Animations (Qui Sommes-Nous)
+- **[Texte Descriptif d'Arcant]** Ajout d'un paragraphe complet et immersif décrivant le projet Arcant (intelligence artificielle locale, automatisation, modération, et sécurité de bout en bout) juste au-dessus de la console de code virtuelle.
+- **[4 Routes de Test pour Animations]** Création de 4 routes de test distinctes et isolées pour visualiser les animations en situation réelle :
+  - `/about/test-a` : Grille Perspective Néon (Option A)
+  - `/about/test-b` : Constellation de Données (Option B)
+  - `/about/test-c` : Pluie de Code Binaire (Option C)
+  - `/about/test-d` : Ondes Sinusoïdales (Option D)
+- **[Architecture Modulaire]** Les composants d'arrière-plan animés ont été créés séparément dans le répertoire `src/components/animations` pour être facilement interchangeables.
+
+---
+
 ## 🟢 Version 2.2.12
 *Dernière modification : 12 Juillet 2026*
 

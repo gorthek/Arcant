@@ -68,15 +68,17 @@ const codeLines: Token[][] = [
   [{ text: "};", colorClass: "text-gray-400" }]
 ];
 
-export default function About() {
+export default function About({ background }: { background?: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#030408] text-white selection:bg-teal-500/30 font-sans flex flex-col relative overflow-x-hidden">
       
       {/* Premium Gradient Background & Lights */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-b from-[#080b16] via-[#04060b] to-[#020305]">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[20%] right-[-10%] w-[60%] h-[60%] bg-teal-500/5 rounded-full blur-[140px] pointer-events-none" />
-      </div>
+      {background || (
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-b from-[#080b16] via-[#04060b] to-[#020305]">
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-[20%] right-[-10%] w-[60%] h-[60%] bg-teal-500/5 rounded-full blur-[140px] pointer-events-none" />
+        </div>
+      )}
 
       <Navbar />
       
@@ -95,9 +97,17 @@ export default function About() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-gray-400 text-sm md:text-base leading-relaxed max-w-2xl mx-auto"
+            className="text-teal-400 font-mono text-xs uppercase tracking-widest mb-6"
           >
             Découvrez notre projet et notre équipe sous forme de code épuré ci-dessous.
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="text-gray-400 text-sm md:text-base leading-relaxed max-w-3xl mx-auto mb-10 border-l border-teal-500/30 pl-4 py-1 text-left font-sans"
+          >
+            Arcant est un écosystème d'intelligence artificielle locale de pointe conçu pour automatiser, animer et sécuriser vos serveurs Discord de bout en bout. En combinant des agents conversationnels intelligents basés sur des LLM autonomes et une infrastructure hermétique, Arcant centralise la gestion de vos membres, fluidifie les interactions et assure une surveillance continue tout en garantissant la confidentialité absolue de vos jetons de sécurité.
           </motion.p>
         </div>
 
