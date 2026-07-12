@@ -5,6 +5,17 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.9
+*Dernière modification : 12 Juillet 2026*
+
+### 🌐 Console de Décryptage & Grille Cybernétique (Qui Sommes-Nous)
+- **[Suppression Explorateur Workspace]** Suppression de la sidebar d'arborescence de fichiers fictive pour éliminer toute impression d'exposition de répertoires utilisateur.
+- **[Terminal CLI Interactif]** Remplacement par une console de commande en ligne (CLI) pleinement réactive où l'utilisateur peut taper des instructions réelles (`help`, `team`, `bot`, `diagnostics`, `clear`) ou utiliser des raccourcis d'actions rapides.
+- **[Ambiance Cybersécurité Avancée]** Remplacement du fond spatial 3D générique par une grille de sécurité néon, des halos de lumière réactifs et des lignes de balayage CRT (CRT scanlines) pour une immersion hacker maximale.
+- **[Présentation Dirigeants Rédigée]** Ajout de fiches de dirigeants holographiques valorisant Gorthek (CEO & Lead Dev) et Marvin (CEO & Partner) avec leurs rôles et attributions stratégiques réels.
+
+---
+
 ## 🟢 Version 2.2.8
 *Dernière modification : 12 Juillet 2026*
 
