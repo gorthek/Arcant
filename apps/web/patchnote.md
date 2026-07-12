@@ -5,6 +5,17 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.8
+*Dernière modification : 12 Juillet 2026*
+
+### 🌐 Refonte de la page "Qui Sommes-Nous" (Thème Cybersécurité & Code)
+- **[Simulateur IDE Virtuel]** Intégration d'un explorateur de code interactif avec sidebar d'arborescence de fichiers, onglets réactifs et zone de code colorée imitant un environnement de développement sécurisé.
+- **[Pédagogie Bot Spawner]** Explications complètes de l'architecture du Bot Spawner d'Arcant et du multi-clipping Discord sous forme de fichiers virtuels (`bot_engine.ts`, `sandbox_security.ts` et `architecture.json`).
+- **[Console de Diagnostic Interactif]** Ajout d'une console de logs de sécurité exécutant des diagnostics simulés en temps réel avec des animations fluides d'isolation de thread et de chiffrement.
+- **[Compatibilité Multi-écrans]** Optimisation du rendu et de l'ergonomie sur mobile avec défilement tactile horizontal des onglets.
+
+---
+
 ## 🟢 Version 2.2.7
 *Dernière modification : 11 Juillet 2026*
 
