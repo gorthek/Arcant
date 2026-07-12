@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.12
+*Dernière modification : 12 Juillet 2026*
+
+### 🌐 Décomplexification de la Fiche de Code (Qui Sommes-Nous)
+- **[Simplification de la Structure]** Remplacement du schéma TypeScript verbeux par un objet de configuration plat et simple.
+- **[Lisibilité Immédiate]** Allègement des biographies de Gorthek et Marvin pour aller à l'essentiel, facilitant la lecture en un coup d'œil.
+- **[Optimisation de la Mise en Page]** Suppression des lignes de code inutiles (imports complexes, interfaces) pour un rendu minimaliste et percutant.
+
+---
+
 ## 🟢 Version 2.2.11
 *Dernière modification : 12 Juillet 2026*
 
