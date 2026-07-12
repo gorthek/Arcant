@@ -5,6 +5,16 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.2.14
+*Dernière modification : 12 Juillet 2026*
+
+### 🌐 Amélioration Constellation Interactive (Qui Sommes-Nous)
+- **[Attraction Gravitationnelle]** Ajout d'une force d'attraction magnétique/gravitationnelle douce attirant les particules à proximité du curseur de la souris pour une interactivité organique supérieure.
+- **[Dégradés Multicolores]** Remplacement des lignes unicolores par des dégradés dynamiques oscillant entre le turquoise d'Arcant et l'indigo de la marque en fonction des connexions de nœuds.
+- **[Glow & Twinkle]** Ajout d'effets de scintillement (twinkle) sur la taille des nœuds et d'un tracé de lueur (glow helper) à faible opacité doublant les liaisons proches.
+
+---
+
 ## 🟢 Version 2.2.13
 *Dernière modification : 12 Juillet 2026*
 
