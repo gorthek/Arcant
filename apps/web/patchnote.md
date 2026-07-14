@@ -5,6 +5,18 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution du 
 
 ---
 
+## 🟢 Version 2.3.0
+*Dernière modification : 14 Juillet 2026*
+
+### 🌐 Section des 3 Fondateurs & Photos de Profil Discord (Qui Sommes-Nous)
+- **[Profils des 3 Fondateurs]** Refonte visuelle complète intégrant la vitrine des 3 fondateurs : Gorthek (CEO & Lead Developer), Marvin (CEO & Investisseur), et Nono (CEO & Développeur).
+- **[Photos de Profil Discord Dynamiques]** Récupération automatique des photos de profil Discord réelles via les ID Discord des fondateurs avec gestion intelligente de fallback d'images en cas de problème réseau.
+- **[Badges & Rôles Stylisés]** Ajout de badges sémantiques thématiques (Architecte Système, Stratégie Business, Core Bot & UI) avec bordures néon interactives et lueurs holographiques au survol.
+- **[Copie Rapide des ID Discord]** Intégration de boutons cliquables permettant de copier directement les identifiants Discord de Marvin et Nono.
+- **[Manifeste Technique Conservé]** Intégration harmonieuse des cartes de fondateurs au-dessus de la console IDE et du terminal interactif de simulation.
+
+---
+
 ## 🟢 Version 2.2.15
 *Dernière modification : 12 Juillet 2026*
 

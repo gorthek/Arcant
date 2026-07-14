@@ -3,7 +3,7 @@
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Play, Terminal as TermIcon, Trash2, X } from "lucide-react";
+import { Lock, Play, Terminal as TermIcon, Trash2, X, ShieldCheck, Code2, TrendingUp, Sparkles, Copy, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Constellation } from "@/components/animations/Constellation";
 
@@ -26,43 +26,55 @@ const quiSommesNousLines: Token[][] = [
   ],
   [],
   [
-    { text: "  // 👥 Les fondateurs (Qui sommes-nous ?)", colorClass: "text-emerald-500/80 italic" }
+    { text: "  // 👥 Les 3 Fondateurs (Fondation & Direction Executive)", colorClass: "text-emerald-500/80 italic" }
   ],
   [
-    { text: "  fondateurs: {", colorClass: "text-gray-400" }
+    { text: "  fondateurs: [", colorClass: "text-gray-400" }
   ],
   [
-    { text: "    gorthek: ", colorClass: "text-teal-300" },
-    { text: '"CEO & Lead Developer. Conçoit l\'infrastructure et le spawner de bots."', colorClass: "text-yellow-300" },
-    { text: "," }
+    { text: "    { name: ", colorClass: "text-teal-300" },
+    { text: '"Gorthek"', colorClass: "text-cyan-300" },
+    { text: ", role: ", colorClass: "text-teal-300" },
+    { text: '"CEO & Lead Developer"', colorClass: "text-yellow-300" },
+    { text: " }," }
   ],
   [
-    { text: "    marvin: ", colorClass: "text-teal-300" },
-    { text: '"CEO & Investisseur. Gère la stratégie commerciale et la conformité SecOps."', colorClass: "text-yellow-300" }
+    { text: "    { name: ", colorClass: "text-teal-300" },
+    { text: '"Marvin"', colorClass: "text-cyan-300" },
+    { text: ", role: ", colorClass: "text-teal-300" },
+    { text: '"CEO & Investisseur"', colorClass: "text-yellow-300" },
+    { text: " }," }
   ],
   [
-    { text: "  },", colorClass: "text-gray-400" }
+    { text: "    { name: ", colorClass: "text-teal-300" },
+    { text: '"Nono"', colorClass: "text-cyan-300" },
+    { text: ", role: ", colorClass: "text-teal-300" },
+    { text: '"CEO & Développeur"', colorClass: "text-yellow-300" },
+    { text: " }" }
+  ],
+  [
+    { text: "  ],", colorClass: "text-gray-400" }
   ],
   [],
   [
-    { text: "  // 🛠️ Comment le bot est fabriqué", colorClass: "text-emerald-500/80 italic" }
+    { text: "  // 🛠️ Spécifications d'infrastructure", colorClass: "text-emerald-500/80 italic" }
   ],
   [
     { text: "  technologie: {", colorClass: "text-gray-400" }
   ],
   [
     { text: "    stack: ", colorClass: "text-teal-300" },
-    { text: '"Node.js, TypeScript et discord.js v14."', colorClass: "text-yellow-300" },
+    { text: '"Next.js 16, TypeScript, Node.js & discord.js v14."', colorClass: "text-yellow-300" },
     { text: "," }
   ],
   [
     { text: "    spawner: ", colorClass: "text-teal-300" },
-    { text: '"Instanciation à chaud d\'un client Discord indépendant par serveur."', colorClass: "text-yellow-300" },
+    { text: '"Instanciation isolée d\'instances d\'agents IA par serveur."', colorClass: "text-yellow-300" },
     { text: "," }
   ],
   [
     { text: "    securite: ", colorClass: "text-teal-300" },
-    { text: '"Chiffrement AES-256 des tokens et wrappers anti-crash try/catch."', colorClass: "text-yellow-300" }
+    { text: '"Chiffrement AES-256-GCM et gestionnaires d\'erreurs anti-crash."', colorClass: "text-yellow-300" }
   ],
   [
     { text: "  }", colorClass: "text-gray-400" }
@@ -153,12 +165,68 @@ const securityVaultLines: Token[][] = [
   [{ text: "}" }]
 ];
 
+interface Founder {
+  name: string;
+  role: string;
+  badge: string;
+  discordId?: string;
+  avatarUrl: string;
+  fallbackAvatarUrl: string;
+  bio: string;
+  specialtyIcon: typeof Code2;
+  gradient: string;
+  borderGlow: string;
+  badgeColor: string;
+}
+
+const founders: Founder[] = [
+  {
+    name: "Gorthek",
+    role: "CEO & Lead Developer",
+    badge: "Architecte Système & SecOps",
+    avatarUrl: "/logo.png",
+    fallbackAvatarUrl: "/logo.png",
+    bio: "Conçoit l'architecture globale d'Arcant, orchestre le bot spawner multi-instances et assure la sécurité cryptographique AES-256 de vos données.",
+    specialtyIcon: ShieldCheck,
+    gradient: "from-teal-500/20 via-emerald-500/10 to-transparent",
+    borderGlow: "hover:border-teal-500/60 hover:shadow-[0_0_35px_rgba(20,184,166,0.3)]",
+    badgeColor: "bg-teal-950/80 text-teal-300 border-teal-500/40"
+  },
+  {
+    name: "Marvin",
+    role: "CEO & Investisseur",
+    badge: "Stratégie Business & Capital",
+    discordId: "1320747774891003965",
+    avatarUrl: "https://unavatar.io/discord/1320747774891003965",
+    fallbackAvatarUrl: "/team/c9d88444f43843446209d94cb7779e89.png",
+    bio: "Pilier financier et stratégique d'Arcant. Marvin dirige les opérations commerciales, valide l'expansion du réseau et sécurise nos fonds de développement.",
+    specialtyIcon: TrendingUp,
+    gradient: "from-indigo-500/20 via-purple-500/10 to-transparent",
+    borderGlow: "hover:border-indigo-500/60 hover:shadow-[0_0_35px_rgba(99,102,241,0.3)]",
+    badgeColor: "bg-indigo-950/80 text-indigo-300 border-indigo-500/40"
+  },
+  {
+    name: "Nono",
+    role: "CEO & Développeur",
+    badge: "Core Bot & Ecosystem UI",
+    discordId: "724000427590418453",
+    avatarUrl: "https://unavatar.io/discord/724000427590418453",
+    fallbackAvatarUrl: "/logo.png",
+    bio: "Cofondateur et développeur principal. Nono impulse les fonctionnalités interactives du bot, optimise l'expérience web et perfectionne l'intégration globale.",
+    specialtyIcon: Code2,
+    gradient: "from-cyan-500/20 via-blue-500/10 to-transparent",
+    borderGlow: "hover:border-cyan-500/60 hover:shadow-[0_0_35px_rgba(6,182,212,0.3)]",
+    badgeColor: "bg-cyan-950/80 text-cyan-300 border-cyan-500/40"
+  }
+];
+
 export default function About({ background }: { background?: React.ReactNode }) {
   const [activeTab, setActiveTab] = useState<"qui_sommes_nous.ts" | "bot_spawner.ts" | "security_vault.json">("qui_sommes_nous.ts");
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
@@ -167,6 +235,12 @@ export default function About({ background }: { background?: React.ReactNode }) 
     window.addEventListener("mousemove", handleGlobalMouseMove);
     return () => window.removeEventListener("mousemove", handleGlobalMouseMove);
   }, []);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(text);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   const getCodeLines = () => {
     switch (activeTab) {
@@ -189,10 +263,10 @@ export default function About({ background }: { background?: React.ReactNode }) 
       "[SYS] Initialisation de la sandbox de sécurité... OK",
       "[SYS] Chargement du module cryptographique... OK",
       "[SYS] Décryptage des clés d'accès (AES-256-GCM)... CONFIGURÉ",
-      "[SPAWNER] Instanciation du client Discord de Gorthek... CONNECTÉ",
-      "[SPAWNER] Activation des gestionnaires d'erreurs isolés... PRÊT",
+      "[TEAM] Synchronisation des profils des 3 fondateurs (Gorthek, Marvin, Nono)... SUCCÈS",
+      "[SPAWNER] Instanciation du client Discord principal... CONNECTÉ",
       "[IA] Connexion au modèle de langage LLM local... EN LIGNE",
-      "[SUCCESS] Arcant Bot opérationnel avec succès !"
+      "[SUCCESS] Arcant Bot & Hub pleinement opérationnels !"
     ];
 
     let currentIndex = 0;
@@ -232,34 +306,139 @@ export default function About({ background }: { background?: React.ReactNode }) 
       <main className="flex-grow relative pt-36 pb-20 z-10 w-full px-4 md:px-6">
         
         {/* Title Header */}
-        <div className="max-w-4xl mx-auto text-center mb-12 relative">
+        <div className="max-w-5xl mx-auto text-center mb-16 relative">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-mono mb-6 uppercase tracking-widest"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Direction Exécutive & Équipe</span>
+          </motion.div>
+
           <motion.h1 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-black mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400"
+            transition={{ delay: 0.05 }}
+            className="text-4xl md:text-6xl font-black mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 font-mono uppercase"
           >
             Qui sommes-nous ?
           </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-teal-400 font-mono text-xs uppercase tracking-widest mb-6"
-          >
-            Découvrez notre projet et notre équipe sous forme de code épuré ci-dessous.
-          </motion.p>
+
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="text-gray-400 text-sm md:text-base leading-relaxed max-w-3xl mx-auto mb-10 border-l border-teal-500/30 pl-4 py-1 text-left font-sans"
+            transition={{ delay: 0.1 }}
+            className="text-gray-400 text-sm md:text-base leading-relaxed max-w-3xl mx-auto mb-10 border-l border-teal-500/40 pl-4 py-1 text-left font-sans"
           >
-            Arcant est un écosystème d'intelligence artificielle locale de pointe conçu pour automatiser, animer et sécuriser vos serveurs Discord de bout en bout. En combinant des agents conversationnels intelligents basés sur des LLM autonomes et une infrastructure hermétique, Arcant centralise la gestion de vos membres, fluidifie les interactions et assure une surveillance continue tout en garantissant la confidentialité absolue de vos jetons de sécurité.
+            Arcant est propulsé par une vision partagée entre développement logiciel de pointe, stratégie d'investissement et sécurité avancée. Notre équipe de trois fondateurs unit ses compétences pour délivrer un écosystème d'IA d'automatisation d'exception pour Discord.
           </motion.p>
         </div>
 
-        {/* Bot Architecture Code Window */}
+        {/* 👥 FOUNDERS SHOWCASE SECTION (Les 3 Fondateurs) */}
+        <section className="max-w-6xl mx-auto mb-24 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+            {founders.map((founder, index) => {
+              const Icon = founder.specialtyIcon;
+              return (
+                <motion.div
+                  key={founder.name}
+                  initial={{ opacity: 0, y: 25 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 + index * 0.1 }}
+                  whileHover={{ y: -8 }}
+                  className={`bg-[#05070d]/90 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl transition-all duration-300 flex flex-col group relative ${founder.borderGlow}`}
+                >
+                  {/* Subtle Background Glow Accent */}
+                  <div className={`absolute top-0 left-0 right-0 h-40 bg-gradient-to-b ${founder.gradient} opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+
+                  {/* Profile Image & Avatar Container */}
+                  <div className="relative pt-8 px-6 pb-4 flex flex-col items-center text-center">
+                    
+                    {/* Badge Specialty */}
+                    <div className="mb-6 z-10">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest font-bold border backdrop-blur-md inline-flex items-center gap-1.5 ${founder.badgeColor}`}>
+                        <Icon size={12} />
+                        {founder.badge}
+                      </span>
+                    </div>
+
+                    {/* Discord Profile Picture Frame */}
+                    <div className="relative mb-5 group-hover:scale-105 transition-transform duration-500 z-10">
+                      {/* Hexagonal / Rounded Hologram Halo */}
+                      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-teal-500 via-cyan-500 to-indigo-500 opacity-60 blur-md group-hover:opacity-100 transition-opacity duration-500 animate-pulse" />
+                      
+                      <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-white/20 bg-zinc-900 shadow-inner">
+                        <img 
+                          src={founder.avatarUrl} 
+                          alt={founder.name}
+                          className="w-full h-full object-cover filter contrast-105 transition-transform duration-500 group-hover:scale-110"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = founder.fallbackAvatarUrl;
+                          }}
+                        />
+                      </div>
+
+                      {/* Online Status Beacon */}
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-[#05070d] shadow-[0_0_10px_rgba(16,185,129,0.8)] flex items-center justify-center">
+                        <span className="w-2 h-2 bg-white rounded-full animate-ping" />
+                      </div>
+                    </div>
+
+                    {/* Founder Name & Role */}
+                    <h3 className="text-2xl font-bold font-mono text-white tracking-tight group-hover:text-teal-300 transition-colors mb-1">
+                      {founder.name}
+                    </h3>
+                    <p className="text-xs font-mono uppercase tracking-wider font-semibold text-teal-400/90 mb-4">
+                      {founder.role}
+                    </p>
+
+                    {/* Discord ID Badge (if present) */}
+                    {founder.discordId && (
+                      <button
+                        onClick={() => copyToClipboard(founder.discordId!)}
+                        className="mb-4 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono text-gray-400 hover:text-white transition-all active:scale-95 group/btn"
+                        title="Cliquer pour copier l'ID Discord"
+                      >
+                        {copiedId === founder.discordId ? (
+                          <>
+                            <Check size={11} className="text-emerald-400" />
+                            <span className="text-emerald-400">ID copié !</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={11} className="text-gray-500 group-hover/btn:text-teal-400" />
+                            <span>ID: {founder.discordId}</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+                  {/* Bio Description Body */}
+                  <div className="p-6 flex-grow flex flex-col justify-between">
+                    <p className="text-gray-300 text-xs md:text-sm leading-relaxed font-sans text-center">
+                      {founder.bio}
+                    </p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* 💻 TECHNICAL CODE MANIFESTO WINDOW */}
         <div className="max-w-4xl mx-auto mb-20 relative z-10">
+          
+          <div className="text-center mb-6">
+            <span className="text-teal-400 font-mono text-xs uppercase tracking-widest">
+              // SPÉCIFICATIONS TECHNIQUES & CODE SOURCE INTERACTIF
+            </span>
+          </div>
+
           {/* Code Window Container */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
