@@ -2,168 +2,11 @@
 
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
-import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Play, Terminal as TermIcon, Trash2, X, ShieldCheck, Code2, TrendingUp, Sparkles, Copy, Check } from "lucide-react";
+import { motion } from "framer-motion";
+import { Lock, Play, ShieldCheck, Code2, TrendingUp, Sparkles, Copy, Check, Cpu, Server, LockKeyhole, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Constellation } from "@/components/animations/Constellation";
-
-interface Token {
-  text: string;
-  colorClass?: string;
-}
-
-const quiSommesNousLines: Token[][] = [
-  [{ text: "// 🛡️ ARCANT HUB - MANIFESTE DE SÉCURITÉ & ÉQUIPE", colorClass: "text-emerald-500/80 italic font-medium" }],
-  [],
-  [
-    { text: "const", colorClass: "text-pink-500 font-bold" },
-    { text: " Arcant = {" }
-  ],
-  [
-    { text: "  description: ", colorClass: "text-teal-300" },
-    { text: '"Écosystème sécurisé d\'IA locale pour automatiser vos serveurs Discord."', colorClass: "text-yellow-300" },
-    { text: "," }
-  ],
-  [],
-  [
-    { text: "  // 👥 Les 3 Fondateurs (Fondation & Direction Executive)", colorClass: "text-emerald-500/80 italic" }
-  ],
-  [
-    { text: "  fondateurs: [", colorClass: "text-gray-400" }
-  ],
-  [
-    { text: "    { name: ", colorClass: "text-teal-300" },
-    { text: '"Gorthek"', colorClass: "text-cyan-300" },
-    { text: ", role: ", colorClass: "text-teal-300" },
-    { text: '"CEO & Lead Developer"', colorClass: "text-yellow-300" },
-    { text: " }," }
-  ],
-  [
-    { text: "    { name: ", colorClass: "text-teal-300" },
-    { text: '"Marvin"', colorClass: "text-cyan-300" },
-    { text: ", role: ", colorClass: "text-teal-300" },
-    { text: '"CEO & Investisseur"', colorClass: "text-yellow-300" },
-    { text: " }," }
-  ],
-  [
-    { text: "    { name: ", colorClass: "text-teal-300" },
-    { text: '"Nono"', colorClass: "text-cyan-300" },
-    { text: ", role: ", colorClass: "text-teal-300" },
-    { text: '"CEO & Développeur"', colorClass: "text-yellow-300" },
-    { text: " }" }
-  ],
-  [
-    { text: "  ],", colorClass: "text-gray-400" }
-  ],
-  [],
-  [
-    { text: "  // 🛠️ Spécifications d'infrastructure", colorClass: "text-emerald-500/80 italic" }
-  ],
-  [
-    { text: "  technologie: {", colorClass: "text-gray-400" }
-  ],
-  [
-    { text: "    stack: ", colorClass: "text-teal-300" },
-    { text: '"Next.js 16, TypeScript, Node.js & discord.js v14."', colorClass: "text-yellow-300" },
-    { text: "," }
-  ],
-  [
-    { text: "    spawner: ", colorClass: "text-teal-300" },
-    { text: '"Instanciation isolée d\'instances d\'agents IA par serveur."', colorClass: "text-yellow-300" },
-    { text: "," }
-  ],
-  [
-    { text: "    securite: ", colorClass: "text-teal-300" },
-    { text: '"Chiffrement AES-256-GCM et gestionnaires d\'erreurs anti-crash."', colorClass: "text-yellow-300" }
-  ],
-  [
-    { text: "  }", colorClass: "text-gray-400" }
-  ],
-  [{ text: "};", colorClass: "text-gray-400" }]
-];
-
-const botSpawnerLines: Token[][] = [
-  [{ text: "// 🤖 ARCANT BOT MANAGER - SPAWNER ÉVÉNEMENTIEL", colorClass: "text-emerald-500/80 italic font-medium" }],
-  [],
-  [
-    { text: "import", colorClass: "text-pink-500 font-bold" },
-    { text: " { Client } " },
-    { text: "from", colorClass: "text-pink-500 font-bold" },
-    { text: ' "discord.js";', colorClass: "text-yellow-300" }
-  ],
-  [],
-  [
-    { text: "export", colorClass: "text-pink-500 font-bold" },
-    { text: " " },
-    { text: "async", colorClass: "text-pink-500 font-bold" },
-    { text: " function", colorClass: "text-pink-500 font-bold" },
-    { text: " spawnBotInstance(token: " },
-    { text: "string", colorClass: "text-cyan-400" },
-    { text: ") {" }
-  ],
-  [
-    { text: "  const", colorClass: "text-pink-500" },
-    { text: " client = " },
-    { text: "new", colorClass: "text-pink-500" },
-    { text: " Client({ intents: [32767] });" }
-  ],
-  [],
-  [{ text: "  // 🛡️ EXCEPTION SHIELDING (ANTI-CRASH)", colorClass: "text-emerald-500/80 italic" }],
-  [
-    { text: "  client.on(" },
-    { text: '"error"', colorClass: "text-yellow-300" },
-    { text: ", (err) => {" }
-  ],
-  [
-    { text: "    console.error(" },
-    { text: '"[SHIELD] Crash intercepted:"', colorClass: "text-yellow-300" },
-    { text: ", err);" }
-  ],
-  [{ text: "  });" }],
-  [],
-  [
-    { text: "  await", colorClass: "text-pink-500" },
-    { text: " client.login(token);" }
-  ],
-  [{ text: "  return client;" }],
-  [{ text: "}" }]
-];
-
-const securityVaultLines: Token[][] = [
-  [{ text: "// 🔒 ARCANT SECURITY VAULT CONFIGURATION", colorClass: "text-emerald-500/80 italic font-medium" }],
-  [],
-  [{ text: "{" }],
-  [
-    { text: '  "vault_protocol": ', colorClass: "text-teal-300" },
-    { text: '"AES-256-GCM"', colorClass: "text-yellow-300" },
-    { text: "," }
-  ],
-  [
-    { text: '  "key_rotation": ', colorClass: "text-teal-300" },
-    { text: "true", colorClass: "text-pink-500 font-bold" },
-    { text: "," }
-  ],
-  [
-    { text: '  "isolation_level": ', colorClass: "text-teal-300" },
-    { text: '"Sandboxed processes per guild"', colorClass: "text-yellow-300" },
-    { text: "," }
-  ],
-  [
-    { text: '  "credentials": ', colorClass: "text-teal-300" },
-    { text: "{" }
-  ],
-  [
-    { text: '    "token_encryption": ', colorClass: "text-teal-300" },
-    { text: '"Argon2id + AES-GCM-256"', colorClass: "text-yellow-300" },
-    { text: "," }
-  ],
-  [
-    { text: '    "metadata_access": ', colorClass: "text-teal-300" },
-    { text: '"Strict role-based session token"', colorClass: "text-yellow-300" }
-  ],
-  [{ text: "  }" }],
-  [{ text: "}" }]
-];
+import { Arcant3DLogo } from "@/components/animations/Arcant3DLogo";
 
 interface Founder {
   name: string;
@@ -177,6 +20,8 @@ interface Founder {
   gradient: string;
   borderGlow: string;
   badgeColor: string;
+  avatarGradient: string;
+  initials: string;
 }
 
 const founders: Founder[] = [
@@ -186,45 +31,47 @@ const founders: Founder[] = [
     badge: "Architecte Système & SecOps",
     avatarUrl: "/logo.png",
     fallbackAvatarUrl: "/logo.png",
-    bio: "Conçoit l'architecture globale d'Arcant, orchestre le bot spawner multi-instances et assure la sécurité cryptographique AES-256 de vos données.",
+    bio: "Conçoit l'architecture globale d'Arcant, orchestre le bot spawner multi-instances et veille à l'isolation et au chiffrement cryptographique AES-256-GCM de vos données.",
     specialtyIcon: ShieldCheck,
     gradient: "from-teal-500/20 via-emerald-500/10 to-transparent",
     borderGlow: "hover:border-teal-500/60 hover:shadow-[0_0_35px_rgba(20,184,166,0.3)]",
-    badgeColor: "bg-teal-950/80 text-teal-300 border-teal-500/40"
+    badgeColor: "bg-teal-950/80 text-teal-300 border-teal-500/40",
+    avatarGradient: "from-teal-600 to-emerald-800",
+    initials: "GT"
   },
   {
     name: "Marvin",
     role: "CEO & Investisseur",
     badge: "Stratégie Business & Capital",
     discordId: "1320747774891003965",
-    avatarUrl: "https://unavatar.io/discord/1320747774891003965",
-    fallbackAvatarUrl: "/team/c9d88444f43843446209d94cb7779e89.png",
-    bio: "Pilier financier et stratégique d'Arcant. Marvin dirige les opérations commerciales, valide l'expansion du réseau et sécurise nos fonds de développement.",
+    avatarUrl: "/team/c9d88444f43843446209d94cb7779e89.png",
+    fallbackAvatarUrl: "/logo.png",
+    bio: "Pilier financier et stratégique d'Arcant. Marvin dirige les opérations commerciales, valide l'expansion du réseau et sécurise nos ressources de développement.",
     specialtyIcon: TrendingUp,
     gradient: "from-indigo-500/20 via-purple-500/10 to-transparent",
     borderGlow: "hover:border-indigo-500/60 hover:shadow-[0_0_35px_rgba(99,102,241,0.3)]",
-    badgeColor: "bg-indigo-950/80 text-indigo-300 border-indigo-500/40"
+    badgeColor: "bg-indigo-950/80 text-indigo-300 border-indigo-500/40",
+    avatarGradient: "from-indigo-600 to-purple-800",
+    initials: "MV"
   },
   {
     name: "Nono",
     role: "CEO & Développeur",
     badge: "Core Bot & Ecosystem UI",
     discordId: "724000427590418453",
-    avatarUrl: "https://unavatar.io/discord/724000427590418453",
+    avatarUrl: "/logo.png",
     fallbackAvatarUrl: "/logo.png",
-    bio: "Cofondateur et développeur principal. Nono impulse les fonctionnalités interactives du bot, optimise l'expérience web et perfectionne l'intégration globale.",
+    bio: "Cofondateur et développeur système. Nono impulse les fonctionnalités interactives du bot, optimise l'expérience client Discord et la réactivité du web dashboard.",
     specialtyIcon: Code2,
     gradient: "from-cyan-500/20 via-blue-500/10 to-transparent",
     borderGlow: "hover:border-cyan-500/60 hover:shadow-[0_0_35px_rgba(6,182,212,0.3)]",
-    badgeColor: "bg-cyan-950/80 text-cyan-300 border-cyan-500/40"
+    badgeColor: "bg-cyan-950/80 text-cyan-300 border-cyan-500/40",
+    avatarGradient: "from-cyan-600 to-blue-800",
+    initials: "NO"
   }
 ];
 
 export default function About({ background }: { background?: React.ReactNode }) {
-  const [activeTab, setActiveTab] = useState<"qui_sommes_nous.ts" | "bot_spawner.ts" | "security_vault.json">("qui_sommes_nous.ts");
-  const [terminalOpen, setTerminalOpen] = useState(false);
-  const [terminalLines, setTerminalLines] = useState<string[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -242,45 +89,6 @@ export default function About({ background }: { background?: React.ReactNode }) 
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const getCodeLines = () => {
-    switch (activeTab) {
-      case "qui_sommes_nous.ts":
-        return quiSommesNousLines;
-      case "bot_spawner.ts":
-        return botSpawnerLines;
-      case "security_vault.json":
-        return securityVaultLines;
-    }
-  };
-
-  const runBotSimulation = () => {
-    if (isTyping) return;
-    setTerminalOpen(true);
-    setTerminalLines(["$ npm run start:arcant"]);
-    setIsTyping(true);
-
-    const simulationOutput = [
-      "[SYS] Initialisation de la sandbox de sécurité... OK",
-      "[SYS] Chargement du module cryptographique... OK",
-      "[SYS] Décryptage des clés d'accès (AES-256-GCM)... CONFIGURÉ",
-      "[TEAM] Synchronisation des profils des 3 fondateurs (Gorthek, Marvin, Nono)... SUCCÈS",
-      "[SPAWNER] Instanciation du client Discord principal... CONNECTÉ",
-      "[IA] Connexion au modèle de langage LLM local... EN LIGNE",
-      "[SUCCESS] Arcant Bot & Hub pleinement opérationnels !"
-    ];
-
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-      if (currentIndex < simulationOutput.length) {
-        setTerminalLines((prev) => [...prev, simulationOutput[currentIndex]]);
-        currentIndex++;
-      } else {
-        clearInterval(interval);
-        setIsTyping(false);
-      }
-    }, 700);
-  };
-
   return (
     <div className="min-h-screen bg-[#030408] text-white selection:bg-teal-500/30 font-sans flex flex-col relative overflow-x-hidden">
       
@@ -288,7 +96,7 @@ export default function About({ background }: { background?: React.ReactNode }) 
       <div 
         className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300 opacity-40"
         style={{
-          background: `radial-gradient(550px circle at ${mousePos.x}px ${mousePos.y}px, rgba(20, 184, 166, 0.08), rgba(99, 102, 241, 0.03) 50%, transparent 80%)`
+          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(20, 184, 166, 0.08), rgba(99, 102, 241, 0.04) 50%, transparent 80%)`
         }}
       />
 
@@ -303,24 +111,34 @@ export default function About({ background }: { background?: React.ReactNode }) 
 
       <Navbar />
       
-      <main className="flex-grow relative pt-36 pb-20 z-10 w-full px-4 md:px-6">
+      <main className="flex-grow relative pt-32 pb-24 z-10 w-full px-4 md:px-6">
         
-        {/* Title Header */}
-        <div className="max-w-5xl mx-auto text-center mb-16 relative">
+        {/* HERO SECTION WITH 3D LOGO */}
+        <section className="max-w-5xl mx-auto text-center mb-20 relative">
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            className="w-full flex justify-center mb-6"
+          >
+            <Arcant3DLogo />
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-mono mb-6 uppercase tracking-widest"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Direction Exécutive & Équipe</span>
+            <span>Écosystème d'IA Locale Discord de Nouvelle Génération</span>
           </motion.div>
 
           <motion.h1 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="text-4xl md:text-6xl font-black mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 font-mono uppercase"
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-6xl font-black mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400 uppercase font-mono"
           >
             Qui sommes-nous ?
           </motion.h1>
@@ -328,15 +146,74 @@ export default function About({ background }: { background?: React.ReactNode }) 
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-gray-400 text-sm md:text-base leading-relaxed max-w-3xl mx-auto mb-10 border-l border-teal-500/40 pl-4 py-1 text-left font-sans"
+            transition={{ delay: 0.15 }}
+            className="text-gray-300 text-base md:text-lg leading-relaxed max-w-3xl mx-auto mb-8 font-sans"
           >
-            Arcant est propulsé par une vision partagée entre développement logiciel de pointe, stratégie d'investissement et sécurité avancée. Notre équipe de trois fondateurs unit ses compétences pour délivrer un écosystème d'IA d'automatisation d'exception pour Discord.
+            Arcant réinvente la gestion et l'animation de serveurs Discord grâce à une intelligence artificielle autonome hébergée localement, offrant des performances inédites et un niveau de confidentialité absolue.
           </motion.p>
-        </div>
+        </section>
+
+        {/* 📚 EXPLANATORY TEXT & VISION PILLARS */}
+        <section className="max-w-5xl mx-auto mb-28 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            {/* Pillar 1: Vision & Mission */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-[#050811]/80 border border-white/10 p-8 rounded-3xl backdrop-blur-xl hover:border-teal-500/30 transition-all shadow-xl"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 mb-6">
+                <Cpu size={24} />
+              </div>
+              <h2 className="text-xl font-bold font-mono text-white mb-3 uppercase tracking-wider">
+                Notre Vision & Mission
+              </h2>
+              <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                Arcant a été conçu pour libérer les créateurs de communautés Discord des contraintes des bots traditionnels rigides. Notre mission est d'apporter la puissance des modèles de langage autonomes (LLM) directement au sein de vos espaces de discussion, avec un niveau de personnalisation inégalé.
+              </p>
+              <p className="text-gray-400 text-xs leading-relaxed font-sans border-l-2 border-teal-500/40 pl-3">
+                Chaque serveur dispose d'une identité propre, de ses règles d'IA autonomes et d'un copilot qui apprend et évolue en direct avec vos modérateurs.
+              </p>
+            </motion.div>
+
+            {/* Pillar 2: Security & Architecture */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-[#050811]/80 border border-white/10 p-8 rounded-3xl backdrop-blur-xl hover:border-indigo-500/30 transition-all shadow-xl"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-6">
+                <LockKeyhole size={24} />
+              </div>
+              <h2 className="text-xl font-bold font-mono text-white mb-3 uppercase tracking-wider">
+                Sécurité & Chiffrement AES-256
+              </h2>
+              <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                La confidentialité de vos jetons et données est le pilier fondamental de notre ingénierie. Tout le trafic d'IA est cloisonné en processus isolés, et l'ensemble de vos tokens Discord est chiffré en AES-256-GCM avant stockage dans nos bases de données.
+              </p>
+              <p className="text-gray-400 text-xs leading-relaxed font-sans border-l-2 border-indigo-500/40 pl-3">
+                Aucune donnée sensible ne quitte la sandbox de sécurité. Le mécanisme d'instanciation dynamic spawner garantit un temps de réponse instantané de moins d'une milliseconde.
+              </p>
+            </motion.div>
+
+          </div>
+        </section>
 
         {/* 👥 FOUNDERS SHOWCASE SECTION (Les 3 Fondateurs) */}
         <section className="max-w-6xl mx-auto mb-24 relative z-10">
+          
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-black font-mono text-white mb-3 uppercase tracking-tight">
+              L'Équipe Dirigeante
+            </h2>
+            <p className="text-gray-400 text-xs md:text-sm font-mono uppercase tracking-widest text-teal-400/90">
+              Les trois fondateurs d'Arcant
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             {founders.map((founder, index) => {
               const Icon = founder.specialtyIcon;
@@ -344,15 +221,16 @@ export default function About({ background }: { background?: React.ReactNode }) 
                 <motion.div
                   key={founder.name}
                   initial={{ opacity: 0, y: 25 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 + index * 0.1 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
                   whileHover={{ y: -8 }}
                   className={`bg-[#05070d]/90 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl transition-all duration-300 flex flex-col group relative ${founder.borderGlow}`}
                 >
-                  {/* Subtle Background Glow Accent */}
+                  {/* Background Gradient */}
                   <div className={`absolute top-0 left-0 right-0 h-40 bg-gradient-to-b ${founder.gradient} opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
 
-                  {/* Profile Image & Avatar Container */}
+                  {/* Profile Header */}
                   <div className="relative pt-8 px-6 pb-4 flex flex-col items-center text-center">
                     
                     {/* Badge Specialty */}
@@ -363,29 +241,36 @@ export default function About({ background }: { background?: React.ReactNode }) 
                       </span>
                     </div>
 
-                    {/* Discord Profile Picture Frame */}
+                    {/* Premium Profile Frame */}
                     <div className="relative mb-5 group-hover:scale-105 transition-transform duration-500 z-10">
-                      {/* Hexagonal / Rounded Hologram Halo */}
                       <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-teal-500 via-cyan-500 to-indigo-500 opacity-60 blur-md group-hover:opacity-100 transition-opacity duration-500 animate-pulse" />
                       
-                      <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-white/20 bg-zinc-900 shadow-inner">
+                      <div className={`relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-white/20 bg-gradient-to-br ${founder.avatarGradient} shadow-inner flex items-center justify-center`}>
                         <img 
                           src={founder.avatarUrl} 
                           alt={founder.name}
                           className="w-full h-full object-cover filter contrast-105 transition-transform duration-500 group-hover:scale-110"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = founder.fallbackAvatarUrl;
+                            // If direct image fails, replace with sleek initial avatar element
+                            const parent = (e.target as HTMLElement).parentElement;
+                            if (parent) {
+                              (e.target as HTMLElement).style.display = "none";
+                              const initialsSpan = document.createElement("span");
+                              initialsSpan.className = "text-3xl font-black font-mono text-white tracking-widest drop-shadow-md";
+                              initialsSpan.innerText = founder.initials;
+                              parent.appendChild(initialsSpan);
+                            }
                           }}
                         />
                       </div>
 
-                      {/* Online Status Beacon */}
+                      {/* Status Indicator */}
                       <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-[#05070d] shadow-[0_0_10px_rgba(16,185,129,0.8)] flex items-center justify-center">
                         <span className="w-2 h-2 bg-white rounded-full animate-ping" />
                       </div>
                     </div>
 
-                    {/* Founder Name & Role */}
+                    {/* Name & Role */}
                     <h3 className="text-2xl font-bold font-mono text-white tracking-tight group-hover:text-teal-300 transition-colors mb-1">
                       {founder.name}
                     </h3>
@@ -393,11 +278,11 @@ export default function About({ background }: { background?: React.ReactNode }) 
                       {founder.role}
                     </p>
 
-                    {/* Discord ID Badge (if present) */}
+                    {/* Discord ID Copy Option */}
                     {founder.discordId && (
                       <button
                         onClick={() => copyToClipboard(founder.discordId!)}
-                        className="mb-4 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono text-gray-400 hover:text-white transition-all active:scale-95 group/btn"
+                        className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono text-gray-400 hover:text-white transition-all active:scale-95 group/btn"
                         title="Cliquer pour copier l'ID Discord"
                       >
                         {copiedId === founder.discordId ? (
@@ -415,10 +300,9 @@ export default function About({ background }: { background?: React.ReactNode }) 
                     )}
                   </div>
 
-                  {/* Divider */}
                   <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-                  {/* Bio Description Body */}
+                  {/* Bio */}
                   <div className="p-6 flex-grow flex flex-col justify-between">
                     <p className="text-gray-300 text-xs md:text-sm leading-relaxed font-sans text-center">
                       {founder.bio}
@@ -430,152 +314,11 @@ export default function About({ background }: { background?: React.ReactNode }) 
           </div>
         </section>
 
-        {/* 💻 TECHNICAL CODE MANIFESTO WINDOW */}
-        <div className="max-w-4xl mx-auto mb-20 relative z-10">
-          
-          <div className="text-center mb-6">
-            <span className="text-teal-400 font-mono text-xs uppercase tracking-widest">
-              // SPÉCIFICATIONS TECHNIQUES & CODE SOURCE INTERACTIF
-            </span>
-          </div>
-
-          {/* Code Window Container */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-[#05070d]/80 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-md shadow-2xl flex flex-col"
-          >
-            {/* Header / Tabs tab */}
-            <div className="bg-[#0a0d17]/95 px-4 py-2 flex items-center justify-between border-b border-white/5 select-none overflow-x-auto scrollbar-none">
-              
-              {/* VS Code dots & File tabs */}
-              <div className="flex items-center gap-4 flex-shrink-0">
-                <div className="flex items-center gap-1.5 mr-2">
-                  <span className="w-3 h-3 rounded-full bg-red-500/60 inline-block" />
-                  <span className="w-3 h-3 rounded-full bg-yellow-500/60 inline-block" />
-                  <span className="w-3 h-3 rounded-full bg-green-500/60 inline-block" />
-                </div>
-                
-                {/* Tabs */}
-                <div className="flex items-center gap-1">
-                  {(["qui_sommes_nous.ts", "bot_spawner.ts", "security_vault.json"] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`px-3 py-1.5 rounded-md font-mono text-xs transition-colors flex items-center gap-1.5 ${
-                        activeTab === tab 
-                          ? "bg-white/5 border border-white/10 text-white font-semibold" 
-                          : "text-gray-500 hover:text-gray-300"
-                      }`}
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full ${
-                        tab.endsWith(".ts") ? "bg-cyan-500" : "bg-yellow-500"
-                      }`} />
-                      {tab}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Buttons (Run script) */}
-              <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-                <button
-                  onClick={runBotSimulation}
-                  disabled={isTyping}
-                  className={`px-3 py-1 bg-teal-500 hover:bg-teal-400 text-black font-semibold font-mono text-xs rounded flex items-center gap-1.5 transition-all active:scale-95 ${
-                    isTyping ? "opacity-50 cursor-not-allowed" : "hover:shadow-[0_0_12px_rgba(20,184,166,0.4)]"
-                  }`}
-                >
-                  <Play size={10} className="fill-black" />
-                  {isTyping ? "RUNNING..." : "RUN SCRIPT"}
-                </button>
-              </div>
-            </div>
-            
-            {/* Syntax Highlighted Code Viewer */}
-            <div className="p-6 font-mono text-xs md:text-sm leading-relaxed overflow-x-auto text-gray-300 scrollbar-thin select-text bg-[#020409]/60 min-h-[350px]">
-              <table className="w-full border-collapse">
-                <tbody>
-                  {getCodeLines().map((line, lineIndex) => (
-                    <tr key={lineIndex} className="hover:bg-white/5 transition-colors">
-                      <td className="w-8 text-right pr-4 text-gray-600 select-none text-xs border-r border-white/5 align-top py-0.5">
-                        {lineIndex + 1}
-                      </td>
-                      <td className="pl-4 align-top py-0.5 whitespace-pre-wrap break-all">
-                        {line.length === 0 ? (
-                          <span>&nbsp;</span>
-                        ) : (
-                          line.map((token, tokenIndex) => (
-                            <span 
-                              key={tokenIndex} 
-                              className={token.colorClass || "text-gray-300"}
-                            >
-                              {token.text}
-                            </span>
-                          ))
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Interactive Terminal Panel */}
-            <AnimatePresence>
-              {terminalOpen && (
-                <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: "auto", minHeight: "150px" }}
-                  exit={{ height: 0 }}
-                  className="bg-black/95 border-t border-white/10 flex flex-col font-mono text-xs animate-none"
-                >
-                  {/* Terminal Header */}
-                  <div className="bg-zinc-900 px-4 py-1.5 flex items-center justify-between border-b border-white/5 text-gray-400 select-none">
-                    <div className="flex items-center gap-1.5">
-                      <TermIcon size={12} className="text-teal-400" />
-                      <span>terminal - bash</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => setTerminalLines([])}
-                        className="hover:text-white p-0.5 transition-colors"
-                        title="Vider le terminal"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                      <button 
-                        onClick={() => setTerminalOpen(false)}
-                        className="hover:text-white p-0.5 transition-colors"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Terminal Logs */}
-                  <div className="p-4 overflow-y-auto space-y-1.5 text-teal-400 max-h-[220px] select-text">
-                    {terminalLines.map((line, idx) => (
-                      <div key={idx} className="whitespace-pre-wrap break-words">
-                        {line}
-                      </div>
-                    ))}
-                    {isTyping && (
-                      <span className="inline-block w-2 h-4 bg-teal-400 animate-pulse ml-1" />
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        </div>
-
         {/* CTA Section */}
         <div className="max-w-4xl mx-auto relative z-10">
           <motion.div 
             whileHover={{ scale: 1.01 }}
-            className="text-center bg-[#0b0f19]/35 border border-white/5 p-12 rounded-3xl backdrop-blur-xl"
+            className="text-center bg-[#0b0f19]/40 border border-white/10 p-12 rounded-3xl backdrop-blur-xl shadow-2xl"
           >
             <Lock className="w-10 h-10 text-teal-400/60 mx-auto mb-4 animate-pulse" />
             
@@ -587,7 +330,7 @@ export default function About({ background }: { background?: React.ReactNode }) 
               href="https://discord.com/oauth2/authorize?client_id=1521523509589704714"
               target="_blank"
               rel="noopener noreferrer"
-              className="relative z-10 inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-black font-bold py-3 px-8 rounded-full transition-all hover:shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:scale-105 uppercase tracking-wider text-xs font-mono"
+              className="relative z-10 inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-black font-bold py-3.5 px-8 rounded-full transition-all hover:shadow-[0_0_25px_rgba(20,184,166,0.4)] hover:scale-105 uppercase tracking-wider text-xs font-mono"
             >
               <Play size={12} className="fill-black" />
               Lancer l'Installation
