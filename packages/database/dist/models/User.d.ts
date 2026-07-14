@@ -3,6 +3,8 @@ export interface IUser extends Document {
     discordId: string;
     discordName?: string;
     email?: string;
+    avatarUrl?: string;
+    image?: string;
     isPremium: boolean;
     premiumUntil?: Date;
     stripeCustomerId?: string;

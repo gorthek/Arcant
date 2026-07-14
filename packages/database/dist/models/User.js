@@ -39,6 +39,8 @@ const UserSchema = new mongoose_1.Schema({
     discordId: { type: String, required: true, unique: true },
     discordName: { type: String },
     email: { type: String },
+    avatarUrl: { type: String },
+    image: { type: String },
     isPremium: { type: Boolean, default: false },
     premiumUntil: { type: Date },
     stripeCustomerId: { type: String },

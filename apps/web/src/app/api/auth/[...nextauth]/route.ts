@@ -26,11 +26,12 @@ export const authOptions: NextAuthOptions = {
           const discordId = account.providerAccountId;
           const email = user?.email || (profile as any)?.email || "";
           const discordName = user?.name || (profile as any)?.username || "";
+          const avatarUrl = user?.image || (profile as any)?.image_url || (profile as any)?.avatar ? `https://cdn.discordapp.com/avatars/${discordId}/${(profile as any).avatar}.png` : "";
           
           await User.findOneAndUpdate(
             { discordId },
             { 
-              $set: { discordName, email },
+              $set: { discordName, email, avatarUrl, image: avatarUrl },
               $setOnInsert: { discordId, isPremium: false, createdAt: new Date() }
             },
             { upsert: true, new: true }

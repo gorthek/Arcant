@@ -4,6 +4,8 @@ export interface IUser extends Document {
   discordId: string;
   discordName?: string;
   email?: string;
+  avatarUrl?: string;
+  image?: string;
   isPremium: boolean;
   premiumUntil?: Date;
   stripeCustomerId?: string;
@@ -14,6 +16,8 @@ const UserSchema = new Schema<IUser>({
   discordId: { type: String, required: true, unique: true },
   discordName: { type: String },
   email: { type: String },
+  avatarUrl: { type: String },
+  image: { type: String },
   isPremium: { type: Boolean, default: false },
   premiumUntil: { type: Date },
   stripeCustomerId: { type: String },
