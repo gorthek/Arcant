@@ -11,6 +11,18 @@ interface AIContext {
         aiRulesCount: number;
     } | undefined;
 }
+/**
+ * CERVEAU COGNITIF D'ARCANT (Cognitive Reasoning Engine)
+ * Implémente le modèle de pensée en chaîne (Chain-of-Thought / CoT),
+ * la déconstruction d'intentions et l'auto-réflexion critique avant réponse.
+ */
+export declare class ArcantCognitiveBrain {
+    static think(prompt: string, contextMode: AIContextMode): {
+        intent: string;
+        reasoningChain: string[];
+        confidence: number;
+    };
+}
 export declare class ArcantAIEngine {
     private static cache;
     private static getFromCache;
@@ -34,6 +46,7 @@ export declare class ArcantAIEngine {
         reply: string;
         update?: any;
         data?: any;
+        reasoningChain?: string[];
     }>;
     static getDBStats(): Promise<{
         serversCount: number;
