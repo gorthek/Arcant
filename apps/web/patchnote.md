@@ -78,6 +78,16 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 2.6.0
+*Dernière modification : 14 Juillet 2026*
+
+### 🌐 Refonte Totale du Style & Charte Graphique Épurée (Qui Sommes-Nous)
+- **[Design Épuré & Lisibilité Maximale]** Suppression intégrale du menu de sélection d'animations et nettoyage de l'arrière-plan au profit d'un fond sombre obsdienne sobre (`bg-[#030712]`) avec halos lumineux d'ambiance à très faible opacité pour une lisibilité parfaite.
+- **[Nouvelle Palette de Couleurs Luxe]** Remplacement du vert/turquoise par un dégradé électrique Indigo, Violet et Cyan (`from-indigo-400 via-purple-400 to-cyan-400`).
+- **[Cartes d'Ingénierie & Fondateurs Épurées]** Refonte intégrale de la mise en page des 6 modules clés d'Arcant et des fiches des 3 fondateurs avec un contraste texte/fond renforcé et des bordures vitrées dépolies.
+
+---
+
 ## 🟢 Version 2.5.1
 *Dernière modification : 14 Juillet 2026*
 

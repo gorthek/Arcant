@@ -2,17 +2,13 @@
 
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
   Lock, Play, ShieldCheck, Code2, TrendingUp, Sparkles, 
   Copy, Check, Cpu, Server, LockKeyhole, Layers, 
-  Bot, Sliders, CheckCircle2, Wand2, Grid, Activity, Binary, Share2
+  Bot, Sliders, CheckCircle2, Shield, Zap, Terminal
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { SineWaves } from "@/components/animations/SineWaves";
-import { CodeRain } from "@/components/animations/CodeRain";
-import { NeonGrid } from "@/components/animations/NeonGrid";
-import { Constellation } from "@/components/animations/Constellation";
 
 interface Founder {
   name: string;
@@ -27,7 +23,6 @@ interface Founder {
   borderGlow: string;
   badgeColor: string;
   avatarGradient: string;
-  initials: string;
 }
 
 const founders: Founder[] = [
@@ -38,13 +33,12 @@ const founders: Founder[] = [
     discordId: "1061340110219640905",
     avatarUrl: "/api/discord/avatar/1061340110219640905",
     fallbackAvatarUrl: "/team/gorthek.png",
-    bio: "Conçoit l'architecture globale d'Arcant, orchestre le bot spawner multi-instances et veille à l'isolation et au chiffrement cryptographique AES-256-GCM de vos données.",
+    bio: "Conçoit l'architecture globale d'Arcant, orchestre le spawner de bots multi-instances et assure la sécurité cryptographique AES-256-GCM de vos données.",
     specialtyIcon: ShieldCheck,
-    gradient: "from-teal-500/20 via-emerald-500/10 to-transparent",
-    borderGlow: "hover:border-teal-500/60 hover:shadow-[0_0_35px_rgba(20,184,166,0.3)]",
-    badgeColor: "bg-teal-950/80 text-teal-300 border-teal-500/40",
-    avatarGradient: "from-teal-600 to-emerald-800",
-    initials: "GT"
+    gradient: "from-indigo-600/20 via-purple-600/10 to-transparent",
+    borderGlow: "hover:border-indigo-500/50 hover:shadow-[0_0_40px_rgba(99,102,241,0.25)]",
+    badgeColor: "bg-indigo-950/80 text-indigo-300 border-indigo-500/40",
+    avatarGradient: "from-indigo-600 to-purple-800"
   },
   {
     name: "Marvin",
@@ -53,13 +47,12 @@ const founders: Founder[] = [
     discordId: "1320747774891003965",
     avatarUrl: "/team/c9d88444f43843446209d94cb7779e89.png",
     fallbackAvatarUrl: "/logo.png",
-    bio: "Pilier financier et stratégique d'Arcant. Marvin dirige les opérations commerciales, valide l'expansion du réseau et sécurise nos ressources de développement.",
+    bio: "Pilier financier et stratégique d'Arcant. Marvin dirige les opérations commerciales, valide l'expansion du réseau et sécurise nos fonds de développement.",
     specialtyIcon: TrendingUp,
-    gradient: "from-indigo-500/20 via-purple-500/10 to-transparent",
-    borderGlow: "hover:border-indigo-500/60 hover:shadow-[0_0_35px_rgba(99,102,241,0.3)]",
-    badgeColor: "bg-indigo-950/80 text-indigo-300 border-indigo-500/40",
-    avatarGradient: "from-indigo-600 to-purple-800",
-    initials: "MV"
+    gradient: "from-purple-600/20 via-pink-600/10 to-transparent",
+    borderGlow: "hover:border-purple-500/50 hover:shadow-[0_0_40px_rgba(168,85,247,0.25)]",
+    badgeColor: "bg-purple-950/80 text-purple-300 border-purple-500/40",
+    avatarGradient: "from-purple-600 to-pink-800"
   },
   {
     name: "Nono",
@@ -70,67 +63,61 @@ const founders: Founder[] = [
     fallbackAvatarUrl: "/team/nono.png",
     bio: "Cofondateur et développeur système. Nono impulse les fonctionnalités interactives du bot, optimise l'expérience client Discord et la réactivité du web dashboard.",
     specialtyIcon: Code2,
-    gradient: "from-cyan-500/20 via-blue-500/10 to-transparent",
-    borderGlow: "hover:border-cyan-500/60 hover:shadow-[0_0_35px_rgba(6,182,212,0.3)]",
+    gradient: "from-cyan-600/20 via-blue-600/10 to-transparent",
+    borderGlow: "hover:border-cyan-500/50 hover:shadow-[0_0_40px_rgba(6,182,212,0.25)]",
     badgeColor: "bg-cyan-950/80 text-cyan-300 border-cyan-500/40",
-    avatarGradient: "from-cyan-600 to-blue-800",
-    initials: "NO"
+    avatarGradient: "from-cyan-600 to-blue-800"
   }
 ];
 
-const arcantFeatures = [
+const pillars = [
   {
     icon: Cpu,
-    title: "Moteur d'IA Locale 100% Autonome",
-    subtitle: "Zero dépendance externe (No OpenAI / No Gemini)",
-    description: "Arcant embarque son propre moteur NLP unifié. Grâce à un tokenizer français, un stemmer rapide et le matching flou par distance de Levenshtein, l'IA comprend vos intentions et tolère les fautes de frappe avec une latence < 1ms."
+    title: "Intelligence Artificielle Locale",
+    accent: "text-indigo-400",
+    bgAccent: "bg-indigo-500/10 border-indigo-500/20",
+    description: "Un moteur NLP unifié tournant 100% en local. Analyse sémantique ultra-rapide (<1ms) avec correction automatique des fautes de frappe par algorithme de Levenshtein."
   },
   {
     icon: Layers,
-    title: "Générateur Sémantique de Serveurs",
-    subtitle: "Du concept au serveur configuré en 1 clic",
-    description: "Analyse sémantique poussée capable d'extraire les rôles, catégories et salons (textuels, vocaux, duos, trios, zones staff privées) depuis de simples instructions écrites, avec déploiement direct via notre API REST."
+    title: "Générateur Dynamique de Serveurs",
+    accent: "text-purple-400",
+    bgAccent: "bg-purple-500/10 border-purple-500/20",
+    description: "Création automatique de catégories, salons textuels/vocaux et rôles thématiques personnalisés depuis une simple instruction écrite."
   },
   {
     icon: Server,
-    title: "Dynamic BotManager Spawner",
-    subtitle: "Isolation de processus multi-instances",
-    description: "Instanciation dynamique à chaud de clients discord.js v14 indépendants par serveur. Wrappers d'exception try/catch isolés pour immuniser le bot principal contre tout crash individuel."
+    title: "Spawner d'Agents Multi-Instances",
+    subtitle: "BotManager Discord.js v14",
+    accent: "text-cyan-400",
+    bgAccent: "bg-cyan-500/10 border-cyan-500/20",
+    description: "Instanciation à chaud de clients Discord isolés par serveur avec wrappers anti-crash try/catch universels pour une stabilité maximale."
   },
   {
     icon: LockKeyhole,
-    title: "Security Vault Cryptographique AES-256",
-    subtitle: "Isolation hermétique des données sensibles",
-    description: "Vos jetons de bot Discord et secrets d'API sont chiffrés en AES-256-GCM avant écriture en base MongoDB. Seule l'instance de sandbox dédiée détient la clé de mémoire temporaire."
+    title: "Sécurité Cryptographique AES-256",
+    accent: "text-indigo-400",
+    bgAccent: "bg-indigo-500/10 border-indigo-500/20",
+    description: "Vos jetons de sécurité sont chiffrés en AES-256-GCM avant stockage dans MongoDB. Aucune donnée sensible n'est exposée."
   },
   {
     icon: Sliders,
-    title: "Dashboard Web Tri-Thématique",
-    subtitle: "Expérience personnalisée par rôle Discord",
-    description: "Dashboards sur-mesure s'adaptant dynamiquement au grade utilisateur : CEO Owner (Console Suprême), Owner Serveur (Thème Émeraude), Admin (Thème Démoniaque Rouge avec Anti-Raid), et Membre (Thème Bleu Spatial avec XP & Médailles)."
+    title: "Dashboards sur-Mesure par Rôle",
+    accent: "text-purple-400",
+    bgAccent: "bg-purple-500/10 border-purple-500/20",
+    description: "Interface adaptative scindée selon les permissions Discord : Console Suprême CEO, Dashboard Owner Émeraude, Admin Rouge et Membre Bleu."
   },
   {
     icon: Bot,
-    title: "Copilot Builder & Self-Learning",
-    subtitle: "Apprentissage autonome en temps réel",
-    description: "Dictée naturelle de personnalités et de modules (économie, tickets, modération). L'IA peut enregistrer et supprimer par elle-même de nouvelles règles personnalisées direct à l'écrit (Self-Learning)."
+    title: "Copilot & Apprentissage Autonome",
+    accent: "text-cyan-400",
+    bgAccent: "bg-cyan-500/10 border-cyan-500/20",
+    description: "Apprentissage de règles personnalisées en direct à l'écrit via le chat (Self-Learning) et ajustement instantané des paramètres du serveur."
   }
 ];
 
-type AnimationMode = "coderain" | "neongrid" | "constellation" | "sinewaves";
-
-export default function About({ background }: { background?: React.ReactNode }) {
-  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+export default function About({ background }: { background?: React.ReactNode } = {}) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [animMode, setAnimMode] = useState<AnimationMode>("coderain");
-
-  useEffect(() => {
-    const handleGlobalMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleGlobalMouseMove);
-    return () => window.removeEventListener("mousemove", handleGlobalMouseMove);
-  }, []);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -138,125 +125,65 @@ export default function About({ background }: { background?: React.ReactNode }) 
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const renderBackgroundAnimation = () => {
-    switch (animMode) {
-      case "coderain":
-        return <CodeRain />;
-      case "neongrid":
-        return <NeonGrid />;
-      case "constellation":
-        return <Constellation />;
-      case "sinewaves":
-        return <SineWaves />;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-[#030408] text-white selection:bg-teal-500/30 font-sans flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#030712] text-slate-100 selection:bg-indigo-500/30 font-sans flex flex-col relative overflow-x-hidden">
       
-      {/* Interactive Cursor Spotlight Glow */}
-      <div 
-        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300 opacity-40"
-        style={{
-          background: `radial-gradient(650px circle at ${mousePos.x}px ${mousePos.y}px, rgba(20, 184, 166, 0.09), rgba(99, 102, 241, 0.04) 50%, transparent 80%)`
-        }}
-      />
-
-      {/* Dynamic Background Component */}
+      {/* Soft Ambient Glow Elements (Clean & Non-distracting) */}
       {background || (
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-b from-[#080b16] via-[#04060b] to-[#020305]">
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/5 rounded-full blur-[140px] pointer-events-none" />
-          <div className="absolute bottom-[20%] right-[-10%] w-[60%] h-[60%] bg-teal-500/5 rounded-full blur-[160px] pointer-events-none" />
-          {renderBackgroundAnimation()}
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          <div className="absolute top-[-10%] left-[20%] w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[160px]" />
+          <div className="absolute bottom-[10%] right-[15%] w-[550px] h-[550px] bg-purple-600/10 rounded-full blur-[160px]" />
+          <div className="absolute top-[40%] right-[-5%] w-[400px] h-[400px] bg-cyan-600/8 rounded-full blur-[140px]" />
         </div>
       )}
 
       <Navbar />
       
-      <main className="flex-grow relative pt-36 pb-24 z-10 w-full px-4 md:px-6">
+      <main className="flex-grow relative pt-36 pb-28 z-10 w-full px-4 md:px-6 max-w-6xl mx-auto">
         
-        {/* HERO HEADER SECTION */}
-        <section className="max-w-5xl mx-auto text-center mb-16 relative">
-          
-          {/* ANIMATION STYLE SELECTOR CONTROL BAR */}
+        {/* HERO TITLE SECTION */}
+        <section className="text-center mb-24">
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[#070b16]/90 border border-teal-500/20 backdrop-blur-xl mb-8 shadow-xl overflow-x-auto scrollbar-none max-w-full"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-mono mb-6 uppercase tracking-widest backdrop-blur-md shadow-lg"
           >
-            <span className="text-[11px] font-mono text-teal-400 font-bold px-3 uppercase tracking-wider flex items-center gap-1.5">
-              <Wand2 size={12} /> Ambiance :
-            </span>
-            
-            {[
-              { id: "coderain", label: "Pluie de Code", icon: Binary },
-              { id: "neongrid", label: "Grille Néon", icon: Grid },
-              { id: "constellation", label: "Constellation", icon: Share2 },
-              { id: "sinewaves", label: "Ondes Cyber", icon: Activity }
-            ].map((item) => {
-              const Icon = item.icon;
-              const isActive = animMode === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setAnimMode(item.id as AnimationMode)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all flex items-center gap-1.5 ${
-                    isActive 
-                      ? "bg-teal-500 text-black font-bold shadow-[0_0_15px_rgba(20,184,166,0.4)]" 
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <Icon size={12} />
-                  {item.label}
-                </button>
-              );
-            })}
+            <Sparkles className="w-4 h-4 text-indigo-400" />
+            <span>Écosystème d'IA Locale Discord</span>
           </motion.div>
-
-          <div>
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-mono mb-6 uppercase tracking-widest"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-              <span>Écosystème d'IA Locale Discord de Nouvelle Génération</span>
-            </motion.div>
-          </div>
 
           <motion.h1 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="text-4xl md:text-6xl font-black mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400 uppercase font-mono"
+            className="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight text-white font-mono uppercase"
           >
-            Qui sommes-nous ?
+            Qui sommes-<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400">nous</span> ?
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-gray-300 text-base md:text-lg leading-relaxed max-w-3xl mx-auto mb-8 font-sans"
+            className="text-slate-300 text-base md:text-xl leading-relaxed max-w-3xl mx-auto font-sans font-normal"
           >
-            Arcant est un écosystème d'IA d'automatisation de pointe conçu pour animer, sécuriser et générer vos serveurs Discord avec une latence ultra-faible et un niveau de confidentialité cryptographique absolue.
+            Arcant est un écosystème d'intelligence artificielle locale de pointe conçu pour automatiser, animer et sécuriser vos serveurs Discord avec une réactivité instantanée et une confidentialité absolue.
           </motion.p>
         </section>
 
-        {/* 🛠️ IN-DEPTH TECHNICAL ARCHITECTURE & FEATURES GRID */}
-        <section className="max-w-6xl mx-auto mb-28 relative z-10">
-          
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-black font-mono text-white mb-3 uppercase tracking-tight">
-              Ingénierie & Architecture Arcant
+        {/* 📚 EXPLANATORY GRID - CLEAN & HYPER-READABLE */}
+        <section className="mb-28">
+          <div className="text-center mb-14">
+            <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-3 font-mono uppercase tracking-tight">
+              L'Ingénierie Arcant
             </h2>
-            <p className="text-teal-400 font-mono text-xs uppercase tracking-widest max-w-xl mx-auto">
-              Découvrez la technologie et les modules développés au cœur du projet
+            <p className="text-indigo-400 font-mono text-sm uppercase tracking-widest max-w-xl mx-auto">
+              Une technologie 100% autonome développée sur-mesure
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-            {arcantFeatures.map((item, idx) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {pillars.map((item, idx) => {
               const Icon = item.icon;
               return (
                 <motion.div
@@ -264,33 +191,28 @@ export default function About({ background }: { background?: React.ReactNode }) 
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: idx * 0.08 }}
-                  whileHover={{ y: -5 }}
-                  className="bg-[#050811]/85 border border-white/10 p-6 rounded-3xl backdrop-blur-xl hover:border-teal-500/40 hover:shadow-[0_0_30px_rgba(20,184,166,0.15)] transition-all flex flex-col justify-between group"
+                  transition={{ delay: idx * 0.06 }}
+                  className="bg-[#0b0f19]/80 border border-slate-800/80 p-7 rounded-3xl backdrop-blur-xl hover:border-slate-700 transition-all flex flex-col justify-between shadow-xl group"
                 >
                   <div>
-                    <div className="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 mb-5 group-hover:scale-110 transition-transform">
-                      <Icon size={22} />
+                    <div className={`w-12 h-12 rounded-2xl ${item.bgAccent} flex items-center justify-center mb-6 group-hover:scale-105 transition-transform`}>
+                      <Icon size={24} className={item.accent} />
                     </div>
 
-                    <h3 className="text-lg font-bold font-mono text-white mb-1 group-hover:text-teal-300 transition-colors">
+                    <h3 className="text-xl font-bold text-white mb-3 font-sans tracking-tight">
                       {item.title}
                     </h3>
-                    
-                    <span className="text-[11px] font-mono text-teal-400/90 font-semibold uppercase tracking-wider block mb-3">
-                      {item.subtitle}
-                    </span>
 
-                    <p className="text-gray-300 text-xs leading-relaxed font-sans">
+                    <p className="text-slate-300 text-sm leading-relaxed font-sans font-normal">
                       {item.description}
                     </p>
                   </div>
 
-                  <div className="mt-5 pt-4 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-gray-500">
-                    <span className="inline-flex items-center gap-1 text-teal-400">
-                      <CheckCircle2 size={12} /> Module Actif
+                  <div className="mt-6 pt-4 border-t border-slate-800/60 flex items-center justify-between text-xs font-mono text-slate-400">
+                    <span className="inline-flex items-center gap-1.5 text-indigo-400 font-semibold">
+                      <CheckCircle2 size={14} /> Module Actif
                     </span>
-                    <span>v2.5.1 SecOps</span>
+                    <span>v2.6.0</span>
                   </div>
                 </motion.div>
               );
@@ -298,15 +220,15 @@ export default function About({ background }: { background?: React.ReactNode }) 
           </div>
         </section>
 
-        {/* 👥 FOUNDERS SHOWCASE SECTION (Les 3 Fondateurs) */}
-        <section className="max-w-6xl mx-auto mb-24 relative z-10">
+        {/* 👥 FOUNDERS SHOWCASE SECTION */}
+        <section className="mb-20">
           
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-black font-mono text-white mb-3 uppercase tracking-tight">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-3 font-mono uppercase tracking-tight">
               L'Équipe Dirigeante
             </h2>
-            <p className="text-gray-400 text-xs md:text-sm font-mono uppercase tracking-widest text-teal-400/90">
-              Les trois fondateurs d'Arcant
+            <p className="text-purple-400 text-sm font-mono uppercase tracking-widest">
+              Les trois fondateurs du projet
             </p>
           </div>
 
@@ -320,49 +242,49 @@ export default function About({ background }: { background?: React.ReactNode }) 
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -8 }}
-                  className={`bg-[#05070d]/90 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl transition-all duration-300 flex flex-col group relative ${founder.borderGlow}`}
+                  whileHover={{ y: -6 }}
+                  className={`bg-[#0a0e1a]/90 border border-slate-800/90 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl transition-all duration-300 flex flex-col group relative ${founder.borderGlow}`}
                 >
-                  {/* Background Gradient */}
-                  <div className={`absolute top-0 left-0 right-0 h-40 bg-gradient-to-b ${founder.gradient} opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+                  {/* Accent Header Glow */}
+                  <div className={`absolute top-0 left-0 right-0 h-36 bg-gradient-to-b ${founder.gradient} opacity-40 group-hover:opacity-80 transition-opacity pointer-events-none`} />
 
-                  {/* Profile Header */}
+                  {/* Profile Section */}
                   <div className="relative pt-8 px-6 pb-4 flex flex-col items-center text-center">
                     
-                    {/* Badge Specialty */}
+                    {/* Badge */}
                     <div className="mb-6 z-10">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest font-bold border backdrop-blur-md inline-flex items-center gap-1.5 ${founder.badgeColor}`}>
-                        <Icon size={12} />
+                      <span className={`px-3.5 py-1 rounded-full text-xs font-mono uppercase tracking-widest font-bold border backdrop-blur-md inline-flex items-center gap-2 ${founder.badgeColor}`}>
+                        <Icon size={13} />
                         {founder.badge}
                       </span>
                     </div>
 
-                    {/* Premium Profile Frame */}
-                    <div className="relative mb-5 group-hover:scale-105 transition-transform duration-500 z-10">
-                      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-teal-500 via-cyan-500 to-indigo-500 opacity-60 blur-md group-hover:opacity-100 transition-opacity duration-500 animate-pulse" />
+                    {/* Profile Picture */}
+                    <div className="relative mb-5 group-hover:scale-105 transition-transform duration-300 z-10">
+                      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 opacity-70 blur-md group-hover:opacity-100 transition-opacity" />
                       
-                      <div className={`relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-white/20 bg-gradient-to-br ${founder.avatarGradient} shadow-inner flex items-center justify-center`}>
+                      <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-white/20 bg-slate-900 shadow-xl flex items-center justify-center">
                         <img 
                           src={founder.avatarUrl} 
                           alt={founder.name}
-                          className="w-full h-full object-cover filter contrast-105 transition-transform duration-500 group-hover:scale-110"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = founder.fallbackAvatarUrl;
                           }}
                         />
                       </div>
 
-                      {/* Status Indicator */}
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-[#05070d] shadow-[0_0_10px_rgba(16,185,129,0.8)] flex items-center justify-center">
+                      {/* Online Status Beacon */}
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-[#0a0e1a] shadow-lg flex items-center justify-center">
                         <span className="w-2 h-2 bg-white rounded-full animate-ping" />
                       </div>
                     </div>
 
                     {/* Name & Role */}
-                    <h3 className="text-2xl font-bold font-mono text-white tracking-tight group-hover:text-teal-300 transition-colors mb-1">
+                    <h3 className="text-2xl font-bold text-white tracking-tight mb-1 font-sans">
                       {founder.name}
                     </h3>
-                    <p className="text-xs font-mono uppercase tracking-wider font-semibold text-teal-400/90 mb-4">
+                    <p className="text-xs font-mono uppercase tracking-wider font-bold text-indigo-400 mb-4">
                       {founder.role}
                     </p>
 
@@ -370,17 +292,17 @@ export default function About({ background }: { background?: React.ReactNode }) 
                     {founder.discordId && (
                       <button
                         onClick={() => copyToClipboard(founder.discordId!)}
-                        className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono text-gray-400 hover:text-white transition-all active:scale-95 group/btn"
+                        className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-mono text-slate-300 hover:text-white transition-all active:scale-95 group/btn shadow-md"
                         title="Cliquer pour copier l'ID Discord"
                       >
                         {copiedId === founder.discordId ? (
                           <>
-                            <Check size={11} className="text-emerald-400" />
-                            <span className="text-emerald-400">ID copié !</span>
+                            <Check size={13} className="text-emerald-400" />
+                            <span className="text-emerald-400 font-semibold">ID copié !</span>
                           </>
                         ) : (
                           <>
-                            <Copy size={11} className="text-gray-500 group-hover/btn:text-teal-400" />
+                            <Copy size={13} className="text-slate-400 group-hover/btn:text-indigo-400" />
                             <span>ID: {founder.discordId}</span>
                           </>
                         )}
@@ -388,11 +310,11 @@ export default function About({ background }: { background?: React.ReactNode }) 
                     )}
                   </div>
 
-                  <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                  <div className="w-full h-[1px] bg-slate-800/80" />
 
                   {/* Bio */}
                   <div className="p-6 flex-grow flex flex-col justify-between">
-                    <p className="text-gray-300 text-xs md:text-sm leading-relaxed font-sans text-center">
+                    <p className="text-slate-300 text-sm leading-relaxed font-sans text-center font-normal">
                       {founder.bio}
                     </p>
                   </div>
@@ -403,28 +325,26 @@ export default function About({ background }: { background?: React.ReactNode }) 
         </section>
 
         {/* CTA SECTION */}
-        <div className="max-w-4xl mx-auto relative z-10">
-          <motion.div 
-            whileHover={{ scale: 1.01 }}
-            className="text-center bg-[#0b0f19]/40 border border-white/10 p-12 rounded-3xl backdrop-blur-xl shadow-2xl"
+        <section className="text-center bg-[#090d18]/90 border border-slate-800 p-12 rounded-3xl backdrop-blur-xl shadow-2xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-cyan-500/5 pointer-events-none" />
+          <Lock className="w-10 h-10 text-indigo-400 mx-auto mb-4 animate-pulse" />
+          
+          <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3 font-mono uppercase tracking-tight">
+            DÉPLOYER ARCANT SUR VOTRE SERVEUR
+          </h2>
+          <p className="text-slate-400 mb-8 max-w-md mx-auto text-sm font-sans">
+            Connectez notre module d'intelligence artificielle stellaire et configurez vos modules de protection en toute simplicité.
+          </p>
+          <a 
+            href="https://discord.com/oauth2/authorize?client_id=1521523509589704714"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative z-10 inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold py-3.5 px-8 rounded-full transition-all hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:scale-105 uppercase tracking-wider text-xs font-mono shadow-xl"
           >
-            <Lock className="w-10 h-10 text-teal-400/60 mx-auto mb-4 animate-pulse" />
-            
-            <h2 className="text-xl md:text-2xl font-bold text-white mb-3 font-mono uppercase tracking-tight">DÉPLOYER ARCANT SUR VOTRE SERVEUR</h2>
-            <p className="text-gray-400 mb-8 max-w-md mx-auto text-sm">
-              Connectez notre module d'intelligence artificielle stellaire et configurez vos modules de protection en toute simplicité.
-            </p>
-            <a 
-              href="https://discord.com/oauth2/authorize?client_id=1521523509589704714"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative z-10 inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-black font-bold py-3.5 px-8 rounded-full transition-all hover:shadow-[0_0_25px_rgba(20,184,166,0.4)] hover:scale-105 uppercase tracking-wider text-xs font-mono"
-            >
-              <Play size={12} className="fill-black" />
-              Lancer l'Installation
-            </a>
-          </motion.div>
-        </div>
+            <Play size={14} className="fill-white" />
+            Lancer l'Installation
+          </a>
+        </section>
 
       </main>
       
