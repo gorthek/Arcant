@@ -78,6 +78,15 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 2.5.1
+*Dernière modification : 14 Juillet 2026*
+
+### 🌐 Selecteur d'Ambiance Animée Interactif (Qui Sommes-Nous)
+- **[Barre de Sélection d'Ambiance]** Ajout d'une barre de contrôle interactive au sommet de la page permettant d'interchanger à chaud les animations d'arrière-plan en 1 clic : **Pluie de Code (CodeRain)**, **Grille Néon (NeonGrid)**, **Constellation**, et **Ondes Cyber (SineWaves)**.
+- **[Mode Matrix Cyber par Défaut]** Définition de l'animation de Pluie de Code binaire (Teal/Cyan) comme style visuel par défaut.
+
+---
+
 ## 🟢 Version 2.5.0
 *Dernière modification : 14 Juillet 2026*
 

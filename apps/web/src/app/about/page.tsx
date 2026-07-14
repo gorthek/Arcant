@@ -2,14 +2,17 @@
 
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Lock, Play, ShieldCheck, Code2, TrendingUp, Sparkles, 
-  Copy, Check, Cpu, Server, LockKeyhole, Zap, Layers, 
-  Bot, Database, Terminal, ShieldAlert, Sliders, CheckCircle2 
+  Copy, Check, Cpu, Server, LockKeyhole, Layers, 
+  Bot, Sliders, CheckCircle2, Wand2, Grid, Activity, Binary, Share2
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { SineWaves } from "@/components/animations/SineWaves";
+import { CodeRain } from "@/components/animations/CodeRain";
+import { NeonGrid } from "@/components/animations/NeonGrid";
+import { Constellation } from "@/components/animations/Constellation";
 
 interface Founder {
   name: string;
@@ -114,9 +117,12 @@ const arcantFeatures = [
   }
 ];
 
+type AnimationMode = "coderain" | "neongrid" | "constellation" | "sinewaves";
+
 export default function About({ background }: { background?: React.ReactNode }) {
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [animMode, setAnimMode] = useState<AnimationMode>("coderain");
 
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
@@ -132,6 +138,19 @@ export default function About({ background }: { background?: React.ReactNode }) 
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const renderBackgroundAnimation = () => {
+    switch (animMode) {
+      case "coderain":
+        return <CodeRain />;
+      case "neongrid":
+        return <NeonGrid />;
+      case "constellation":
+        return <Constellation />;
+      case "sinewaves":
+        return <SineWaves />;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#030408] text-white selection:bg-teal-500/30 font-sans flex flex-col relative overflow-x-hidden">
       
@@ -143,12 +162,12 @@ export default function About({ background }: { background?: React.ReactNode }) 
         }}
       />
 
-      {/* Dynamic Background Animation: SineWaves */}
+      {/* Dynamic Background Component */}
       {background || (
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-b from-[#080b16] via-[#04060b] to-[#020305]">
           <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/5 rounded-full blur-[140px] pointer-events-none" />
           <div className="absolute bottom-[20%] right-[-10%] w-[60%] h-[60%] bg-teal-500/5 rounded-full blur-[160px] pointer-events-none" />
-          <SineWaves />
+          {renderBackgroundAnimation()}
         </div>
       )}
 
@@ -157,16 +176,53 @@ export default function About({ background }: { background?: React.ReactNode }) 
       <main className="flex-grow relative pt-36 pb-24 z-10 w-full px-4 md:px-6">
         
         {/* HERO HEADER SECTION */}
-        <section className="max-w-5xl mx-auto text-center mb-20 relative">
+        <section className="max-w-5xl mx-auto text-center mb-16 relative">
           
+          {/* ANIMATION STYLE SELECTOR CONTROL BAR */}
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-mono mb-6 uppercase tracking-widest"
+            className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[#070b16]/90 border border-teal-500/20 backdrop-blur-xl mb-8 shadow-xl overflow-x-auto scrollbar-none max-w-full"
           >
-            <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-            <span>Écosystème d'IA Locale Discord de Nouvelle Génération</span>
+            <span className="text-[11px] font-mono text-teal-400 font-bold px-3 uppercase tracking-wider flex items-center gap-1.5">
+              <Wand2 size={12} /> Ambiance :
+            </span>
+            
+            {[
+              { id: "coderain", label: "Pluie de Code", icon: Binary },
+              { id: "neongrid", label: "Grille Néon", icon: Grid },
+              { id: "constellation", label: "Constellation", icon: Share2 },
+              { id: "sinewaves", label: "Ondes Cyber", icon: Activity }
+            ].map((item) => {
+              const Icon = item.icon;
+              const isActive = animMode === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setAnimMode(item.id as AnimationMode)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all flex items-center gap-1.5 ${
+                    isActive 
+                      ? "bg-teal-500 text-black font-bold shadow-[0_0_15px_rgba(20,184,166,0.4)]" 
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <Icon size={12} />
+                  {item.label}
+                </button>
+              );
+            })}
           </motion.div>
+
+          <div>
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-mono mb-6 uppercase tracking-widest"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+              <span>Écosystème d'IA Locale Discord de Nouvelle Génération</span>
+            </motion.div>
+          </div>
 
           <motion.h1 
             initial={{ opacity: 0, y: 15 }}
@@ -234,7 +290,7 @@ export default function About({ background }: { background?: React.ReactNode }) 
                     <span className="inline-flex items-center gap-1 text-teal-400">
                       <CheckCircle2 size={12} /> Module Actif
                     </span>
-                    <span>v2.4.1 SecOps</span>
+                    <span>v2.5.1 SecOps</span>
                   </div>
                 </motion.div>
               );
