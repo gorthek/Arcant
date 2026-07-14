@@ -78,6 +78,15 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 2.4.1
+*Dernière modification : 14 Juillet 2026*
+
+### 🌐 Mise à jour des Avatars Fondateurs & Intégration ID Gorthek
+- **[ID Discord Gorthek]** Ajout de l'ID Discord officiel de Gorthek (`1061340110219640905`) sur sa fiche de profil avec bouton de copie rapide vers le presse-papier.
+- **[Avatars Haute Définition Dédiés]** Remplacement des fallbacks et liens d'avatars externes par des photos de profil locales haute précision dans `/public/team/` (`gorthek.png`, `c9d88444f43843446209d94cb7779e89.png`, et `nono.png`).
+
+---
+
 ## 🟢 Version 2.4.0
 *Dernière modification : 14 Juillet 2026*
 
