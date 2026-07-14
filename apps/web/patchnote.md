@@ -78,6 +78,17 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 2.5.0
+*Dernière modification : 14 Juillet 2026*
+
+### 🌐 Refonte Thématique SineWaves & Grille d'Ingénierie Complexe (Qui Sommes-Nous)
+- **[Nouveau Thème & Arrière-plan SineWaves]** Remplacement du trou noir 3D et de la constellation par des ondes sinusoïdales organiques fluides (`SineWaves.tsx`) associées à un halo lumineux dynamique réactif au curseur.
+- **[Suppression des Éléments 3D Lourds]** Retrait de l'élément canvas 3D pour une fluidité à 60fps constante sur mobile, tablette et desktop.
+- **[Grille d'Ingénierie Exhaustive]** Présentation détaillée sous forme de cartes d'exception des 6 grands piliers d'Arcant développés durant les 3 dernières semaines : Moteur d'IA locale 100% autonome, Générateur sémantique de serveurs, Dynamic BotManager Spawner multi-instances, Security Vault AES-256-GCM, Dashboard tri-thématique par rôle Discord, et Copilot Builder avec Self-Learning.
+- **[Audit de Sécurité Anti-Leak]** Vérification intégrale de l'arborescence du site web pour garantir l'absence totale de fuites de chemins système ou de données de code source.
+
+---
+
 ## 🟢 Version 2.4.1
 *Dernière modification : 14 Juillet 2026*
 
