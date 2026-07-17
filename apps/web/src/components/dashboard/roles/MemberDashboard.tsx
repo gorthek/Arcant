@@ -94,7 +94,7 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
               activeTab === tab.id 
-                ? "bg-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)] border border-blue-500/20" 
+                ? "bg-violet-600 text-white shadow-[0_0_20px_rgba(139,92,246,0.5)] border border-violet-500/20" 
                 : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
             }`}
           >
@@ -103,10 +103,10 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
         ))}
       </div>
 
-      <div className="bg-zinc-950/60 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+      <div className="bg-zinc-950/70 border border-violet-500/10 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
         {/* Spatial background glow */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-950/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-950/10 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-950/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-950/20 rounded-full blur-[80px] pointer-events-none" />
         
         <div className="relative z-10">
           <AnimatePresence mode="wait">
@@ -123,19 +123,19 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
                   {/* Card Profil */}
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-8 bg-zinc-900/30 border border-white/5 p-6 rounded-2xl">
                     <div className="relative shrink-0">
-                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 p-[3px] shadow-[0_0_25px_rgba(59,130,246,0.3)]">
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-500 to-blue-400 p-[3px] shadow-[0_0_25px_rgba(139,92,246,0.3)]">
                         <div className="w-full h-full bg-zinc-950 rounded-full flex items-center justify-center">
                           <User size={40} className="text-gray-300" />
                         </div>
                       </div>
-                      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-500 to-cyan-500 text-black text-[10px] font-black px-3 py-1 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] whitespace-nowrap">
+                      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-500 to-blue-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)] whitespace-nowrap border border-violet-400/50">
                         NIVEAU 12
                       </div>
                     </div>
 
                     <div className="flex-1 text-center md:text-left space-y-3">
                       <h2 className="text-2xl font-black text-white flex items-center justify-center md:justify-start gap-2">
-                        Membre Actif <Trophy size={20} className="text-blue-400" />
+                        Membre Actif <Trophy size={20} className="text-violet-400" />
                       </h2>
                       <p className="text-gray-400 text-sm max-w-lg leading-relaxed">
                         Vous participez régulièrement aux activités du serveur. Obtenez 480 XP supplémentaires pour passer au Niveau 13 !
@@ -144,14 +144,14 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
                       <div className="mt-4 pt-2 w-full max-w-md mx-auto md:mx-0">
                         <div className="flex justify-between text-xs font-black mb-1.5 uppercase tracking-wider">
                           <span className="text-gray-500">Progression Niveau 13</span>
-                          <span className="text-blue-400">4,520 / 5,000 XP</span>
+                          <span className="text-violet-400">4,520 / 5,000 XP</span>
                         </div>
                         <div className="h-3 w-full bg-zinc-900 border border-white/5 rounded-full overflow-hidden p-[2px]">
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: "90.4%" }}
                             transition={{ duration: 1.2, ease: "easeOut" }}
-                            className="h-full bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)]"
+                            className="h-full bg-gradient-to-r from-violet-500 via-blue-500 to-cyan-400 rounded-full shadow-[0_0_15px_rgba(139,92,246,0.6)]"
                           />
                         </div>
                       </div>
@@ -164,7 +164,7 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
                       <motion.div 
                         key={idx}
                         whileHover={{ scale: 1.04, y: -2 }}
-                        className="bg-zinc-900/40 border border-white/5 rounded-2xl p-5 hover:border-blue-500/20 transition-all duration-300 relative overflow-hidden group shadow-lg"
+                        className="bg-zinc-900/40 border border-white/5 rounded-2xl p-5 hover:border-violet-500/30 transition-all duration-300 relative overflow-hidden group shadow-lg"
                       >
                         <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 group-hover:scale-150 transition-all duration-700">
                           {stat.icon}
@@ -191,14 +191,14 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
                           key={idx}
                           className={`flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 ${
                             ach.unlocked 
-                              ? "bg-blue-500/5 border-blue-500/10 hover:border-blue-500/20" 
+                              ? "bg-violet-500/5 border-violet-500/10 hover:border-violet-500/30" 
                               : "bg-zinc-900/10 border-white/5 opacity-50"
                           }`}
                         >
                           <div className="flex items-center gap-3">
                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center border ${
                               ach.unlocked 
-                                ? "bg-blue-500/10 border-blue-500/20 text-blue-400" 
+                                ? "bg-violet-500/10 border-violet-500/20 text-violet-400" 
                                 : "bg-zinc-800 border-white/5 text-gray-600"
                             }`}>
                               <Trophy size={16} />
@@ -210,7 +210,7 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
                           </div>
                           <div className="text-right text-[9px] font-bold">
                             {ach.unlocked ? (
-                              <span className="text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/10 flex items-center gap-1">
+                              <span className="text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/10 flex items-center gap-1">
                                 <Calendar size={10} /> {ach.date}
                               </span>
                             ) : (
@@ -240,8 +240,8 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
                         key={idx}
                         className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
                           member.isMe 
-                            ? "bg-blue-500/10 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]" 
-                            : "bg-zinc-900/40 border-white/5"
+                            ? "bg-violet-500/10 border-violet-500/30 shadow-[0_0_15px_rgba(139,92,246,0.1)]" 
+                            : "bg-zinc-900/40 border-white/5 hover:border-white/10"
                         }`}
                       >
                         <div className="flex items-center gap-4">
@@ -253,13 +253,13 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
                           }`}>
                             #{member.rank}
                           </span>
-                          <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center font-bold text-xs text-blue-400">
+                          <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center font-bold text-xs text-violet-400">
                             {member.name.substring(0, 2).toUpperCase()}
                           </div>
                           <div>
                             <span className="text-sm font-bold text-white flex items-center gap-2">
                               {member.name}
-                              {member.isMe && <span className="text-[9px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/30">MOI</span>}
+                              {member.isMe && <span className="text-[9px] bg-violet-500/20 text-violet-400 px-1.5 py-0.5 rounded border border-violet-500/30">MOI</span>}
                             </span>
                             <span className="text-[10px] text-gray-500">Niveau {member.level}</span>
                           </div>
@@ -280,11 +280,11 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
                   <div className="border-b border-white/10 pb-4 flex items-center justify-between">
                     <div>
                       <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                        <Server className="text-blue-400" size={20} /> Structure Active du Serveur
+                        <Server className="text-violet-400" size={20} /> Structure Active du Serveur
                       </h3>
                       <p className="text-xs text-gray-500">Découvrez l'architecture du serveur (Salons et Rôles) configurée.</p>
                     </div>
-                    <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20 flex items-center gap-1 font-bold">
+                    <span className="text-[10px] bg-violet-500/10 text-violet-400 px-2 py-0.5 rounded border border-violet-500/20 flex items-center gap-1 font-bold">
                       <ShieldAlert size={10} /> LECTURE SEULE
                     </span>
                   </div>
@@ -344,7 +344,7 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
           </AnimatePresence>
 
           {/* Bottom locked info */}
-          <div className="text-center p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl mt-8 flex items-center justify-center gap-2 text-xs text-blue-400/80 font-bold">
+          <div className="text-center p-4 bg-violet-500/5 border border-violet-500/10 rounded-2xl mt-8 flex items-center justify-center gap-2 text-xs text-violet-400/80 font-bold">
             <ShieldAlert size={14} />
             <span>Vous consultez le dashboard en tant que Membre. Certaines fonctionnalités d'édition requièrent des droits d'administration.</span>
           </div>

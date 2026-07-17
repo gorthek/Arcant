@@ -35,7 +35,7 @@ export function OwnerDashboard({ serverId }: { serverId: string }) {
         </div>
         <button 
           onClick={handleSave}
-          className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-black font-black text-xs transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)] disabled:opacity-70 animate-pulse"
+          className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)] disabled:opacity-70 animate-pulse"
           disabled={isSaving}
         >
           <Save size={14} />
@@ -44,9 +44,9 @@ export function OwnerDashboard({ serverId }: { serverId: string }) {
       </div>
 
       {/* Content Container */}
-      <div className="bg-zinc-950/60 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+      <div className="bg-zinc-950/70 border border-amber-500/10 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
         {/* Glow de fond pour le container */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-900/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-600/10 rounded-full blur-[120px] pointer-events-none" />
         
         <AnimatePresence mode="wait">
           <motion.div
@@ -79,7 +79,7 @@ import { useServerContext } from "@/contexts/ServerContext";
 function ToggleSwitch({ enabled, setEnabled }: { enabled: boolean; setEnabled: (val: boolean) => void }) {
   return (
     <div 
-      className={`w-14 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 shrink-0 ${enabled ? 'bg-teal-500' : 'bg-zinc-700'}`}
+      className={`w-14 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 shrink-0 ${enabled ? 'bg-amber-500' : 'bg-zinc-700'}`}
       onClick={() => setEnabled(!enabled)}
     >
       <motion.div 
@@ -161,7 +161,7 @@ function ModuleOverview({ serverId }: { serverId: string }) {
   }, [serverId]);
 
   if (loading) {
-    return <div className="text-teal-400 font-mono text-xs animate-pulse">Chargement des données du serveur...</div>;
+    return <div className="text-amber-400 font-mono text-xs animate-pulse">Chargement des données du serveur...</div>;
   }
 
   const isFallback = stats?._fallback;
@@ -225,21 +225,23 @@ function ModuleOverview({ serverId }: { serverId: string }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.08, type: "spring" }}
             whileHover={{ scale: 1.05, y: -3 }}
-            className="bg-zinc-900/50 border border-white/5 rounded-2xl p-4 relative overflow-hidden group hover:border-teal-500/20 transition-all duration-300"
+            className="bg-zinc-900/50 border border-white/5 rounded-2xl p-4 relative overflow-hidden group hover:border-amber-500/30 transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(245,158,11,0.15)]"
           >
-            <div className="flex items-center gap-2 mb-3">
+            {/* Holographic glow on hover */}
+            <div className={`absolute inset-0 bg-gradient-to-br from-amber-500/0 via-transparent to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+            <div className="flex items-center gap-2 mb-3 relative z-10">
               <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                 {kpi.icon}
               </div>
             </div>
-            <div className="text-xl font-black text-white flex items-center gap-1.5">
+            <div className="text-xl font-black text-white flex items-center gap-1.5 relative z-10">
               {kpi.statusColor && (
-                <span className={`w-2 h-2 rounded-full animate-pulse ${kpi.statusColor === 'emerald' ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : kpi.statusColor === 'red' ? 'bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)]' : 'bg-teal-400 shadow-[0_0_6px_rgba(20,184,166,0.8)]'}`} />
+                <span className={`w-2 h-2 rounded-full animate-pulse ${kpi.statusColor === 'emerald' ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : kpi.statusColor === 'red' ? 'bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)]' : 'bg-amber-400 shadow-[0_0_6px_rgba(245,158,11,0.8)]'}`} />
               )}
               {kpi.value}
             </div>
-            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">{kpi.label}</div>
-            <p className="text-[9px] text-gray-500 mt-0.5">{kpi.desc}</p>
+            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1 relative z-10">{kpi.label}</div>
+            <p className="text-[9px] text-gray-500 mt-0.5 relative z-10">{kpi.desc}</p>
           </motion.div>
         ))}
       </div>
@@ -538,7 +540,7 @@ function ModuleIA({ serverId }: { serverId: string }) {
       <div className="flex flex-col space-y-4">
         <div>
           <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <Sparkles className="text-teal-400 animate-spin-slow" size={22} /> Copilot IA Personnalisé
+            <Sparkles className="text-amber-400 animate-spin-slow" size={22} /> Copilot IA Personnalisé
           </h3>
           <p className="text-xs text-gray-500">Configurez l'intelligence de votre serveur Discord ou déployez un Bot autonome.</p>
         </div>
@@ -548,14 +550,14 @@ function ModuleIA({ serverId }: { serverId: string }) {
             onClick={() => setIaMode("server_creation")}
             className={`p-6 rounded-2xl border text-left transition-all ${
               iaMode === "server_creation" 
-                ? "bg-teal-500/10 border-teal-500/50 shadow-[0_0_20px_rgba(20,184,166,0.1)]" 
+                ? "bg-amber-500/10 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.15)]" 
                 : "bg-zinc-900/50 border-white/5 hover:bg-white/5"
             }`}
           >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${iaMode === "server_creation" ? "bg-teal-500 text-black" : "bg-zinc-800 text-gray-400"}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${iaMode === "server_creation" ? "bg-amber-500 text-black shadow-[0_0_15px_rgba(245,158,11,0.5)]" : "bg-zinc-800 text-gray-400"}`}>
               <Server size={20} />
             </div>
-            <h5 className={`font-bold mb-2 ${iaMode === "server_creation" ? "text-teal-400" : "text-gray-300"}`}>Création & Gestion Serveur</h5>
+            <h5 className={`font-bold mb-2 ${iaMode === "server_creation" ? "text-amber-400" : "text-gray-300"}`}>Création & Gestion Serveur</h5>
             <p className="text-xs text-gray-400 leading-relaxed">Génère et configure l'architecture du serveur (rôles, permissions, salons, design).</p>
           </button>
 
@@ -563,14 +565,14 @@ function ModuleIA({ serverId }: { serverId: string }) {
             onClick={() => setIaMode("custom_bot")}
             className={`p-6 rounded-2xl border text-left transition-all ${
               iaMode === "custom_bot" 
-                ? "bg-teal-500/10 border-teal-500/50 shadow-[0_0_20px_rgba(20,184,166,0.1)]" 
+                ? "bg-amber-500/10 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.15)]" 
                 : "bg-zinc-900/50 border-white/5 hover:bg-white/5"
             }`}
           >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${iaMode === "custom_bot" ? "bg-teal-500 text-black" : "bg-zinc-800 text-gray-400"}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${iaMode === "custom_bot" ? "bg-amber-500 text-black shadow-[0_0_15px_rgba(245,158,11,0.5)]" : "bg-zinc-800 text-gray-400"}`}>
               <Bot size={20} />
             </div>
-            <h5 className={`font-bold mb-2 ${iaMode === "custom_bot" ? "text-teal-400" : "text-gray-300"}`}>Création de Bot Perso</h5>
+            <h5 className={`font-bold mb-2 ${iaMode === "custom_bot" ? "text-amber-400" : "text-gray-300"}`}>Création de Bot Perso</h5>
             <p className="text-xs text-gray-400 leading-relaxed">Déployez votre propre bot Discord propulsé par l'IA.</p>
           </button>
         </div>

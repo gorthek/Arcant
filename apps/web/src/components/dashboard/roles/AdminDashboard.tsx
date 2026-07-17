@@ -78,11 +78,11 @@ export function AdminDashboard({ serverId }: { serverId: string }) {
         </div>
         <button 
           onClick={handleSave}
-          className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold transition-all shadow-[0_0_25px_rgba(220,38,38,0.4)] hover:scale-105 disabled:opacity-70 border border-red-500/30"
+          className="flex items-center justify-center gap-2 px-6 py-3 rounded-none bg-red-600 hover:bg-red-500 text-white font-bold transition-all shadow-[0_0_25px_rgba(220,38,38,0.5)] border border-red-500 hover:border-red-400 uppercase tracking-widest text-xs"
           disabled={isSaving || loading}
         >
-          <Save size={18} />
-          {isSaving ? "Sauvegarde..." : "Sauvegarder"}
+          <Save size={16} />
+          {isSaving ? "TRANSMISSION..." : "VERROUILLER"}
         </button>
       </div>
 
@@ -104,8 +104,16 @@ export function AdminDashboard({ serverId }: { serverId: string }) {
       </div>
 
       {/* Content */}
-      <div className="bg-zinc-950/60 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden min-h-[400px]">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-950/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="bg-zinc-950/80 border border-red-500/20 rounded-xl p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden min-h-[500px]">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-900/10 rounded-full blur-[100px] pointer-events-none" />
+        {/* Tactical Grid Background */}
+        <div className="absolute inset-0 pointer-events-none opacity-20" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(220,38,38,0.1) 40px, rgba(220,38,38,0.1) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(220,38,38,0.1) 40px, rgba(220,38,38,0.1) 41px)" }} />
+        
+        {/* Targeting Corners */}
+        <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-red-500 opacity-50" />
+        <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-red-500 opacity-50" />
+        <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-red-500 opacity-50" />
+        <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-red-500 opacity-50" />
         
         {loading ? (
           <div className="flex items-center justify-center h-64 text-red-500">
@@ -115,10 +123,10 @@ export function AdminDashboard({ serverId }: { serverId: string }) {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 15, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -15, scale: 0.98 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2, ease: "linear" }}
               className="relative z-10"
             >
               {activeTab === "overview" && <AdminOverview serverId={serverId} />}

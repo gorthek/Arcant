@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Terminal, Shield, RefreshCw, Server, Zap, Database, User, Trash2, Send, Check, X, AlertTriangle, Cpu, HardDrive, Activity, Wifi, WifiOff } from "lucide-react";
+import { Terminal, Shield, RefreshCw, Server, Zap, Database, User, Trash2, Send, Activity, Cpu, HardDrive, Wifi, WifiOff } from "lucide-react";
 
 interface DbServer {
   _id: string;
@@ -18,6 +18,22 @@ interface DbCollection {
   name: string;
   count: number;
 }
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.3,
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+};
 
 export function BotOwnerGlobalDashboard() {
   const [servers, setServers] = useState<DbServer[]>([]);
@@ -35,7 +51,7 @@ export function BotOwnerGlobalDashboard() {
   const [terminalInput, setTerminalInput] = useState("");
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
     "╔══════════════════════════════════════════════════╗",
-    "║  ARCANT SUPREME CONSOLE v2.0.0                  ║",
+    "║  ARCANT SUPREME CONSOLE v3.0.0                  ║",
     "║  Neural Engine: ONLINE  |  DB: CONNECTING...    ║",
     "╚══════════════════════════════════════════════════╝",
     "",
@@ -49,17 +65,13 @@ export function BotOwnerGlobalDashboard() {
     setLoading(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-      
       const [statsRes, serversRes] = await Promise.allSettled([
         fetch(`${apiUrl}/api/owner/db-stats`),
         fetch(`${apiUrl}/api/owner/servers`)
       ]);
-
       if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
-        const data = await statsRes.value.json();
-        setStats(data);
+        setStats(await statsRes.value.json());
       }
-
       if (serversRes.status === 'fulfilled' && serversRes.value.ok) {
         const data = await serversRes.value.json();
         setServers(data.servers || []);
@@ -79,44 +91,6 @@ export function BotOwnerGlobalDashboard() {
     terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [terminalLogs]);
 
-  const togglePremium = async (serverId: string, currentStatus: boolean) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-    try {
-      const res = await fetch(`${apiUrl}/api/owner/servers/${serverId}/premium`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isPremium: !currentStatus })
-      });
-      if (res.ok) {
-        setServers(servers.map(s => s.serverId === serverId ? { ...s, isPremium: !currentStatus } : s));
-        setStats(prev => ({
-          ...prev,
-          premiumCount: currentStatus ? prev.premiumCount - 1 : prev.premiumCount + 1
-        }));
-        addLog(`[DB] Server ${serverId} premium → ${!currentStatus}`);
-      }
-    } catch (e) {
-      setServers(servers.map(s => s.serverId === serverId ? { ...s, isPremium: !currentStatus } : s));
-      addLog(`[LOCAL] Server ${serverId} premium updated locally.`);
-    }
-  };
-
-  const deleteServer = async (serverId: string) => {
-    if (!confirm("Voulez-vous vraiment supprimer ce serveur d'Arcant ?")) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-    try {
-      const res = await fetch(`${apiUrl}/api/owner/servers/${serverId}`, { method: 'DELETE' });
-      if (res.ok) {
-        setServers(servers.filter(s => s.serverId !== serverId));
-        setStats(prev => ({ ...prev, serversCount: prev.serversCount - 1 }));
-        addLog(`[DB] Server ${serverId} deleted.`);
-      }
-    } catch (e) {
-      setServers(servers.filter(s => s.serverId !== serverId));
-      addLog(`[LOCAL] Server ${serverId} deleted locally.`);
-    }
-  };
-
   const addLog = (text: string) => {
     setTerminalLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${text}`]);
   };
@@ -129,34 +103,16 @@ export function BotOwnerGlobalDashboard() {
     addLog(`> ${cmd}`);
     setTerminalInput("");
 
-    if (cmd.startsWith("announce ")) {
-      const message = cmd.substring(9);
-      await sendAnnouncement(message);
-    } else if (cmd === "clear") {
+    if (cmd === "clear") {
       setTerminalLogs([]);
     } else if (cmd === "help") {
       addLog("╔══════════════════════════════════════════════╗");
       addLog("║  ARCANT COMMAND REFERENCE                   ║");
       addLog("╠══════════════════════════════════════════════╣");
-      addLog("║  announce <msg>  → Broadcast to all servers ║");
       addLog("║  refresh         → Reload database stats    ║");
       addLog("║  dbinfo          → Show DB connection info  ║");
       addLog("║  clear           → Clear terminal           ║");
       addLog("╚══════════════════════════════════════════════╝");
-    } else if (cmd === "refresh") {
-      addLog("[API] Initiating database refresh query...");
-      let pct = 0;
-      const interval = setInterval(() => {
-        pct += 20;
-        const filled = Math.round(pct / 10);
-        const bar = "█".repeat(filled) + "░".repeat(10 - filled);
-        addLog(`[PROGRESS] [${bar}] ${pct}%`);
-        if (pct >= 100) {
-          clearInterval(interval);
-          fetchGlobalData();
-          addLog("[SUCCESS] ✓ All indexes synchronized.");
-        }
-      }, 250);
     } else if (cmd === "dbinfo") {
       addLog(`[DB] Name: ${stats.dbName}`);
       addLog(`[DB] Status: ${stats.dbConnectionStatus}`);
@@ -166,201 +122,148 @@ export function BotOwnerGlobalDashboard() {
     }
   };
 
-  const sendAnnouncement = async (message: string) => {
-    setIsSendingAnnounce(true);
-    addLog("[API] Broadcasting announcement payload...");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-    try {
-      const res = await fetch(`${apiUrl}/api/owner/announce`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        addLog(`[SUCCESS] ✓ Broadcast: ${data.successCount} sent, ${data.failCount} failed.`);
-      } else {
-        const err = await res.json();
-        addLog(`[ERROR] Broadcast failed: ${err.error}`);
-      }
-    } catch (e) {
-      addLog("[WARN] API unreachable. Simulating broadcast...");
-      servers.forEach((s, i) => {
-        setTimeout(() => addLog(`[OK] → ${s.name} (${s.serverId})`), (i + 1) * 300);
-      });
-    } finally {
-      setIsSendingAnnounce(false);
-    }
-  };
-
   const isDbConnected = stats.dbConnectionStatus === 'connected';
 
   return (
-    <div className="space-y-10">
+    <motion.div 
+      className="space-y-8 relative z-10"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      {/* GLOWING AMBIENT TOP LIGHT */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
+
       {/* HEADER CYBERPUNK */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 gap-4 relative">
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-end justify-between pb-4 gap-4 relative border-b border-cyan-500/20">
         <div>
-          <motion.h1 
-            className="text-4xl md:text-5xl font-black tracking-tighter"
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-teal-200 to-emerald-400 drop-shadow-[0_0_30px_rgba(20,184,166,0.5)]">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-teal-200 to-emerald-400 drop-shadow-[0_0_25px_rgba(20,184,166,0.5)]">
               Console Suprême
             </span>
-          </motion.h1>
-          <p className="text-gray-400 text-sm mt-1 font-mono">
-            Administration globale d'Arcant — Niveau d'accès <span className="text-cyan-400 font-bold">FONDATEUR</span>
-          </p>
+          </h1>
+          <div className="flex items-center gap-3 mt-2">
+            <span className="px-2 py-0.5 rounded text-[10px] font-black bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">FONDATEUR</span>
+            <span className="text-gray-400 text-xs font-mono">Accès système global</span>
+          </div>
         </div>
         <button 
           onClick={fetchGlobalData} 
           disabled={loading}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-black rounded-xl bg-cyan-500/10 hover:bg-cyan-500 hover:text-black border border-cyan-500/30 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_25px_rgba(6,182,212,0.5)]"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-black rounded-lg bg-black/50 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500 hover:text-black transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] backdrop-blur-md uppercase tracking-wider"
         >
           <RefreshCw className={loading ? "animate-spin" : ""} size={14} />
-          Rafraîchir
+          Synchro Serveur
         </button>
-      </div>
+      </motion.div>
 
       {/* STATS KPI — Style holographique */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {[
-          { label: "Serveurs", value: stats.serversCount, icon: <Server className="text-cyan-400" size={20} />, color: "cyan" },
-          { label: "Bots Actifs", value: stats.botsCount, icon: <Cpu className="text-violet-400" size={20} />, color: "violet" },
-          { label: "Membres Totaux", value: stats.usersCount, icon: <User className="text-blue-400" size={20} />, color: "blue" },
-          { label: "Premium Actifs", value: stats.premiumCount, icon: <Zap className="text-amber-400" size={20} />, color: "amber" },
-          { label: "Règles IA", value: stats.aiRulesCount, icon: <Activity className="text-emerald-400" size={20} />, color: "emerald" },
+          { label: "Serveurs", value: stats.serversCount, icon: <Server size={20} />, color: "cyan" },
+          { label: "Bots Actifs", value: stats.botsCount, icon: <Cpu size={20} />, color: "violet" },
+          { label: "Utilisateurs", value: stats.usersCount, icon: <User size={20} />, color: "blue" },
+          { label: "Premium", value: stats.premiumCount, icon: <Zap size={20} />, color: "amber" },
+          { label: "IA Queries", value: stats.aiRulesCount, icon: <Activity size={20} />, color: "emerald" },
         ].map((stat, i) => (
           <motion.div 
             key={i}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1, type: "spring" }}
-            whileHover={{ scale: 1.04, y: -4 }}
-            className={`relative bg-zinc-950/80 border rounded-2xl p-5 overflow-hidden group backdrop-blur-xl shadow-2xl
-              ${stat.color === 'cyan' ? 'border-cyan-500/20 hover:border-cyan-400/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]' :
-                stat.color === 'violet' ? 'border-violet-500/20 hover:border-violet-400/50 hover:shadow-[0_0_30px_rgba(139,92,246,0.15)]' :
-                stat.color === 'blue' ? 'border-blue-500/20 hover:border-blue-400/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]' :
-                stat.color === 'amber' ? 'border-amber-500/20 hover:border-amber-400/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]' :
-                'border-emerald-500/20 hover:border-emerald-400/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]'
-              } transition-all duration-500`}
+            whileHover={{ scale: 1.02, y: -2 }}
+            className="relative bg-black/40 border border-white/5 rounded-xl p-5 overflow-hidden group backdrop-blur-md shadow-2xl"
           >
-            {/* Holographic shimmer */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] via-transparent to-white/[0.01] pointer-events-none" />
-            <div className={`absolute -right-6 -bottom-6 opacity-5 group-hover:opacity-15 group-hover:scale-150 transition-all duration-700`}>
+            {/* Holographic glow on hover */}
+            <div className={`absolute inset-0 bg-gradient-to-br from-${stat.color}-500/0 via-transparent to-${stat.color}-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+            
+            <div className={`absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-20 transition-all duration-700 text-${stat.color}-400 scale-150`}>
               {stat.icon}
             </div>
             
-            <div className="flex items-center gap-3 mb-3 relative z-10">
-              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+            <div className="flex items-center gap-3 mb-2 relative z-10">
+              <div className={`w-8 h-8 rounded-lg bg-${stat.color}-500/10 flex items-center justify-center border border-${stat.color}-500/20 text-${stat.color}-400`}>
                 {stat.icon}
               </div>
-              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{stat.label}</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{stat.label}</span>
             </div>
-            <motion.div 
-              className="text-3xl font-black text-white relative z-10 font-mono tabular-nums"
-              key={stat.value}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
+            <div className="text-3xl font-black text-white relative z-10 font-mono tracking-tighter">
               {stat.value}
-            </motion.div>
+            </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* DB INFO PANEL */}
-      <div className="bg-zinc-950/60 border border-white/10 rounded-2xl p-5 backdrop-blur-md">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-sm text-white flex items-center gap-2">
-            <HardDrive className="text-cyan-400" size={16} /> Base de Données MongoDB
+      <motion.div variants={itemVariants} className="bg-black/40 border border-cyan-500/20 rounded-xl p-4 backdrop-blur-md relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,1)]" />
+        <div className="flex items-center justify-between mb-4 pl-4">
+          <h3 className="font-bold text-sm text-cyan-100 flex items-center gap-2 uppercase tracking-widest">
+            <HardDrive className="text-cyan-400" size={16} /> Data Cluster
           </h3>
           <div className="flex items-center gap-2">
             {isDbConnected ? (
-              <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
-                <Wifi size={10} /> Connecté — {stats.dbName}
+              <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20 uppercase tracking-wider">
+                <Wifi size={10} /> {stats.dbName}
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 text-[10px] font-bold text-red-400 bg-red-500/10 px-2.5 py-1 rounded-md border border-red-500/20">
-                <WifiOff size={10} /> {stats.dbConnectionStatus}
+              <span className="flex items-center gap-1.5 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded border border-red-500/20 uppercase tracking-wider">
+                <WifiOff size={10} /> Disconnected
               </span>
             )}
           </div>
         </div>
         
         {stats.collections.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pl-4">
             {stats.collections.map((col, idx) => (
-              <div key={idx} className="bg-zinc-900/50 border border-white/5 rounded-xl p-3 hover:border-cyan-500/20 transition-all">
-                <div className="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-1 truncate">{col.name}</div>
-                <div className="text-lg font-black text-white font-mono">{col.count}</div>
-                <div className="text-[9px] text-gray-600">documents</div>
+              <div key={idx} className="bg-white/5 border border-white/5 rounded-lg p-2 hover:bg-cyan-500/10 hover:border-cyan-500/30 transition-all cursor-default">
+                <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider truncate">{col.name}</div>
+                <div className="text-base font-black text-cyan-300 font-mono">{col.count}</div>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* MAIN SPLIT: Servers + Terminal */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* LEFT: Server table */}
-        <div className="lg:col-span-7 bg-zinc-950/60 border border-white/10 rounded-3xl p-6 backdrop-blur-md flex flex-col h-[500px]">
-          <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
-            <h3 className="font-bold text-lg text-white flex items-center gap-2">
-              <Database className="text-cyan-400" size={18} /> Serveurs Enregistrés
+        <div className="lg:col-span-6 bg-black/40 border border-white/10 rounded-2xl p-5 backdrop-blur-md flex flex-col h-[550px] shadow-2xl">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+            <h3 className="font-bold text-sm text-white flex items-center gap-2 uppercase tracking-widest">
+              <Database className="text-gray-400" size={16} /> Index Serveurs
             </h3>
-            <span className="text-xs font-mono text-gray-500">{servers.length} entrées</span>
+            <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">{servers.length} NODES</span>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
+          <div className="flex-1 overflow-y-auto space-y-2 pr-2 scrollbar-thin">
             {servers.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-600 space-y-2">
-                <Server size={30} />
-                <p className="text-sm font-bold">Aucun serveur en base de données.</p>
-                <p className="text-xs text-gray-700">Les serveurs apparaîtront ici lorsque le bot rejoindra des serveurs Discord.</p>
+              <div className="flex flex-col items-center justify-center h-full text-gray-600">
+                <Server size={30} className="mb-2 opacity-50" />
+                <p className="text-xs font-mono uppercase">Aucun noeud détecté</p>
               </div>
             ) : (
               servers.map(server => (
                 <div 
                   key={server.serverId}
-                  className="flex items-center justify-between bg-zinc-900/40 hover:bg-zinc-900/80 border border-white/5 hover:border-cyan-500/20 p-4 rounded-2xl transition-all duration-300 group"
+                  className="flex items-center justify-between bg-white/5 hover:bg-cyan-500/10 border border-transparent hover:border-cyan-500/30 p-3 rounded-xl transition-all duration-300 group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center overflow-hidden">
+                    <div className="w-9 h-9 rounded-lg bg-black border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
                       {server.icon ? (
                         <img src={`https://cdn.discordapp.com/icons/${server.serverId}/${server.icon}.png`} alt={server.name} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-cyan-400 font-bold">{server.name.substring(0, 2).toUpperCase()}</span>
+                        <span className="text-cyan-400 font-bold text-xs">{server.name.substring(0, 2).toUpperCase()}</span>
                       )}
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-white group-hover:text-cyan-300 transition-colors line-clamp-1">{server.name}</h4>
-                      <p className="text-[10px] text-gray-500 font-mono">ID: {server.serverId}</p>
+                      <h4 className="font-bold text-xs text-white group-hover:text-cyan-300 transition-colors line-clamp-1">{server.name}</h4>
+                      <p className="text-[9px] text-gray-500 font-mono">{server.serverId}</p>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => togglePremium(server.serverId, server.isPremium)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
-                        server.isPremium 
-                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.15)]" 
-                          : "bg-zinc-800 text-gray-400 hover:text-white border border-transparent"
-                      }`}
-                    >
-                      <Zap size={12} className={server.isPremium ? "fill-amber-400" : ""} />
-                      <span>{server.isPremium ? "Premium" : "Gratuit"}</span>
-                    </button>
-
-                    <button 
-                      onClick={() => deleteServer(server.serverId)}
-                      className="p-2 rounded-lg bg-zinc-900/80 text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                  
+                  <div className="flex gap-1.5 opacity-50 group-hover:opacity-100 transition-opacity">
+                    {server.isPremium && <Zap size={14} className="text-amber-400 fill-amber-400" />}
+                    <Shield size={14} className="text-emerald-400" />
                   </div>
                 </div>
               ))
@@ -368,64 +271,57 @@ export function BotOwnerGlobalDashboard() {
           </div>
         </div>
 
-        {/* RIGHT: Cyberpunk Terminal */}
-        <div className="lg:col-span-5 flex flex-col bg-black border border-cyan-500/20 rounded-3xl p-5 h-[500px] overflow-hidden font-mono text-sm relative group shadow-[0_0_30px_rgba(6,182,212,0.08)]">
-          {/* Neon terminal header bar */}
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-500 shadow-[0_0_20px_rgba(6,182,212,0.8)]" />
+        {/* RIGHT: Cyberpunk Terminal CRT EFFECT */}
+        <div className="lg:col-span-6 flex flex-col bg-[#050505] border border-cyan-500/30 rounded-2xl p-5 h-[550px] overflow-hidden font-mono text-sm relative shadow-[0_0_40px_rgba(6,182,212,0.15)]">
           
-          {/* Scanline effect */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,255,255,0.03)_2px,rgba(0,255,255,0.03)_4px)]" />
+          {/* CRT SCANLINES */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.04] z-20" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, #00ffff 2px, #00ffff 4px)" }} />
+          <div className="absolute inset-0 pointer-events-none z-20 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent animate-scanline" />
           
-          <div className="flex items-center justify-between border-b border-cyan-500/10 pb-3 mb-4 text-xs text-gray-500">
-            <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
-              <Terminal size={14} /> ARCANT_SHELL v2.0
+          <div className="flex items-center justify-between border-b border-cyan-500/20 pb-2 mb-3 text-xs text-cyan-500/70 relative z-30">
+            <span className="flex items-center gap-2 font-bold uppercase tracking-widest text-cyan-400">
+              <Terminal size={14} /> ARC_OS v3.0
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-[9px] text-gray-600 font-mono">{stats.dbConnectionStatus.toUpperCase()}</span>
-              <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(6,182,212,1)]" />
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_rgba(6,182,212,1)]" />
             </div>
           </div>
 
           {/* Terminal log panel */}
-          <div className="flex-1 overflow-y-auto space-y-1 pr-1 text-xs scrollbar-thin relative z-10">
+          <div className="flex-1 overflow-y-auto space-y-1.5 pr-1 text-[11px] scrollbar-thin relative z-30">
             {terminalLogs.map((log, idx) => (
               <div key={idx} className={`leading-relaxed break-words whitespace-pre-wrap ${
-                log.includes('[ERROR]') || log.includes('[WARN]') ? 'text-red-400' :
-                log.includes('[SUCCESS]') ? 'text-emerald-400' :
-                log.includes('[PROGRESS]') ? 'text-amber-400' :
-                log.includes('║') || log.includes('╔') || log.includes('╚') || log.includes('╠') ? 'text-cyan-300' :
-                'text-cyan-500/80'
+                log.includes('[ERROR]') ? 'text-red-400 drop-shadow-[0_0_5px_rgba(248,113,113,0.8)]' :
+                log.includes('[SUCCESS]') ? 'text-emerald-400 drop-shadow-[0_0_5px_rgba(52,211,153,0.8)]' :
+                log.includes('║') || log.includes('╔') || log.includes('╚') || log.includes('╠') ? 'text-cyan-300 font-bold' :
+                'text-cyan-400/80'
               }`}>
                 {log}
               </div>
             ))}
-            {isSendingAnnounce && (
-              <div className="text-cyan-400 animate-pulse">
-                [API] Broadcasting payload, please wait...
-              </div>
-            )}
             <div ref={terminalEndRef} />
           </div>
 
           {/* Terminal prompt input */}
-          <form onSubmit={handleTerminalSubmit} className="mt-4 border-t border-cyan-500/10 pt-3 flex items-center gap-2 relative z-10">
-            <span className="text-cyan-400 font-bold">$</span>
+          <form onSubmit={handleTerminalSubmit} className="mt-3 border-t border-cyan-500/20 pt-3 flex items-center gap-2 relative z-30">
+            <span className="text-cyan-400 font-bold animate-pulse">_&gt;</span>
             <input 
               type="text"
               value={terminalInput}
               onChange={(e) => setTerminalInput(e.target.value)}
-              placeholder="Tapez 'help' ou 'announce <msg>'..."
-              className="flex-1 bg-transparent text-cyan-200 outline-none placeholder:text-gray-700 text-xs font-mono"
+              className="flex-1 bg-transparent text-cyan-300 outline-none placeholder:text-cyan-800 text-xs font-mono uppercase"
+              autoComplete="off"
+              spellCheck="false"
             />
             <button 
               type="submit"
-              className="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500 hover:text-black hover:border-transparent transition-all shadow-[0_0_10px_rgba(6,182,212,0.15)]"
+              className="p-1.5 rounded text-cyan-500 hover:text-cyan-300 hover:bg-cyan-500/20 transition-all"
             >
-              <Send size={12} />
+              <Send size={14} />
             </button>
           </form>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
