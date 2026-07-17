@@ -165,7 +165,7 @@ function ToggleSwitch({ enabled, setEnabled, locked = false }: { enabled: boolea
       <motion.div 
         className="w-5 h-5 bg-white rounded-full shadow-md"
         animate={{ x: enabled ? 28 : 0 }}
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        transition={{ type: "spring" as const, stiffness: 500, damping: 30 }}
       />
     </div>
   );

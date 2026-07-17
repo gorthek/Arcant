@@ -85,7 +85,7 @@ function ToggleSwitch({ enabled, setEnabled }: { enabled: boolean; setEnabled: (
       <motion.div 
         className="w-5 h-5 bg-white rounded-full shadow-md"
         animate={{ x: enabled ? 28 : 0 }}
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        transition={{ type: "spring" as const, stiffness: 500, damping: 30 }}
       />
     </div>
   );
@@ -223,7 +223,7 @@ function ModuleOverview({ serverId }: { serverId: string }) {
             key={idx}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.08, type: "spring" }}
+            transition={{ delay: idx * 0.08, type: "spring" as const }}
             whileHover={{ scale: 1.05, y: -3 }}
             className="bg-zinc-900/50 border border-white/5 rounded-2xl p-4 relative overflow-hidden group hover:border-amber-500/30 transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(245,158,11,0.15)]"
           >
