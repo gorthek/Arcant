@@ -16,7 +16,12 @@ export function ModuleIA({ serverId }: { serverId: string }) {
   const [proposalData, setProposalData] = useState<any>({
     explanation: "J'ai analysé votre communauté. Voici une structure orientée Gaming compétitif avec salons privés et grades automatiques.",
     roles: [{ name: "Admin", color: "#FF0000" }, { name: "Joueur", color: "#00FF00" }],
-    channels: [{ name: "général", type: "text" }, { name: "vocal-1", type: "voice" }]
+    categories: [
+      { 
+        name: "Général", 
+        channels: [{ name: "général", type: "text" }, { name: "vocal-1", type: "voice" }] 
+      }
+    ]
   });
 
   // Custom Bot State
@@ -85,7 +90,7 @@ export function ModuleIA({ serverId }: { serverId: string }) {
               {/* To keep it functional without rewriting all ServerVisualEditor, we embed it here */}
               <div className="h-[600px] w-full bg-zinc-950 rounded-2xl border border-white/10 overflow-hidden">
                 <ServerVisualEditor 
-                  structure={{ roles: proposalData.roles, channels: proposalData.channels }} 
+                  structure={{ roles: proposalData.roles, categories: proposalData.categories }} 
                   setStructure={(val) => setProposalData(val)} 
                   onDeploy={() => {}} 
                   onCancel={() => {}} 

@@ -447,7 +447,7 @@ function ModuleModeration({ serverId }: { serverId: string }) {
           <ToggleSwitch enabled={settings.warnAutomation} setEnabled={(val) => updateSettings({ warnAutomation: val })} />
         </div>
 
-        {warnAutomation && (
+        {settings.warnAutomation && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
             <div className="space-y-2 bg-zinc-950 p-4 rounded-xl border border-white/5">
               <label className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Auto-Mute à</label>
@@ -509,7 +509,7 @@ function ModuleModeration({ serverId }: { serverId: string }) {
 }
 
 // --- TICKETS ---
-function ModuleTickets() {
+function ModuleTickets({ serverId }: { serverId: string }) {
   const [ticketsEnabled, setTicketsEnabled] = useState(true);
   const [embedTitle, setEmbedTitle] = useState("Support Arcant");
   const [embedDesc, setEmbedDesc] = useState("Cliquez sur le bouton ci-dessous pour ouvrir un ticket et obtenir de l'aide.");
@@ -599,7 +599,7 @@ function ModuleEconomy({ serverId }: { serverId: string }) {
           <div className="font-bold text-sm text-white mb-1">Activer l'Économie</div>
           <div className="text-xs text-gray-400">Permet aux membres d'accumuler de la monnaie et d'acheter des perks.</div>
         </div>
-        <ToggleSwitch enabled={settings.economyEnabled} setEnabled={setEconomyEnabled} />
+        <ToggleSwitch enabled={settings.economyEnabled} setEnabled={(val) => updateSettings({ economyEnabled: val })} />
       </div>
 
       {settings.economyEnabled && (
@@ -651,7 +651,7 @@ function ModuleLeveling({ serverId }: { serverId: string }) {
           <div className="font-bold text-sm text-white mb-1">Activer le Leveling</div>
           <div className="text-xs text-gray-400">Calcule l'XP des membres et attribue des niveaux selon leur activité.</div>
         </div>
-        <ToggleSwitch enabled={settings.levelingEnabled} setEnabled={setLevelingEnabled} />
+        <ToggleSwitch enabled={settings.levelingEnabled} setEnabled={(val) => updateSettings({ levelingEnabled: val })} />
       </div>
 
       {settings.levelingEnabled && (
@@ -688,7 +688,7 @@ function ModuleWelcome({ serverId }: { serverId: string }) {
           <div className="font-bold text-sm text-white mb-1">Activer les messages de bienvenue</div>
           <div className="text-xs text-gray-400">Déclenche un message d'accueil à l'arrivée d'un membre.</div>
         </div>
-        <ToggleSwitch enabled={settings.welcomeEnabled} setEnabled={setWelcomeEnabled} />
+        <ToggleSwitch enabled={settings.welcomeEnabled} setEnabled={(val) => updateSettings({ welcomeEnabled: val })} />
       </div>
 
       {settings.welcomeEnabled && (
