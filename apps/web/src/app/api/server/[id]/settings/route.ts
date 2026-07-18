@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import dbConnect from '@repo/database/src/mongoose';
-import { Server } from '@repo/database/src/models/Server';
+import { dbConnect, Server } from "@arcant/database";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
@@ -14,7 +14,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     await dbConnect();
     
     // We try to find the server
-    const server = await Server.findOne({ serverId: params.id });
+    const server = await Server.findOne({ serverId: id });
     if (!server) {
       // If server doesn't exist in DB yet, return defaults
       return NextResponse.json({
@@ -49,7 +49,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
@@ -62,7 +63,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     // Check if user is admin of the server - ideally via Discord API or DB
     // For now, we update the DB
     const server = await Server.findOneAndUpdate(
-      { serverId: params.id },
+      { serverId: id },
       { $set: body },
       { new: true, upsert: true }
     );

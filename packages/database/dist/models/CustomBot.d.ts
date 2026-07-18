@@ -7,6 +7,9 @@ export interface ICustomBot extends Document {
     systemPrompt: string;
     isActive: boolean;
     features: string[];
+    creationMethod: 'code' | 'scratch' | 'ai';
+    rawCode?: string;
+    scratchGraph?: any;
     createdAt: Date;
     updatedAt: Date;
 }

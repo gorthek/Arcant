@@ -42,6 +42,7 @@ const UserSchema = new mongoose_1.Schema({
     avatarUrl: { type: String },
     image: { type: String },
     isPremium: { type: Boolean, default: false },
+    isLifetimePremium: { type: Boolean, default: false },
     premiumUntil: { type: Date },
     stripeCustomerId: { type: String },
     createdAt: { type: Date, default: Date.now }

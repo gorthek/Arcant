@@ -6,6 +6,7 @@ export interface IUser extends Document {
     avatarUrl?: string;
     image?: string;
     isPremium: boolean;
+    isLifetimePremium: boolean;
     premiumUntil?: Date;
     stripeCustomerId?: string;
     createdAt: Date;

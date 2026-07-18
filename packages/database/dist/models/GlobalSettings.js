@@ -33,21 +33,13 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CustomBot = void 0;
+exports.GlobalSettings = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const customBotSchema = new mongoose_1.Schema({
-    ownerId: { type: String, required: true },
-    serverId: { type: String, required: false },
-    botName: { type: String, required: true },
-    botToken: { type: String, required: true },
-    systemPrompt: { type: String, default: '' },
-    isActive: { type: Boolean, default: true },
-    features: { type: [String], default: [] },
-    creationMethod: { type: String, enum: ['code', 'scratch', 'ai'], default: 'ai' },
-    rawCode: { type: String },
-    scratchGraph: { type: mongoose_1.Schema.Types.Mixed },
-}, {
-    timestamps: true,
+const GlobalSettingsSchema = new mongoose_1.Schema({
+    activePromotion: { type: Boolean, default: false },
+    promotionDiscountPercent: { type: Number, default: 0 },
+    promotionEndDate: { type: Date },
+    promotionMessage: { type: String, default: "" },
+    updatedAt: { type: Date, default: Date.now }
 });
-// Pour éviter les soucis de re-compilation de modèle sous Next.js
-exports.CustomBot = mongoose_1.default.models.CustomBot || mongoose_1.default.model('CustomBot', customBotSchema);
+exports.GlobalSettings = mongoose_1.default.models.GlobalSettings || mongoose_1.default.model('GlobalSettings', GlobalSettingsSchema);

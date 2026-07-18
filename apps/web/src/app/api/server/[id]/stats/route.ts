@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
@@ -15,7 +16,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const apiUrl = process.env.NEXT_PUBLIC_BOT_API_URL || 'http://localhost:4000';
     
     try {
-      const botRes = await fetch(`${apiUrl}/api/server/${params.id}/stats`, {
+      const botRes = await fetch(`${apiUrl}/api/server/${id}/stats`, {
         // High Availability: short timeout so dashboard doesn't hang if bot is dead
         signal: AbortSignal.timeout(3000) 
       });
@@ -25,7 +26,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         return NextResponse.json(stats);
       }
     } catch (e) {
-      console.warn(`Bot API not responding for server ${params.id} stats. Using fallback.`);
+      console.warn(`Bot API not responding for server ${id} stats. Using fallback.`);
     }
 
     // Fallback if Bot is offline or Redis is missing

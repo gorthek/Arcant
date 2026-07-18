@@ -1,0 +1,11 @@
+const fs = require('fs');
+const file = 'apps/web/src/components/dashboard/roles/OwnerDashboard.tsx';
+let code = fs.readFileSync(file, 'utf-8');
+const lines = code.split('\n');
+const start = lines.findIndex(l => l.includes('function ModuleIA'));
+const nextFunc = lines.findIndex((l, i) => i > start && l.startsWith('function Module'));
+console.log('Removing lines', start, 'to', nextFunc);
+code = lines.slice(0, start).concat(lines.slice(nextFunc)).join('\n');
+code = code.replace("import ServerVisualEditor from './ServerVisualEditor';", "import ServerVisualEditor from './ServerVisualEditor';\nimport { ModuleIA } from './ModuleIA';");
+fs.writeFileSync(file, code);
+console.log('Done');

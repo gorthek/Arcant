@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
@@ -12,7 +13,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const apiUrl = process.env.NEXT_PUBLIC_BOT_API_URL || 'http://localhost:4000';
     
     try {
-      const botRes = await fetch(`${apiUrl}/api/server/${params.id}/structure`, {
+      const botRes = await fetch(`${apiUrl}/api/server/${id}/structure`, {
         signal: AbortSignal.timeout(4000) 
       });
       
@@ -21,7 +22,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         return NextResponse.json(data);
       }
     } catch (e) {
-      console.warn(`Bot API not responding for server ${params.id} structure. Using fallback.`);
+      console.warn(`Bot API not responding for server ${id} structure. Using fallback.`);
     }
 
     // High availability fallback: If the bot is completely unreachable, provide a minimal structure

@@ -1,5 +1,4 @@
-import { TargetProfile } from './dictionary';
-
+export type TargetProfile = 'SIMPLE_GAMING' | 'COMPLEX_COMMUNITY' | 'DEV_TEAM' | 'STAFF_MODERATION' | 'ESPORT_TEAM' | 'DEFAULT_FALLBACK';
 /**
  * Discord API Channel Types simplified for our generator
  */

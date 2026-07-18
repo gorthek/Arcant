@@ -5,6 +5,7 @@ export interface IServer extends Document {
     icon?: string;
     ownerId: string;
     isPremium: boolean;
+    isLifetimePremium: boolean;
     premiumUntil?: Date;
     joinedAt: Date;
     raidMode: boolean;

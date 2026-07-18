@@ -41,6 +41,7 @@ const ServerSchema = new mongoose_1.Schema({
     icon: { type: String },
     ownerId: { type: String, required: true },
     isPremium: { type: Boolean, default: false },
+    isLifetimePremium: { type: Boolean, default: false },
     premiumUntil: { type: Date },
     joinedAt: { type: Date, default: Date.now },
     // Security defaults
