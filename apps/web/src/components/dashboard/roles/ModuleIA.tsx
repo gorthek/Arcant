@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, Server, Sparkles, MessageSquare, Terminal, LayoutGrid } from "lucide-react";
-import Editor from "@monaco-editor/react";
+import BotCodeEditor from "./BotCodeEditor";
 import ServerVisualEditor from './ServerVisualEditor';
 import { ScratchEditor } from './ScratchEditor';
 
@@ -173,27 +173,8 @@ export function ModuleIA({ serverId }: { serverId: string }) {
                 <ScratchEditor />
               )}
 
-              {/* METHODE 3 : MONACO EDITOR / CODE */}
               {botCreationMethod === "code" && (
-                <div className="bg-zinc-950 rounded-3xl border border-white/10 overflow-hidden h-[600px] flex flex-col">
-                  <div className="bg-zinc-900 border-b border-white/10 px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
-                      <Terminal size={14} /> bot.js
-                    </div>
-                    <button className="px-4 py-1.5 bg-emerald-500 text-black font-bold text-xs rounded-lg hover:bg-emerald-400">
-                      Lancer le script
-                    </button>
-                  </div>
-                  <div className="flex-1">
-                    <Editor
-                      height="100%"
-                      defaultLanguage="javascript"
-                      theme="vs-dark"
-                      defaultValue={`const { Client, GatewayIntentBits } = require('discord.js');\nconst client = new Client({ intents: [GatewayIntentBits.Guilds] });\n\nclient.on('ready', () => {\n  console.log(\`Logged in as \${client.user.tag}!\`);\n});\n\nclient.login('YOUR_TOKEN_HERE');\n`}
-                      options={{ minimap: { enabled: false }, fontSize: 14, padding: { top: 16 } }}
-                    />
-                  </div>
-                </div>
+                <BotCodeEditor />
               )}
 
             </div>

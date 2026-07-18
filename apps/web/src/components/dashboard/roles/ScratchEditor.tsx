@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import ReactFlow, { 
   Background, 
   Controls, 
@@ -11,16 +11,16 @@ import ReactFlow, {
   MiniMap
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { LayoutGrid, Plus, X, Settings } from 'lucide-react';
+import { LayoutGrid, Plus, X, Settings, Zap, Play, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { EventNode, ActionNode, ConditionNode } from './CustomNodes';
 
 const initialNodes: Node[] = [
   { 
     id: '1', 
     position: { x: 100, y: 150 }, 
-    data: { label: 'Événement: Message Reçu', params: { channel: 'all' } }, 
-    type: 'input',
-    style: { background: '#27272a', color: '#fff', border: '1px solid #3f3f46', borderRadius: '8px', padding: '10px' }
+    data: { label: 'Message Reçu', params: { channel: 'all' } }, 
+    type: 'eventNode',
   },
 ];
 
@@ -36,18 +36,19 @@ export function ScratchEditor() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState<{ label: string; params: any }>({ label: '', params: {} });
 
+  const nodeTypes = useMemo(() => ({ eventNode: EventNode, actionNode: ActionNode, conditionNode: ConditionNode }), []);
+
   const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true, style: { stroke: '#f59e0b', strokeWidth: 2 } }, eds)),
+    (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true, style: { stroke: '#14b8a6', strokeWidth: 2 } }, eds)),
     [setEdges]
   );
 
-  const addNode = (type: 'input' | 'default' | 'output', label: string) => {
+  const addNode = (type: 'eventNode' | 'actionNode' | 'conditionNode', label: string) => {
     const newNode: Node = {
       id: getId(),
       type,
       position: { x: 200 + Math.random() * 100, y: 200 + Math.random() * 100 },
       data: { label, params: {} },
-      style: { background: '#27272a', color: '#fff', border: '1px solid #3f3f46', borderRadius: '8px', padding: '10px' }
     };
     setNodes((nds) => nds.concat(newNode));
   };
@@ -72,51 +73,61 @@ export function ScratchEditor() {
   };
 
   return (
-    <div className="bg-zinc-950 rounded-3xl border border-amber-500/30 overflow-hidden h-[600px] relative flex">
+    <div className="bg-zinc-950 rounded-3xl border border-white/10 overflow-hidden h-[600px] relative flex shadow-2xl">
       {/* Sidebar de Blocs */}
-      <div className="w-64 bg-zinc-900 border-r border-white/10 p-4 flex flex-col gap-4 z-10 shrink-0">
-        <h3 className="text-white font-bold flex items-center gap-2 mb-2"><LayoutGrid size={16} className="text-amber-500" /> Blocs Disponibles</h3>
+      <div className="w-72 bg-zinc-900 border-r border-white/10 p-5 flex flex-col gap-6 z-10 shrink-0 overflow-y-auto">
+        <h3 className="text-white font-black flex items-center gap-2 text-lg"><LayoutGrid size={20} className="text-teal-400" /> Blocs Disponibles</h3>
         
-        <div className="space-y-2">
-          <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Événements</p>
-          <button onClick={() => addNode('input', 'Événement: Nouveau Membre')} className="w-full text-left p-3 rounded-xl bg-zinc-800 border border-white/5 hover:border-amber-500/50 text-sm text-gray-300 transition-colors flex items-center gap-2">
-            <Plus size={14} className="text-amber-500" /> Nouveau Membre
+        <div className="space-y-3">
+          <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest border-b border-amber-500/20 pb-1">Événements (Déclencheurs)</p>
+          <button onClick={() => addNode('eventNode', 'Nouveau Membre')} className="w-full text-left px-4 py-3 rounded-xl bg-zinc-950 border-2 border-zinc-800 hover:border-amber-500/50 text-sm font-bold text-gray-300 transition-all flex items-center gap-3 hover:scale-[1.02]">
+            <Zap size={16} className="text-amber-500" /> Nouveau Membre
           </button>
-          <button onClick={() => addNode('input', 'Événement: Message Reçu')} className="w-full text-left p-3 rounded-xl bg-zinc-800 border border-white/5 hover:border-amber-500/50 text-sm text-gray-300 transition-colors flex items-center gap-2">
-            <Plus size={14} className="text-amber-500" /> Message Reçu
+          <button onClick={() => addNode('eventNode', 'Message Reçu')} className="w-full text-left px-4 py-3 rounded-xl bg-zinc-950 border-2 border-zinc-800 hover:border-amber-500/50 text-sm font-bold text-gray-300 transition-all flex items-center gap-3 hover:scale-[1.02]">
+            <Zap size={16} className="text-amber-500" /> Message Reçu
           </button>
         </div>
 
-        <div className="space-y-2 mt-4">
-          <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Actions</p>
-          <button onClick={() => addNode('default', 'Action: Ajouter Rôle')} className="w-full text-left p-3 rounded-xl bg-zinc-800 border border-white/5 hover:border-amber-500/50 text-sm text-gray-300 transition-colors flex items-center gap-2">
-            <Plus size={14} className="text-amber-500" /> Ajouter Rôle
+        <div className="space-y-3">
+          <p className="text-[10px] font-black text-fuchsia-500 uppercase tracking-widest border-b border-fuchsia-500/20 pb-1">Conditions (Logique)</p>
+          <button onClick={() => addNode('conditionNode', 'Le message contient...')} className="w-full text-left px-4 py-3 rounded-xl bg-zinc-950 border-2 border-zinc-800 hover:border-fuchsia-500/50 text-sm font-bold text-gray-300 transition-all flex items-center gap-3 hover:scale-[1.02]">
+            <HelpCircle size={16} className="text-fuchsia-500" /> Message Contient
           </button>
-          <button onClick={() => addNode('output', 'Action: Envoyer Message')} className="w-full text-left p-3 rounded-xl bg-zinc-800 border border-white/5 hover:border-amber-500/50 text-sm text-gray-300 transition-colors flex items-center gap-2">
-            <Plus size={14} className="text-amber-500" /> Envoyer Message
+          <button onClick={() => addNode('conditionNode', 'A le rôle...')} className="w-full text-left px-4 py-3 rounded-xl bg-zinc-950 border-2 border-zinc-800 hover:border-fuchsia-500/50 text-sm font-bold text-gray-300 transition-all flex items-center gap-3 hover:scale-[1.02]">
+            <HelpCircle size={16} className="text-fuchsia-500" /> Possède le Rôle
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-[10px] font-black text-teal-500 uppercase tracking-widest border-b border-teal-500/20 pb-1">Actions (Exécution)</p>
+          <button onClick={() => addNode('actionNode', 'Ajouter Rôle')} className="w-full text-left px-4 py-3 rounded-xl bg-zinc-950 border-2 border-zinc-800 hover:border-teal-500/50 text-sm font-bold text-gray-300 transition-all flex items-center gap-3 hover:scale-[1.02]">
+            <Play size={16} className="text-teal-500" /> Ajouter Rôle
+          </button>
+          <button onClick={() => addNode('actionNode', 'Envoyer Message')} className="w-full text-left px-4 py-3 rounded-xl bg-zinc-950 border-2 border-zinc-800 hover:border-teal-500/50 text-sm font-bold text-gray-300 transition-all flex items-center gap-3 hover:scale-[1.02]">
+            <Play size={16} className="text-teal-500" /> Envoyer Message
           </button>
         </div>
       </div>
 
       {/* Zone Canvas */}
-      <div className="flex-1 relative">
-        <div className="absolute top-4 right-4 z-10 bg-zinc-900/90 backdrop-blur border border-white/10 px-4 py-2 rounded-xl text-xs font-bold text-amber-400 flex items-center gap-2 shadow-lg">
+      <div className="flex-1 relative bg-[#0a0a0a]">
+        <div className="absolute top-4 right-4 z-10 bg-zinc-900/90 backdrop-blur border border-white/10 px-4 py-2 rounded-xl text-xs font-bold text-teal-400 flex items-center gap-2 shadow-lg">
           Double-cliquez sur un bloc pour modifier ses paramètres
         </div>
         
         <ReactFlow 
           nodes={nodes} 
           edges={edges} 
+          nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onNodeDoubleClick={onNodeDoubleClick}
           fitView 
-          className="bg-zinc-950"
         >
           <Background color="#333" gap={16} />
           <Controls className="bg-zinc-900 fill-white border-white/10" />
-          <MiniMap nodeColor="#f59e0b" maskColor="rgba(0,0,0,0.8)" style={{ backgroundColor: '#18181b' }} />
+          <MiniMap nodeColor="#14b8a6" maskColor="rgba(0,0,0,0.8)" style={{ backgroundColor: '#18181b' }} />
         </ReactFlow>
       </div>
 

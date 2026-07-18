@@ -19,6 +19,7 @@ import {
 interface Role {
   name: string;
   color: string;
+  permissions?: string[];
 }
 
 interface Channel {
@@ -252,21 +253,67 @@ export default function ServerVisualEditor({
                     <motion.div 
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
-                      className="mt-3 pt-3 border-t border-zinc-800/80 grid grid-cols-5 gap-2"
+                      className="mt-3 pt-3 border-t border-zinc-800/80 space-y-4"
                     >
-                      {COLOR_PRESETS.map((preset) => (
-                        <button
-                          key={preset.hex}
-                          onClick={() => handleRoleColorChange(idx, preset.hex)}
-                          className="w-full h-6 rounded-md border border-black/25 flex items-center justify-center relative hover:scale-110 active:scale-95 transition"
-                          style={{ backgroundColor: preset.hex }}
-                          title={preset.name}
-                        >
-                          {role.color.toLowerCase() === preset.hex.toLowerCase() && (
-                            <Check className="w-3 h-3 text-zinc-950 font-bold" />
-                          )}
-                        </button>
-                      ))}
+                      <div>
+                        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Couleur</div>
+                        <div className="grid grid-cols-5 gap-2">
+                          {COLOR_PRESETS.map((preset) => (
+                            <button
+                              key={preset.hex}
+                              onClick={() => handleRoleColorChange(idx, preset.hex)}
+                              className="w-full h-6 rounded-md border border-black/25 flex items-center justify-center relative hover:scale-110 active:scale-95 transition"
+                              style={{ backgroundColor: preset.hex }}
+                              title={preset.name}
+                            >
+                              {role.color.toLowerCase() === preset.hex.toLowerCase() && (
+                                <Check className="w-3 h-3 text-zinc-950 font-bold" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Permissions</div>
+                        <div className="space-y-2">
+                          {[
+                            { id: 'ADMINISTRATOR', label: 'Administrateur', color: 'text-red-400' },
+                            { id: 'MANAGE_CHANNELS', label: 'Gérer les Salons', color: 'text-teal-400' },
+                            { id: 'MANAGE_ROLES', label: 'Gérer les Rôles', color: 'text-teal-400' },
+                            { id: 'KICK_MEMBERS', label: 'Expulser', color: 'text-orange-400' },
+                            { id: 'BAN_MEMBERS', label: 'Bannir', color: 'text-orange-400' },
+                            { id: 'MANAGE_MESSAGES', label: 'Gérer les Messages', color: 'text-blue-400' }
+                          ].map(perm => {
+                            const hasPerm = role.permissions?.includes(perm.id) || false;
+                            return (
+                              <label key={perm.id} className="flex items-center justify-between cursor-pointer group">
+                                <span className={`text-xs font-medium transition-colors ${hasPerm ? perm.color : 'text-zinc-400 group-hover:text-zinc-300'}`}>
+                                  {perm.label}
+                                </span>
+                                <div className={`relative w-8 h-4 rounded-full transition-colors ${hasPerm ? 'bg-teal-500' : 'bg-zinc-800'}`}>
+                                  <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${hasPerm ? 'translate-x-4' : 'translate-x-0'}`} />
+                                </div>
+                                <input 
+                                  type="checkbox" 
+                                  className="hidden" 
+                                  checked={hasPerm}
+                                  onChange={(e) => {
+                                    const newStructure = { ...structure };
+                                    const currentPerms = newStructure.roles[idx].permissions || [];
+                                    if (e.target.checked) {
+                                      newStructure.roles[idx].permissions = [...currentPerms, perm.id];
+                                    } else {
+                                      newStructure.roles[idx].permissions = currentPerms.filter(p => p !== perm.id);
+                                    }
+                                    setStructure(newStructure);
+                                  }}
+                                />
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </motion.div>
                   )}
                 </motion.div>
