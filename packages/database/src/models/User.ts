@@ -7,6 +7,7 @@ export interface IUser extends Document {
   avatarUrl?: string;
   image?: string;
   isPremium: boolean;
+  isLifetimePremium: boolean;
   premiumUntil?: Date;
   stripeCustomerId?: string;
   createdAt: Date;
@@ -19,6 +20,7 @@ const UserSchema = new Schema<IUser>({
   avatarUrl: { type: String },
   image: { type: String },
   isPremium: { type: Boolean, default: false },
+  isLifetimePremium: { type: Boolean, default: false },
   premiumUntil: { type: Date },
   stripeCustomerId: { type: String },
   createdAt: { type: Date, default: Date.now }

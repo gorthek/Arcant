@@ -5,16 +5,13 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, FileText, User, Plus, Trash2, Award, Coins, UserPlus, HelpCircle, Activity } from "lucide-react";
 import ServerVisualEditor from './ServerVisualEditor';
+import { useServerSettings } from "@/hooks/useServerSettings";
+import { PremiumLockWrapper } from "@/components/dashboard/PremiumLockWrapper";
 
 export function OwnerDashboard({ serverId }: { serverId: string }) {
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "overview";
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleSave = () => {
-    setIsSaving(true);
-    setTimeout(() => setIsSaving(false), 1000);
-  };
+  const { settings, isLoading } = useServerSettings(serverId);
 
   const setActiveTab = (id: string) => {
     const url = new URL(window.location.href);
@@ -26,6 +23,10 @@ export function OwnerDashboard({ serverId }: { serverId: string }) {
     window.history.pushState({}, '', url.toString());
   };
 
+  if (isLoading) {
+    return <div className="text-amber-500 animate-pulse text-center p-20">Chargement des données du serveur...</div>;
+  }
+
   return (
     <div className="max-w-5xl mx-auto pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -33,14 +34,7 @@ export function OwnerDashboard({ serverId }: { serverId: string }) {
           <h1 className="text-3xl font-bold mb-2 text-white">Paramètres du Serveur</h1>
           <p className="text-gray-400 text-sm">Gérez les modules actifs pour le serveur {serverId}</p>
         </div>
-        <button 
-          onClick={handleSave}
-          className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)] disabled:opacity-70 animate-pulse"
-          disabled={isSaving}
-        >
-          <Save size={14} />
-          {isSaving ? "Sauvegarde..." : "Sauvegarder"}
-        </button>
+        {/* Auto-save enabled. No manual save button needed. */}
       </div>
 
       {/* Content Container */}
@@ -58,13 +52,17 @@ export function OwnerDashboard({ serverId }: { serverId: string }) {
             className="relative z-10"
           >
             {activeTab === "overview" && <ModuleOverview serverId={serverId} />}
-            {activeTab === "ia" && <ModuleIA serverId={serverId} />}
-            {activeTab === "security" && <ModuleSecurity />}
-            {activeTab === "moderation" && <ModuleModeration />}
-            {activeTab === "tickets" && <ModuleTickets />}
-            {activeTab === "economy" && <ModuleEconomy />}
-            {activeTab === "leveling" && <ModuleLeveling />}
-            {activeTab === "welcome" && <ModuleWelcome />}
+            {activeTab === "ia" && (
+              <PremiumLockWrapper isPremium={settings?.isPremium || false} featureName="Studio IA">
+                <ModuleIA serverId={serverId} />
+              </PremiumLockWrapper>
+            )}
+            {activeTab === "security" && <ModuleSecurity serverId={serverId} />}
+            {activeTab === "moderation" && <ModuleModeration serverId={serverId} />}
+            {activeTab === "tickets" && <ModuleTickets serverId={serverId} />}
+            {activeTab === "economy" && <ModuleEconomy serverId={serverId} />}
+            {activeTab === "leveling" && <ModuleLeveling serverId={serverId} />}
+            {activeTab === "welcome" && <ModuleWelcome serverId={serverId} />}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -772,15 +770,8 @@ function ModuleIA({ serverId }: { serverId: string }) {
 }
 
 // --- MODULE SECURITE & RAID ---
-function ModuleSecurity() {
-  const [raidMode, setRaidMode] = useState(false);
-  const [antiLink, setAntiLink] = useState(true);
-  const [captchaVerification, setCaptchaVerification] = useState(false);
-  const [accountAge, setAccountAge] = useState("1w");
-  const [mentionLimit, setMentionLimit] = useState("5");
-  const [antiMassBan, setAntiMassBan] = useState(5);
-  const [antiSelfbot, setAntiSelfbot] = useState(true);
-
+function ModuleSecurity({ serverId }: { serverId: string }) {
+  const { settings, updateSettings } = useServerSettings(serverId);
   return (
     <div className="space-y-8">
       <div className="border-b border-white/10 pb-4">
@@ -798,7 +789,7 @@ function ModuleSecurity() {
               Verrouille instantanément le serveur. Les nouveaux membres devront passer un Captcha ultra-strict en MP avant de voir les salons.
             </p>
           </div>
-          <ToggleSwitch enabled={raidMode} setEnabled={setRaidMode} />
+          <ToggleSwitch enabled={settings.raidMode} setEnabled={(val) => updateSettings({ raidMode: val })} />
         </div>
       </div>
 
@@ -809,7 +800,7 @@ function ModuleSecurity() {
             <div className="font-bold text-sm text-white mb-1">Vérification par Captcha</div>
             <div className="text-xs text-gray-400">Force les nouveaux membres à valider un captcha anti-bot par message privé.</div>
           </div>
-          <ToggleSwitch enabled={captchaVerification} setEnabled={setCaptchaVerification} />
+          <ToggleSwitch enabled={settings.captchaVerification} setEnabled={(val) => updateSettings({ captchaVerification: val })} />
         </div>
 
         {/* Anti selfbot */}
@@ -818,7 +809,7 @@ function ModuleSecurity() {
             <div className="font-bold text-sm text-white mb-1">Scanner Anti-Selfbot & Userbots</div>
             <div className="text-xs text-gray-400">Détecte et bannit automatiquement les comptes automatisés.</div>
           </div>
-          <ToggleSwitch enabled={antiSelfbot} setEnabled={setAntiSelfbot} />
+          <ToggleSwitch enabled={settings.antiSelfbot} setEnabled={(val) => updateSettings({ antiSelfbot: val })} />
         </div>
 
         {/* Anti lien */}
@@ -827,15 +818,14 @@ function ModuleSecurity() {
             <div className="font-bold text-sm text-white mb-1">Anti-Lien & Anti-Pub</div>
             <div className="text-xs text-gray-400">Supprime automatiquement les invitations Discord et les liens publicitaires non autorisés.</div>
           </div>
-          <ToggleSwitch enabled={antiLink} setEnabled={setAntiLink} />
+          <ToggleSwitch enabled={settings.antiLink} setEnabled={(val) => updateSettings({ antiLink: val })} />
         </div>
 
         {/* Account Age */}
         <div className="space-y-2">
           <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Âge Minimum du Compte pour Rejoindre</label>
           <select 
-            value={accountAge}
-            onChange={(e) => setAccountAge(e.target.value)}
+            value={settings.accountAge} onChange={(e) => updateSettings({ accountAge: e.target.value })}
             className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-teal-500 focus:outline-none transition-colors"
           >
             <option value="none">Pas de limite (Tout compte autorisé)</option>
@@ -849,8 +839,7 @@ function ModuleSecurity() {
         <div className="space-y-2">
           <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Limite de Mentions par Message</label>
           <select 
-            value={mentionLimit}
-            onChange={(e) => setMentionLimit(e.target.value)}
+            value={settings.mentionLimit} onChange={(e) => updateSettings({ mentionLimit: e.target.value })}
             className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-teal-500 focus:outline-none transition-colors"
           >
             <option value="none">Pas de limite</option>
@@ -866,8 +855,7 @@ function ModuleSecurity() {
           <div className="flex gap-4 items-center">
             <input 
               type="number"
-              value={antiMassBan}
-              onChange={(e) => setAntiMassBan(parseInt(e.target.value) || 0)}
+              value={settings.antiMassBan} onChange={(e) => updateSettings({ antiMassBan: parseInt(e.target.value) || 0 })}
               className="bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-teal-500 focus:outline-none w-24"
             />
             <p className="text-xs text-gray-500">Bans max autorisés par un modérateur en 5 minutes. Au-delà, le modérateur est destitué de ses rôles.</p>
@@ -879,16 +867,8 @@ function ModuleSecurity() {
 }
 
 // --- MODULE MODERATION ---
-function ModuleModeration() {
-  const [warnAutomation, setWarnAutomation] = useState(true);
-  const [warnMuteLimit, setWarnMuteLimit] = useState(3);
-  const [warnKickLimit, setWarnKickLimit] = useState(5);
-  const [warnBanLimit, setWarnBanLimit] = useState(10);
-  
-  const [slowmode, setSlowmode] = useState("off");
-  const [whitelist, setWhitelist] = useState("");
-  const [selectedLogsChannel, setSelectedLogsChannel] = useState("");
-
+function ModuleModeration({ serverId }: { serverId: string }) {
+  const { settings, updateSettings } = useServerSettings(serverId);
   return (
     <div className="space-y-8">
       <div className="border-b border-white/10 pb-4">
@@ -900,8 +880,7 @@ function ModuleModeration() {
         <div className="space-y-2">
           <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Salon des Logs</label>
           <select 
-            value={selectedLogsChannel}
-            onChange={(e) => setSelectedLogsChannel(e.target.value)}
+            value={settings.selectedLogsChannel} onChange={(e) => updateSettings({ selectedLogsChannel: e.target.value })}
             className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-teal-500 focus:outline-none transition-colors"
           >
             <option value="">Sélectionner un salon...</option>
@@ -914,8 +893,7 @@ function ModuleModeration() {
         <div className="space-y-2">
           <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Slowmode Global par défaut (Salons publics)</label>
           <select 
-            value={slowmode}
-            onChange={(e) => setSlowmode(e.target.value)}
+            value={settings.slowmode} onChange={(e) => updateSettings({ slowmode: e.target.value })}
             className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-teal-500 focus:outline-none transition-colors"
           >
             <option value="off">Désactivé (Pas de slowmode)</option>
@@ -935,7 +913,7 @@ function ModuleModeration() {
             <h4 className="font-bold text-sm text-white">Sanctions Automatiques</h4>
             <p className="text-xs text-gray-400">Automatisez les actions du bot en fonction du nombre d'avertissements (warns) d'un membre.</p>
           </div>
-          <ToggleSwitch enabled={warnAutomation} setEnabled={setWarnAutomation} />
+          <ToggleSwitch enabled={settings.warnAutomation} setEnabled={(val) => updateSettings({ warnAutomation: val })} />
         </div>
 
         {warnAutomation && (
@@ -945,8 +923,7 @@ function ModuleModeration() {
               <div className="flex items-center gap-2">
                 <input 
                   type="number"
-                  value={warnMuteLimit}
-                  onChange={(e) => setWarnMuteLimit(parseInt(e.target.value) || 0)}
+                  value={settings.warnMuteLimit} onChange={(e) => updateSettings({ warnMuteLimit: parseInt(e.target.value) || 0 })}
                   className="bg-zinc-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-teal-500 w-16"
                 />
                 <span className="text-xs text-gray-500 font-semibold">warns</span>
@@ -958,8 +935,7 @@ function ModuleModeration() {
               <div className="flex items-center gap-2">
                 <input 
                   type="number"
-                  value={warnKickLimit}
-                  onChange={(e) => setWarnKickLimit(parseInt(e.target.value) || 0)}
+                  value={settings.warnKickLimit} onChange={(e) => updateSettings({ warnKickLimit: parseInt(e.target.value) || 0 })}
                   className="bg-zinc-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-teal-500 w-16"
                 />
                 <span className="text-xs text-gray-500 font-semibold">warns</span>
@@ -971,8 +947,7 @@ function ModuleModeration() {
               <div className="flex items-center gap-2">
                 <input 
                   type="number"
-                  value={warnBanLimit}
-                  onChange={(e) => setWarnBanLimit(parseInt(e.target.value) || 0)}
+                  value={settings.warnBanLimit} onChange={(e) => updateSettings({ warnBanLimit: parseInt(e.target.value) || 0 })}
                   className="bg-zinc-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-teal-500 w-16"
                 />
                 <span className="text-xs text-gray-500 font-semibold">warns</span>
@@ -993,8 +968,7 @@ function ModuleModeration() {
       <div className="space-y-2">
         <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Exceptions / Liste Blanche (Liens Autorisés)</label>
         <textarea 
-          value={whitelist}
-          onChange={(e) => setWhitelist(e.target.value)}
+          value={settings.whitelist} onChange={(e) => updateSettings({ whitelist: e.target.value })}
           className="w-full h-20 bg-zinc-900 border border-white/10 rounded-xl p-4 text-xs text-white focus:border-teal-500 focus:outline-none resize-none"
           placeholder="Ex: google.com, youtube.com"
         />
@@ -1080,12 +1054,8 @@ function ModuleTickets() {
 }
 
 // --- ECONOMIE ---
-function ModuleEconomy() {
-  const [economyEnabled, setEconomyEnabled] = useState(true);
-  const [currencySymbol, setCurrencySymbol] = useState("🪙");
-  const [startingBalance, setStartingBalance] = useState(100);
-  const [dailyReward, setDailyReward] = useState(50);
-
+function ModuleEconomy({ serverId }: { serverId: string }) {
+  const { settings, updateSettings } = useServerSettings(serverId);
   return (
     <div className="space-y-8">
       <div className="border-b border-white/10 pb-4">
@@ -1098,17 +1068,16 @@ function ModuleEconomy() {
           <div className="font-bold text-sm text-white mb-1">Activer l'Économie</div>
           <div className="text-xs text-gray-400">Permet aux membres d'accumuler de la monnaie et d'acheter des perks.</div>
         </div>
-        <ToggleSwitch enabled={economyEnabled} setEnabled={setEconomyEnabled} />
+        <ToggleSwitch enabled={settings.economyEnabled} setEnabled={setEconomyEnabled} />
       </div>
 
-      {economyEnabled && (
+      {settings.economyEnabled && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Symbole de la Monnaie</label>
             <input 
               type="text" 
-              value={currencySymbol}
-              onChange={(e) => setCurrencySymbol(e.target.value)}
+              value={settings.currencySymbol} onChange={(e) => updateSettings({ currencySymbol: e.target.value })}
               className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-teal-500 focus:outline-none transition-colors"
             />
           </div>
@@ -1117,8 +1086,7 @@ function ModuleEconomy() {
             <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Solde de Départ</label>
             <input 
               type="number" 
-              value={startingBalance}
-              onChange={(e) => setStartingBalance(parseInt(e.target.value) || 0)}
+              value={settings.startingBalance} onChange={(e) => updateSettings({ startingBalance: parseInt(e.target.value) || 0 })}
               className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-teal-500 focus:outline-none transition-colors"
             />
           </div>
@@ -1127,8 +1095,7 @@ function ModuleEconomy() {
             <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Récompense Journalière (Daily)</label>
             <input 
               type="number" 
-              value={dailyReward}
-              onChange={(e) => setDailyReward(parseInt(e.target.value) || 0)}
+              value={settings.dailyReward} onChange={(e) => updateSettings({ dailyReward: parseInt(e.target.value) || 0 })}
               className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-teal-500 focus:outline-none transition-colors"
             />
           </div>
@@ -1139,10 +1106,8 @@ function ModuleEconomy() {
 }
 
 // --- LEVELING ---
-function ModuleLeveling() {
-  const [levelingEnabled, setLevelingEnabled] = useState(true);
-  const [xpRate, setXpRate] = useState("1.0");
-
+function ModuleLeveling({ serverId }: { serverId: string }) {
+  const { settings, updateSettings } = useServerSettings(serverId);
   return (
     <div className="space-y-8">
       <div className="border-b border-white/10 pb-4">
@@ -1155,16 +1120,15 @@ function ModuleLeveling() {
           <div className="font-bold text-sm text-white mb-1">Activer le Leveling</div>
           <div className="text-xs text-gray-400">Calcule l'XP des membres et attribue des niveaux selon leur activité.</div>
         </div>
-        <ToggleSwitch enabled={levelingEnabled} setEnabled={setLevelingEnabled} />
+        <ToggleSwitch enabled={settings.levelingEnabled} setEnabled={setLevelingEnabled} />
       </div>
 
-      {levelingEnabled && (
+      {settings.levelingEnabled && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Multiplicateur d'XP (Boost)</label>
             <select 
-              value={xpRate}
-              onChange={(e) => setXpRate(e.target.value)}
+              value={settings.xpRate} onChange={(e) => updateSettings({ xpRate: e.target.value })}
               className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-teal-500 focus:outline-none transition-colors"
             >
               <option value="1.0">XP Normal (1.0x)</option>
@@ -1179,11 +1143,8 @@ function ModuleLeveling() {
 }
 
 // --- WELCOME ---
-function ModuleWelcome() {
-  const [welcomeEnabled, setWelcomeEnabled] = useState(true);
-  const [welcomeChannel, setWelcomeChannel] = useState("");
-  const [welcomeMsg, setWelcomeMsg] = useState("Bienvenue {user} sur notre serveur {server_name} ! Amuse-toi bien.");
-
+function ModuleWelcome({ serverId }: { serverId: string }) {
+  const { settings, updateSettings } = useServerSettings(serverId);
   return (
     <div className="space-y-8">
       <div className="border-b border-white/10 pb-4">
@@ -1196,16 +1157,15 @@ function ModuleWelcome() {
           <div className="font-bold text-sm text-white mb-1">Activer les messages de bienvenue</div>
           <div className="text-xs text-gray-400">Déclenche un message d'accueil à l'arrivée d'un membre.</div>
         </div>
-        <ToggleSwitch enabled={welcomeEnabled} setEnabled={setWelcomeEnabled} />
+        <ToggleSwitch enabled={settings.welcomeEnabled} setEnabled={setWelcomeEnabled} />
       </div>
 
-      {welcomeEnabled && (
+      {settings.welcomeEnabled && (
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Salon de Bienvenue</label>
             <select 
-              value={welcomeChannel}
-              onChange={(e) => setWelcomeChannel(e.target.value)}
+              value={settings.welcomeChannel} onChange={(e) => updateSettings({ welcomeChannel: e.target.value })}
               className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-teal-500 focus:outline-none transition-colors"
             >
               <option value="">Sélectionner un salon...</option>
@@ -1217,8 +1177,7 @@ function ModuleWelcome() {
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Message de Bienvenue personnalisé</label>
             <textarea 
-              value={welcomeMsg}
-              onChange={(e) => setWelcomeMsg(e.target.value)}
+              value={settings.welcomeMsg} onChange={(e) => updateSettings({ welcomeMsg: e.target.value })}
               className="w-full h-24 bg-zinc-900 border border-white/10 rounded-xl p-4 text-xs text-white focus:border-teal-500 focus:outline-none transition-colors resize-none"
             />
             <p className="text-[10px] text-gray-500">Variables autorisées : `{`{user}`}` (mentionner le membre), `{`{server_name}`}` (nom du serveur).</p>

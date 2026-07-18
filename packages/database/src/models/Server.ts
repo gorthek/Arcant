@@ -6,6 +6,7 @@ export interface IServer extends Document {
   icon?: string;
   ownerId: string;
   isPremium: boolean;
+  isLifetimePremium: boolean;
   premiumUntil?: Date;
   joinedAt: Date;
   // Security settings
@@ -24,6 +25,7 @@ const ServerSchema = new Schema<IServer>({
   icon: { type: String },
   ownerId: { type: String, required: true },
   isPremium: { type: Boolean, default: false },
+  isLifetimePremium: { type: Boolean, default: false },
   premiumUntil: { type: Date },
   joinedAt: { type: Date, default: Date.now },
   // Security defaults

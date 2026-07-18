@@ -8,6 +8,9 @@ export interface ICustomBot extends Document {
   systemPrompt: string;
   isActive: boolean;
   features: string[]; // ex: ['help', 'moderation']
+  creationMethod: 'code' | 'scratch' | 'ai';
+  rawCode?: string;
+  scratchGraph?: any;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +24,9 @@ const customBotSchema = new Schema<ICustomBot>(
     systemPrompt: { type: String, default: '' },
     isActive: { type: Boolean, default: true },
     features: { type: [String], default: [] },
+    creationMethod: { type: String, enum: ['code', 'scratch', 'ai'], default: 'ai' },
+    rawCode: { type: String },
+    scratchGraph: { type: Schema.Types.Mixed },
   },
   {
     timestamps: true,
