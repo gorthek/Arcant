@@ -4,9 +4,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, Server, Sparkles, MessageSquare, Terminal, LayoutGrid } from "lucide-react";
 import Editor from "@monaco-editor/react";
-import ReactFlow, { Background, Controls } from 'reactflow';
-import 'reactflow/dist/style.css';
 import ServerVisualEditor from './ServerVisualEditor';
+import { ScratchEditor } from './ScratchEditor';
 
 export function ModuleIA({ serverId }: { serverId: string }) {
   const [iaMode, setIaMode] = useState<"server_creation" | "custom_bot">("server_creation");
@@ -25,12 +24,7 @@ export function ModuleIA({ serverId }: { serverId: string }) {
   const [botChatInput, setBotChatInput] = useState("");
   const [botMessages, setBotMessages] = useState<{role: string, content: string}[]>([]);
 
-  // React Flow initial nodes
-  const initialNodes = [
-    { id: '1', position: { x: 100, y: 100 }, data: { label: 'Événement: Message Reçu' }, type: 'input' },
-    { id: '2', position: { x: 400, y: 100 }, data: { label: 'Action: Répondre' }, type: 'output' },
-  ];
-  const initialEdges = [{ id: 'e1-2', source: '1', target: '2', animated: true }];
+
 
   return (
     <div className="space-y-8">
@@ -171,15 +165,7 @@ export function ModuleIA({ serverId }: { serverId: string }) {
 
               {/* METHODE 2 : SCRATCH / REACT FLOW */}
               {botCreationMethod === "scratch" && (
-                <div className="bg-zinc-950 rounded-3xl border border-amber-500/30 overflow-hidden h-[600px] relative">
-                  <div className="absolute top-4 left-4 z-10 bg-zinc-900/90 backdrop-blur border border-white/10 px-4 py-2 rounded-xl text-xs font-bold text-amber-400 flex items-center gap-2">
-                    <LayoutGrid size={14} /> Double-cliquez sur un bloc pour modifier ses paramètres
-                  </div>
-                  <ReactFlow nodes={initialNodes} edges={initialEdges} fitView className="bg-zinc-950">
-                    <Background color="#333" gap={16} />
-                    <Controls className="bg-zinc-900 fill-white border-white/10" />
-                  </ReactFlow>
-                </div>
+                <ScratchEditor />
               )}
 
               {/* METHODE 3 : MONACO EDITOR / CODE */}
