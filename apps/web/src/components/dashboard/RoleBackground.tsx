@@ -1,177 +1,124 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, Environment, Sparkles, Stars, MeshDistortMaterial } from "@react-three/drei";
-import * as THREE from "three";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { ServerRole } from "@/contexts/ServerContext";
 
-function BotOwnerScene() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.elapsedTime * 0.1;
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.2;
-    }
-  });
-
-  return (
-    <>
-      <ambientLight intensity={1} color="#06b6d4" />
-      <directionalLight position={[10, 10, 5]} intensity={3} color="#14b8a6" />
-      <directionalLight position={[-10, -10, -5]} intensity={2} color="#10b981" />
-      
-      <Float speed={2} rotationIntensity={2} floatIntensity={3}>
-        <mesh ref={meshRef} position={[0, 0, -3]}>
-          <octahedronGeometry args={[3, 1]} />
-          <MeshDistortMaterial 
-            color="#0891b2"
-            emissive="#0f766e"
-            emissiveIntensity={0.5}
-            distort={0.4}
-            speed={2}
-            roughness={0.2}
-            metalness={0.8}
-            wireframe={true}
-          />
-        </mesh>
-      </Float>
-      
-      <Sparkles count={300} scale={15} size={3} speed={0.5} color="#22d3ee" opacity={0.6} />
-      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-    </>
-  );
-}
-
-function ServerOwnerScene() {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.15;
-      meshRef.current.rotation.z = state.clock.elapsedTime * 0.05;
-    }
-  });
-
-  return (
-    <>
-      <ambientLight intensity={1.5} color="#fbbf24" />
-      <directionalLight position={[0, 10, 0]} intensity={4} color="#f59e0b" />
-      <pointLight position={[0, 0, -2]} intensity={2} color="#8b5cf6" />
-      
-      <Float speed={1.5} rotationIntensity={1} floatIntensity={1.5}>
-        <mesh ref={meshRef} position={[0, 0, -2]}>
-          <icosahedronGeometry args={[2.5, 0]} />
-          <meshPhysicalMaterial 
-            color="#fbbf24" 
-            metalness={0.9} 
-            roughness={0.1} 
-            transmission={0.4} 
-            thickness={2} 
-            emissive="#d97706"
-            emissiveIntensity={0.3}
-          />
-        </mesh>
-      </Float>
-      
-      <Sparkles count={200} scale={12} size={4} speed={0.3} color="#fcd34d" opacity={0.8} />
-      <Environment preset="city" />
-    </>
-  );
-}
-
-function AdminScene() {
-  const groupRef = useRef<THREE.Group>(null);
-
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.z = state.clock.elapsedTime * 0.2;
-    }
-  });
-
-  return (
-    <>
-      <ambientLight intensity={0.5} color="#ef4444" />
-      <pointLight position={[0, 0, 0]} intensity={8} color="#dc2626" distance={15} />
-      
-      <group ref={groupRef} position={[0, 0, -4]}>
-        {[...Array(4)].map((_, i) => (
-          <mesh key={i} rotation={[Math.random() * Math.PI, Math.random() * Math.PI, 0]}>
-            <torusGeometry args={[3 + i * 0.8, 0.05, 16, 100]} />
-            <meshStandardMaterial color="#ef4444" emissive="#b91c1c" emissiveIntensity={1} />
-          </mesh>
-        ))}
-        {/* Core sphere */}
-        <mesh position={[0, 0, 0]}>
-          <sphereGeometry args={[1, 32, 32]} />
-          <MeshDistortMaterial color="#7f1d1d" emissive="#991b1b" distort={0.2} speed={5} />
-        </mesh>
-      </group>
-      
-      <Sparkles count={400} scale={15} size={2} speed={1.5} color="#fca5a5" opacity={0.7} />
-    </>
-  );
-}
-
-function MemberScene() {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.1;
-    }
-  });
-
-  return (
-    <>
-      <ambientLight intensity={1.5} color="#6366f1" />
-      <directionalLight position={[5, 5, 5]} intensity={2} color="#8b5cf6" />
-      <directionalLight position={[-5, -5, -5]} intensity={1} color="#3b82f6" />
-      
-      <Float speed={2} rotationIntensity={0.5} floatIntensity={2}>
-        <mesh ref={meshRef} position={[0, 0, -3]}>
-          <sphereGeometry args={[3, 64, 64]} />
-          <meshPhysicalMaterial 
-            color="#4f46e5" 
-            metalness={0.2} 
-            roughness={0.2} 
-            transmission={0.9} 
-            ior={1.3}
-            thickness={2}
-            emissive="#3730a3"
-            emissiveIntensity={0.4}
-            clearcoat={1}
-            clearcoatRoughness={0.1}
-          />
-        </mesh>
-      </Float>
-      
-      <Sparkles count={150} scale={14} size={6} speed={0.2} color="#a78bfa" opacity={0.5} />
-      <Environment preset="night" />
-    </>
-  );
-}
+const roleConfig = {
+  owner: {
+    primary: "bg-cyan-500",
+    secondary: "bg-teal-600",
+    accent: "bg-cyan-300",
+  },
+  server_owner: {
+    primary: "bg-amber-500",
+    secondary: "bg-orange-600",
+    accent: "bg-yellow-300",
+  },
+  admin: {
+    primary: "bg-red-600",
+    secondary: "bg-rose-800",
+    accent: "bg-red-400",
+  },
+  member: {
+    primary: "bg-indigo-500",
+    secondary: "bg-blue-700",
+    accent: "bg-indigo-300",
+  }
+};
 
 export function RoleBackground({ role }: { role: ServerRole }) {
   const [mounted, setMounted] = useState(false);
+  const [particles, setParticles] = useState<{id: number, left: string, duration: number, delay: number, size: number}[]>([]);
   
   useEffect(() => {
     setMounted(true);
+    // Generate particles once mounted to avoid hydration mismatch
+    const newParticles = Array.from({ length: 40 }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      duration: Math.random() * 15 + 15,
+      delay: Math.random() * 15,
+      size: Math.random() * 3 + 1
+    }));
+    setParticles(newParticles);
   }, []);
 
   if (!mounted || role === "loading") return null;
 
-  // Map "owner" (Bot Owner) and "server_owner" to the correct scenes based on the new logic
+  const config = roleConfig[role as keyof typeof roleConfig] || roleConfig.member;
+
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-screen transition-opacity duration-1000">
-      <Canvas camera={{ position: [0, 0, 6], fov: 60 }} gl={{ antialias: true, alpha: true }}>
-        {role === "owner" && <BotOwnerScene />}
-        {role === "server_owner" && <ServerOwnerScene />}
-        {role === "admin" && <AdminScene />}
-        {role === "member" && <MemberScene />}
-      </Canvas>
+    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-[#030303]">
+      {/* Grid Pattern */}
+      <div 
+        className="absolute inset-0 z-0 opacity-[0.05]"
+        style={{
+          backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
+          backgroundSize: '4rem 4rem'
+        }}
+      />
+
+      {/* Animated Orbs */}
+      <motion.div
+        animate={{
+          x: ["0%", "20%", "0%"],
+          y: ["0%", "15%", "0%"],
+          scale: [1, 1.2, 1],
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        className={`absolute -top-[20%] -left-[10%] w-[60vw] h-[60vw] rounded-full mix-blend-screen filter blur-[120px] opacity-20 ${config.primary}`}
+      />
+
+      <motion.div
+        animate={{
+          x: ["0%", "-20%", "0%"],
+          y: ["0%", "-15%", "0%"],
+          scale: [1, 1.4, 1],
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        className={`absolute top-[40%] right-[5%] w-[50vw] h-[50vw] rounded-full mix-blend-screen filter blur-[100px] opacity-15 ${config.secondary}`}
+      />
+
+      <motion.div
+        animate={{
+          x: ["0%", "15%", "0%"],
+          y: ["0%", "-20%", "0%"],
+          scale: [1, 1.1, 1],
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        className={`absolute -bottom-[20%] left-[20%] w-[40vw] h-[40vw] rounded-full mix-blend-screen filter blur-[90px] opacity-20 ${config.accent}`}
+      />
+
+      {/* Base vignette */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#000000_100%)] z-10 opacity-70" />
+
+      {/* Particles effect */}
+      <div className="absolute inset-0 z-0">
+        {particles.map((p) => (
+          <motion.div
+            key={p.id}
+            className={`absolute rounded-full ${config.accent}`}
+            style={{ 
+              left: p.left,
+              width: p.size,
+              height: p.size,
+              bottom: "-5%",
+              filter: "blur(1px)"
+            }}
+            animate={{
+              y: ["0vh", "-110vh"],
+              opacity: [0, 0.6, 0]
+            }}
+            transition={{
+              duration: p.duration,
+              delay: p.delay,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
