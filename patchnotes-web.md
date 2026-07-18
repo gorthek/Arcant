@@ -1,5 +1,21 @@
 # Patchnotes Arcant Web
 
+## v3.2.0 (Studio IA & Premium Paywall Update)
+- **Monétisation & Paywall Premium**
+  - Ajout du `PremiumLockWrapper` : les fonctionnalités nécessitant un abonnement (ex: IA générative) sont désormais floutées avec un cadenas interactif.
+  - Refonte totale de la Landing Page (`Pricing.tsx`) avec les forfaits VIP Serveur/Membre (1, 6, 12 mois) et l'intégration du forfait "Lifetime" caché via un easter-egg.
+- **Studio IA & Création de Bots (Module IA)**
+  - Extraction du "Studio IA" dans `ModuleIA.tsx` depuis le Dashboard Owner.
+  - Page **IA Architecte** : Planification visuelle de rôles et salons.
+  - Page **Créateur de Bot Indépendant** : Ajout de 3 méthodes de création :
+    - Mode **Magie IA** (Interface de Chat Génératif).
+    - Mode **No-Code Scratch** (Implémentation de `ScratchEditor` propulsé par `ReactFlow` avec éditeur de paramètres sur double-clic des nœuds).
+    - Mode **Code Pro** (Intégration de `Monaco Editor` pour les développeurs JS/TS).
+- **Stabilité et Architecture (Next.js 15+ & SWR)**
+  - Refactoring complet du Dashboard via SWR (`useSWR`) pour des requêtes fluides, éliminant les `useState` et les `setTimeout`.
+  - Résolution des erreurs de compilation liées à l'App Router (`params` async) pour toutes les routes API internes (`/api/server/[id]/...`).
+  - L'intégration de la base de données Mongoose a été solidifiée pour inclure le support `isLifetimePremium`.
+
 ## v3.1.0 (Performance & Background Update)
 - **Refonte des arrière-plans du Dashboard**
   - Remplacement total des scènes 3D (`three.js` / `@react-three/fiber`) devenues trop lourdes et inutiles par un vrai fond 2D animé et stylé.
