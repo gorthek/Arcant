@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, FileText, User, Plus, Trash2, Award, Coins, UserPlus, HelpCircle, Activity } from "lucide-react";
+import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, FileText, User, Plus, Trash2, Award, Coins, UserPlus, HelpCircle, Activity, Flame, Gamepad2, Hammer } from "lucide-react";
 import ServerVisualEditor from './ServerVisualEditor';
 import { ModuleIA } from './ModuleIA';
 import { useServerSettings } from "@/hooks/useServerSettings";
