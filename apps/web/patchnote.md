@@ -82,11 +82,13 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 *Dernière modification : 21 Juillet 2026*
 
 ### 🌐 Espace Membre Suprême (14 Modules Interactifs)
+- **[Config Systèmes Membres par l'Admin]** Panneau d'administration complet permettant aux Owners et Admins de personnaliser dynamiquement les quêtes, le Passe de Combat (10, 15, 20+ paliers), les recettes d'artisanat/crafting, les daily rewards et les limites du casino.
+- **[IA Unifiée & Réponse Écosystème Complexe]** Réponses de l'IA enrichies avec toute l'architecture en dev d'Arcant et blocage bienveillant des fonctionnalités réservées aux Membres Premium.
 - **[Studio de Profil & Customisation]** Personnalisation dynamique du thème visuel de profil (6 thèmes), du badge et du titre équipable avec prévisualisation en direct.
-- **[Passe de Combat Saison 1]** Progression au fil de l'activité du membre sur 10 paliers avec récompenses gratuites et déblocages progressifs.
-- **[Quêtes & Daily Rewards]** Bouton de réclamation quotidienne avec streak counter consécutif et système de quêtes hebdomadaires réactives avec jauges de progression.
+- **[Passe de Combat Saison 1]** Progression sur 10+ paliers configurés par l'admin avec récompenses gratuites et déblocages progressifs.
+- **[Quêtes & Daily Rewards]** Bouton de réclamation quotidienne avec streak counter consécutif et système de quêtes hebdomadaires dynamiques.
 - **[Mini-Jeux Web & Casino Virtuel]** Roue de la Fortune interactive et Coinflip 3D avec parité et gestion des coins du serveur.
-- **[Crafting & Inventaire]** Système d'artisanat permettant de fabriquer des rôles et badges rares en combinant des composants, et gestionnaire d'inventaire.
+- **[Crafting & Inventaire]** Fabriquer des rôles et badges rares en combinant des composants, et gestionnaire d'inventaire.
 - **[Hub Vocal Live & Musique]** Visualisation en temps réel des salons vocaux actifs, des membres connectés et de la musique en cours de lecture par le bot.
 - **[Livre d'Or Communautaire]** Mur d'expression interactif pour poster et aimer les dédicaces des membres.
 - **[Assistant IA Membre]** Mini-assistant IA dédié répondant aux questions des utilisateurs sur le serveur et le bot Arcant.

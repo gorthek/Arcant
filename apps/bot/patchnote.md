@@ -5,6 +5,15 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.7.1
+*Dernière modification : 21 Juillet 2026*
+
+### 🤖 Moteur IA Cognitif & Protection Premium
+- **[Savoir Approfondi sur l'Écosystème Arcant]** Extension du moteur `ArcantAIEngine` pour répondre de manière ultra-détaillée sur tous les développements en cours (IA autonome locale, spawner multi-bots, vault AES-256-GCM, 14 modules membres, etc.) lors des questions du type *"Qu'est-ce qu'Arcant ?"*.
+- **[Contrôle des Fonctionnalités Membres Premium]** Détection et filtrage des demandes de fonctionnalités réservées avec explications et redirection vers l'offre Premium.
+
+---
+
 ## 🔴 Version 1.7.0
 *Dernière modification : 21 Juillet 2026*
 

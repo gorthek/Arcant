@@ -933,9 +933,27 @@ export class ArcantAIEngine {
       return replies[Math.floor(Math.random() * replies.length)];
     }
 
-    // 7. Identification
-    if (msg.includes("qui es-tu") || msg.includes("qui es tu") || msg.includes("c'est quoi arcant")) {
-      return `Je suis l'intelligence artificielle propre à Arcant. Je ne suis ni Gemini, ni ChatGPT — je suis un moteur autonome intégré directement dans l'écosystème Arcant. ${dbContext} Je fonctionne de manière identique sur le site web, l'API REST, et le bot Discord.${serverSettingsText}`;
+    // 7. Identification & Explication complète d'Arcant
+    if (msg.includes("qui es-tu") || msg.includes("qui es tu") || msg.includes("c'est quoi arcant") || msg.includes("qu'est-ce qu'arcant") || msg.includes("qu'est ce qu'arcant") || msg.includes("que faites-vous") || msg.includes("que faites vous") || msg.includes("qu'est ce que vous faites")) {
+      return `🚀 **Arcant** est un écosystème d'**Intelligence Artificielle Locale 100% Autonome** conçu sur-mesure pour Discord et le Web.\n\n` +
+        `💡 **Ce que nous développons actuellement** :\n` +
+        `- 🧠 **Cerveau IA Autonome** : Moteur de raisonnement cognitif local (sans dépendance à OpenAI/Gemini) avec apprentissage autonome.\n` +
+        `- 🤖 **Dynamic BotManager Spawner** : Instanciation dynamique à chaud de bots Discord personnalisés avec chiffrement AES-256-GCM.\n` +
+        `- 🏰 **Générateur Sémantique de Serveurs** : Création instantanée d'architectures complètes de salons, catégories et rôles.\n` +
+        `- 🎮 **Espace Membre Suprême (14 Modules)** : Studio de customisation de profil, Passe de Combat dynamique (10+ paliers), Quêtes hebdomadaires, Artisanat & Crafting d'objets, Roue de la Fortune & Casino Web, Hub Vocal Live, Livre d'Or et Assistant IA Membre.\n` +
+        `- 👑 **Panneau de Config Admin** : Contrôle total par les administrateurs sur l'ensemble des récompenses et règles membres.\n\n` +
+        `${dbContext}${serverSettingsText}`;
+    }
+
+    // 8. Détection et blocage des fonctionnalités réservées aux Membres Premium
+    if (msg.includes("génère un serveur illimité") || msg.includes("crafting légendaire") || msg.includes("bot sur mesure premium")) {
+      return `⭐ **Fonctionnalité Membre Premium / Arcant Premium**\n\n` +
+        `La fonctionnalité que vous tentez d'exécuter est réservée aux membres détenant le statut **Arcant Premium**.\n\n` +
+        `💎 **Avantages Premium** :\n` +
+        `- Accès aux générateurs de serveurs complexes illimités\n` +
+        `- Recettes de Crafting légendaires et Passe de Combat étendu (20+ paliers)\n` +
+        `- Hébergement de Bots Personnalisés Haute Performance\n\n` +
+        `Pour passer à la vitesse supérieure, débloquez Arcant Premium directement depuis l'onglet **Boutique / Pricing** du Dashboard !`;
     }
 
     // 8. Aide générale

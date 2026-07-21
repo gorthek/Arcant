@@ -113,6 +113,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       items: [
         { name: userRole === "admin" ? "IA (Lecture Seule)" : "Configuration IA", path: `/dashboard/${serverId}?tab=ia`, icon: <Bot size={18} /> },
         { name: "Welcome & Auto-Rôles", path: `/dashboard/${serverId}?tab=welcome`, icon: <UserPlus size={18} />, hidden: userRole === "admin" },
+        { name: "Config Systèmes Membres", path: `/dashboard/${serverId}?tab=member_systems`, icon: <Sparkles size={18} /> },
       ].filter(item => !item.hidden)
     },
     {

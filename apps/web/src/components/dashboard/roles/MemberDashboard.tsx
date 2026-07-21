@@ -10,12 +10,34 @@ import {
   ThumbsDown, Search, Music, Play, Volume2, Info, Clock, Check, Eye
 } from "lucide-react";
 
+import { useServerSettings } from "@/hooks/useServerSettings";
+
 export function MemberDashboard({ serverId }: { serverId: string }) {
   const searchParams = useSearchParams();
   const rawTab = searchParams.get("tab") || "profile";
   
+  // Utilisation des paramètres configurés par les Administrateurs
+  const { settings } = useServerSettings(serverId);
+  
   // Normalisation des onglets d'URL vers la clé activeTab
   const activeTab = rawTab === "overview" ? "profile" : rawTab;
+
+  // Configuration dynamique dérivée des paramètres admins
+  const configuredQuests = settings.questsConfig || [
+    { id: "q1", title: "Bavard du Serveur", desc: "Envoyer 50 messages dans les salons textuels.", target: 50, rewardCoins: 300, rewardXp: 150 },
+    { id: "q2", title: "Habitué du Vocal", desc: "Passer 2h dans les salons vocaux du serveur.", target: 2, rewardCoins: 500, rewardXp: 300 }
+  ];
+  const configuredBattlepass = settings.battlepassConfig || [
+    { tier: 1, reward: "100 💰", unlocked: true },
+    { tier: 2, reward: "Badge 🌟", unlocked: true },
+    { tier: 3, reward: "250 XP", unlocked: true },
+    { tier: 4, reward: "500 💰", unlocked: true },
+    { tier: 5, reward: "Rôle VIP (7j)", unlocked: false }
+  ];
+  const configuredRecipes = settings.craftingRecipes || [
+    { id: "c1", name: "Badge Alchimiste 🧪", costCoins: 500, costFragments: 2, rewardType: "Badge Alchimiste 🧪" }
+  ];
+  const configuredCasino = settings.minigamesConfig || { wheelCost: 50, wheelRewards: [], coinflipMaxBet: 1000 };
 
   // --- ÉTATS DYNAMIQUES DU MEMBRE ---
   const [coins, setCoins] = useState(2450);
@@ -174,14 +196,21 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
     setAiMessages(prev => [...prev, { role: "user", text: userMsg }]);
     setAiInput("");
     setTimeout(() => {
-      let reply = "Je suis votre assistant Arcant. Vous pouvez accumuler de l'XP en discutant dans les salons et réclamer vos récompenses journalières sur cette page !";
-      if (userMsg.toLowerCase().includes("règle") || userMsg.toLowerCase().includes("regle")) {
+      let reply = "Je suis l'assistant IA autonome d'Arcant. Vous pouvez accumuler de l'XP en discutant dans les salons et réclamer vos récompenses journalières sur ce dashboard !";
+      const q = userMsg.toLowerCase();
+
+      if (q.includes("qui es-tu") || q.includes("qui es tu") || q.includes("c'est quoi arcant") || q.includes("qu'est-ce qu'arcant") || q.includes("qu'est ce qu'arcant") || q.includes("que faites vous") || q.includes("que faites-vous")) {
+        reply = "🚀 Arcant est un écosystème d'Intelligence Artificielle Locale 100% Autonome conçu sur-mesure pour Discord et le Web.\n\n💡 Ce que nous développons actuellement :\n- 🧠 Cerveau IA Autonome Local (sans dépendance API tierce).\n- 🤖 Dynamic BotManager Spawner avec chiffrement AES-256-GCM.\n- 🏰 Générateur Sémantique de Serveurs (architectures complètes).\n- 🎮 Espace Membre Suprême (14 Modules) : Studio de profil, Passe de Combat 10+ paliers, Quêtes, Crafting, Roue & Casino Web, Hub Vocal Live, Livre d'Or et IA.\n- 👑 Panneau de Configuration Admin pour une personnalisation totale par serveur.";
+      } else if (q.includes("premium") || q.includes("illimité") || q.includes("recette légendaire") || q.includes("génère un serveur")) {
+        reply = "⭐ Fonctionnalité Membre Premium / Arcant Premium\n\nLa fonctionnalité demandée est réservée aux membres ayant débloqué Arcant Premium. Vous bénéficierez des recettes légendaires de crafting, du passe de combat étendu (20+ paliers) et de la génération illimitée ! Rendez-vous sur la boutique du dashboard.";
+      } else if (q.includes("règle") || q.includes("regle")) {
         reply = "Les règles principales du serveur : Respect de tous les membres, pas de spam ni de pubs non autorisées, et bonne humeur en vocal !";
-      } else if (userMsg.toLowerCase().includes("xp") || userMsg.toLowerCase().includes("niveau")) {
+      } else if (q.includes("xp") || q.includes("niveau")) {
         reply = `Vous êtes actuellement Niveau ${level} avec ${xp} XP. Vous gagnez de l'XP à chaque message et minute en vocal.`;
-      } else if (userMsg.toLowerCase().includes("coin") || userMsg.toLowerCase().includes("argent")) {
+      } else if (q.includes("coin") || q.includes("argent")) {
         reply = `Votre solde actuel est de ${coins} Coins. Utilisez la boutique ou les mini-jeux pour augmenter vos richesses !`;
       }
+
       setAiMessages(prev => [...prev, { role: "assistant", text: reply }]);
     }, 800);
   };
@@ -391,33 +420,22 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
                     <p className="text-xs text-gray-500">Progresse au fil de tes activités sur le serveur pour débloquer des récompenses gratuites !</p>
                   </div>
                   <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full font-black">
-                    Palier 4 / 10
+                    Palier 4 / {configuredBattlepass.length}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-3">
-                  {[
-                    { tier: 1, reward: "100 💰", unlocked: true },
-                    { tier: 2, reward: "Badge 🌟", unlocked: true },
-                    { tier: 3, reward: "250 XP", unlocked: true },
-                    { tier: 4, reward: "500 💰", unlocked: true },
-                    { tier: 5, reward: "Rôle VIP (7j)", unlocked: false },
-                    { tier: 6, reward: "1000 XP", unlocked: false },
-                    { tier: 7, reward: "Titre Exclusif", unlocked: false },
-                    { tier: 8, reward: "750 💰", unlocked: false },
-                    { tier: 9, reward: "Coffre Rare", unlocked: false },
-                    { tier: 10, reward: "Badge Légende 🔥", unlocked: false }
-                  ].map((item) => (
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 max-h-[500px] overflow-y-auto pr-2">
+                  {configuredBattlepass.map((item: any) => (
                     <div 
                       key={item.tier}
-                      className={`p-3 rounded-2xl border text-center relative overflow-hidden flex flex-col justify-between h-28 transition-all ${
+                      className={`p-3.5 rounded-2xl border text-center relative overflow-hidden flex flex-col justify-between h-32 transition-all ${
                         item.unlocked 
-                          ? "bg-amber-500/10 border-amber-500/30 text-amber-300" 
+                          ? "bg-amber-500/10 border-amber-500/30 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.1)]" 
                           : "bg-zinc-900/40 border-white/5 text-gray-500 opacity-60"
                       }`}
                     >
-                      <span className="text-[10px] font-black uppercase">Palier {item.tier}</span>
-                      <div className="my-auto font-bold text-xs">{item.reward}</div>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">Palier #{item.tier}</span>
+                      <div className="my-auto font-bold text-xs leading-tight">{item.reward}</div>
                       {item.unlocked ? (
                         <span className="text-[9px] bg-amber-500/20 text-amber-400 py-0.5 rounded font-bold">DÉBLOQUÉ</span>
                       ) : (
@@ -436,52 +454,56 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     <Flame className="text-rose-400" /> Quêtes & Récompenses Quotidiennes
                   </h3>
-                  <p className="text-xs text-gray-500">Accomplissez des quêtes sur le serveur pour gagner des Coins et de l'XP.</p>
+                  <p className="text-xs text-gray-500">Accomplissez des quêtes configurées par les admins pour gagner des Coins et de l'XP.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    { title: "Bavard du Serveur", desc: "Envoyer 50 messages dans les salons textuels.", current: 42, total: 50, reward: "300 💰 + 150 XP" },
-                    { title: "Habitué du Vocal", desc: "Passer 2 heures dans les salons vocaux.", current: 2, total: 2, completed: true, reward: "500 💰 + 300 XP" },
-                    { title: "Engagement Communautaire", desc: "Voter pour 2 suggestions sur le dashboard.", current: 1, total: 2, reward: "200 💰" },
-                    { title: "Créateur de Contenu", desc: "Partager une idée sur le Livre d'Or du serveur.", current: 1, total: 1, completed: true, reward: "150 XP" }
-                  ].map((q, idx) => (
-                    <div key={idx} className="bg-zinc-900/40 border border-white/5 p-5 rounded-2xl space-y-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-bold text-sm text-white">{q.title}</h4>
-                          <p className="text-xs text-gray-400">{q.desc}</p>
+                  {configuredQuests.map((q: any, idx: number) => {
+                    const current = (idx === 0 ? 42 : idx === 1 ? 2 : 1);
+                    const target = q.target || 10;
+                    const isCompleted = current >= target;
+                    return (
+                      <div key={q.id || idx} className="bg-zinc-900/40 border border-white/5 p-5 rounded-2xl space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-bold text-sm text-white">{q.title}</h4>
+                            <p className="text-xs text-gray-400">{q.desc}</p>
+                          </div>
+                          <span className="text-[10px] font-black bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20">
+                            +{q.rewardCoins || 250} 💰 / +{q.rewardXp || 100} XP
+                          </span>
                         </div>
-                        <span className="text-[10px] font-black bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20">
-                          {q.reward}
-                        </span>
-                      </div>
 
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] font-bold text-gray-400">
-                          <span>Progression</span>
-                          <span>{q.current} / {q.total}</span>
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-[10px] font-bold text-gray-400">
+                            <span>Progression</span>
+                            <span>{Math.min(current, target)} / {target}</span>
+                          </div>
+                          <div className="h-2 bg-zinc-950 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-rose-500 to-pink-500" 
+                              style={{ width: `${Math.min(100, (current / target) * 100)}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="h-2 bg-zinc-950 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-rose-500 to-pink-500" 
-                            style={{ width: `${Math.min(100, (q.current / q.total) * 100)}%` }}
-                          />
-                        </div>
-                      </div>
 
-                      <button 
-                        disabled={!q.completed}
-                        className={`w-full py-2 rounded-xl text-xs font-bold transition ${
-                          q.completed 
-                            ? "bg-rose-500 text-white hover:bg-rose-400 shadow-md" 
-                            : "bg-zinc-800 text-gray-500 cursor-not-allowed"
-                        }`}
-                      >
-                        {q.completed ? "Réclamer la Récompense" : "En cours..."}
-                      </button>
-                    </div>
-                  ))}
+                        <button 
+                          disabled={!isCompleted}
+                          onClick={() => {
+                            setCoins(c => c + (q.rewardCoins || 250));
+                            setXp(x => x + (q.rewardXp || 100));
+                          }}
+                          className={`w-full py-2 rounded-xl text-xs font-bold transition ${
+                            isCompleted 
+                              ? "bg-rose-500 text-white hover:bg-rose-400 shadow-md" 
+                              : "bg-zinc-800 text-gray-500 cursor-not-allowed"
+                          }`}
+                        >
+                          {isCompleted ? "Réclamer la Récompense" : "En cours..."}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -582,19 +604,22 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Recettes de Crafting */}
                   <div className="space-y-4">
-                    <h4 className="text-xs font-black text-gray-400 uppercase tracking-wider">Recettes de Fabrication</h4>
-                    {[
-                      { name: "Badge Alchimiste 🧪", cost: "500 Coins + 2 Fragments", ready: true },
-                      { name: "Rôle Cyber VIP (30j) 👑", cost: "2500 Coins + 5 Fragments", ready: false }
-                    ].map((recipe, idx) => (
-                      <div key={idx} className="bg-zinc-900/40 border border-white/5 p-4 rounded-2xl flex items-center justify-between">
+                    <h4 className="text-xs font-black text-gray-400 uppercase tracking-wider">Recettes de Fabrication Configurées par l'Admin</h4>
+                    {configuredRecipes.map((recipe: any, idx: number) => (
+                      <div key={recipe.id || idx} className="bg-zinc-900/40 border border-white/5 p-4 rounded-2xl flex items-center justify-between">
                         <div>
                           <h5 className="font-bold text-sm text-white">{recipe.name}</h5>
-                          <p className="text-xs text-gray-400">Requis : {recipe.cost}</p>
+                          <p className="text-xs text-gray-400">Requis : {recipe.costCoins || 500} 💰 + {recipe.costFragments || 2} Fragments</p>
                         </div>
                         <button
-                          onClick={() => setInventory([...inventory, recipe.name])}
-                          className="px-4 py-2 rounded-xl bg-emerald-500 text-black font-bold text-xs hover:bg-emerald-400 transition"
+                          onClick={() => {
+                            if (coins >= (recipe.costCoins || 500)) {
+                              setCoins(c => c - (recipe.costCoins || 500));
+                              setInventory(inv => [...inv, recipe.rewardType || recipe.name]);
+                            }
+                          }}
+                          disabled={coins < (recipe.costCoins || 500)}
+                          className="px-4 py-2 rounded-xl bg-emerald-500 text-black font-bold text-xs hover:bg-emerald-400 transition disabled:opacity-50"
                         >
                           Fabriquer
                         </button>

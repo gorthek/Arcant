@@ -64,6 +64,7 @@ export function OwnerDashboard({ serverId }: { serverId: string }) {
             {activeTab === "economy" && <ModuleEconomy serverId={serverId} />}
             {activeTab === "leveling" && <ModuleLeveling serverId={serverId} />}
             {activeTab === "welcome" && <ModuleWelcome serverId={serverId} />}
+            {activeTab === "member_systems" && <ModuleMemberSystems serverId={serverId} />}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -718,3 +719,350 @@ function ModuleWelcome({ serverId }: { serverId: string }) {
     </div>
   );
 }
+
+// --- MODULE MEMBER SYSTEMS (CONFIG PAR LES ADMINS) ---
+function ModuleMemberSystems({ serverId }: { serverId: string }) {
+  const { settings, updateSettings } = useServerSettings(serverId);
+  const [activeSubTab, setActiveSubTab] = useState<"daily" | "quests" | "battlepass" | "crafting" | "casino">("battlepass");
+
+  // Local state helper for forms
+  const quests = settings.questsConfig || [];
+  const battlepass = settings.battlepassConfig || [];
+  const recipes = settings.craftingRecipes || [];
+  const casino = settings.minigamesConfig || { wheelCost: 50, wheelRewards: [], coinflipMaxBet: 1000 };
+
+  const addQuest = () => {
+    const newQuests = [
+      ...quests,
+      {
+        id: `q_${Date.now()}`,
+        title: "Nouvelle Quête Serveur",
+        desc: "Accomplir cette mission pour obtenir des récompenses.",
+        target: 10,
+        rewardCoins: 250,
+        rewardXp: 150,
+        category: "Général"
+      }
+    ];
+    updateSettings({ questsConfig: newQuests });
+  };
+
+  const removeQuest = (id: string) => {
+    updateSettings({ questsConfig: quests.filter((q: any) => q.id !== id) });
+  };
+
+  const addBattlepassTier = () => {
+    const nextTier = battlepass.length + 1;
+    const newBp = [
+      ...battlepass,
+      {
+        tier: nextTier,
+        reward: `Récompense Palier ${nextTier} ✨`,
+        unlocked: false
+      }
+    ];
+    updateSettings({ battlepassConfig: newBp });
+  };
+
+  const removeBattlepassTier = (tier: number) => {
+    updateSettings({ battlepassConfig: battlepass.filter((b: any) => b.tier !== tier) });
+  };
+
+  const addRecipe = () => {
+    const newRecipes = [
+      ...recipes,
+      {
+        id: `c_${Date.now()}`,
+        name: "Nouvel Objet d'Artisanat",
+        costCoins: 500,
+        costFragments: 2,
+        rewardType: "Objet Spécial 🎁"
+      }
+    ];
+    updateSettings({ craftingRecipes: newRecipes });
+  };
+
+  const removeRecipe = (id: string) => {
+    updateSettings({ craftingRecipes: recipes.filter((r: any) => r.id !== id) });
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <Sparkles className="text-amber-400" /> Configuration des Systèmes Membres
+          </h3>
+          <p className="text-xs text-gray-500">Personnalisez les récompenses, quêtes, recettes de crafting et paliers du passe de combat pour votre serveur.</p>
+        </div>
+      </div>
+
+      {/* Sub Tabs */}
+      <div className="flex gap-2 border-b border-white/10 pb-4 overflow-x-auto">
+        {[
+          { id: "battlepass", label: "Passe de Combat (10+ Paliers)", icon: <Sparkles size={14} /> },
+          { id: "quests", label: "Quêtes", icon: <Flame size={14} /> },
+          { id: "crafting", label: "Artisanat / Crafting", icon: <Hammer size={14} /> },
+          { id: "daily", label: "Daily & Streaks", icon: <Coins size={14} /> },
+          { id: "casino", label: "Mini-Jeux & Casino", icon: <Gamepad2 size={14} /> }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveSubTab(tab.id as any)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+              activeSubTab === tab.id
+                ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20"
+                : "bg-zinc-900 text-gray-400 hover:text-white border border-white/5"
+            }`}
+          >
+            {tab.icon} {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* SUBTAB 1: BATTLEPASS (10+ TIERS DYNAMIQUE) */}
+      {activeSubTab === "battlepass" && (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h4 className="font-bold text-sm text-white">Paliers du Passe de Combat (Total : {battlepass.length} Paliers)</h4>
+              <p className="text-xs text-gray-400">Ajoutez autant de paliers que vous le souhaitez (10, 15, 20+ paliers) et définissez leurs récompenses.</p>
+            </div>
+            <button
+              onClick={addBattlepassTier}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 text-black text-xs font-bold hover:bg-amber-400 transition"
+            >
+              <Plus size={14} /> Ajouter un Palier
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {battlepass.map((bp: any) => (
+              <div key={bp.tier} className="bg-zinc-900/50 border border-white/5 p-4 rounded-2xl space-y-3 relative">
+                <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                  <span className="font-black text-xs text-amber-400">PALIER #{bp.tier}</span>
+                  {battlepass.length > 1 && (
+                    <button onClick={() => removeBattlepassTier(bp.tier)} className="text-rose-400 hover:text-rose-300">
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400">Récompense du palier</label>
+                  <input
+                    type="text"
+                    value={bp.reward}
+                    onChange={(e) => {
+                      const updated = battlepass.map((b: any) => b.tier === bp.tier ? { ...b, reward: e.target.value } : b);
+                      updateSettings({ battlepassConfig: updated });
+                    }}
+                    className="w-full bg-zinc-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* SUBTAB 2: QUESTS */}
+      {activeSubTab === "quests" && (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h4 className="font-bold text-sm text-white">Quêtes Configurées</h4>
+              <p className="text-xs text-gray-400">Créez les défis à réaliser par les membres sur le serveur.</p>
+            </div>
+            <button
+              onClick={addQuest}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 text-black text-xs font-bold hover:bg-amber-400 transition"
+            >
+              <Plus size={14} /> Ajouter une Quête
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {quests.map((q: any) => (
+              <div key={q.id} className="bg-zinc-900/50 border border-white/5 p-4 rounded-2xl space-y-3 relative">
+                <div className="flex justify-between items-center">
+                  <input
+                    type="text"
+                    value={q.title}
+                    onChange={(e) => {
+                      const updated = quests.map((item: any) => item.id === q.id ? { ...item, title: e.target.value } : item);
+                      updateSettings({ questsConfig: updated });
+                    }}
+                    className="bg-transparent font-bold text-sm text-white border-b border-white/10 focus:outline-none focus:border-amber-500"
+                  />
+                  <button onClick={() => removeQuest(q.id)} className="text-rose-400 hover:text-rose-300">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={q.desc}
+                  onChange={(e) => {
+                    const updated = quests.map((item: any) => item.id === q.id ? { ...item, desc: e.target.value } : item);
+                    updateSettings({ questsConfig: updated });
+                  }}
+                  placeholder="Description..."
+                  className="w-full bg-zinc-950 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
+                />
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-400">Récompense Coins</label>
+                    <input
+                      type="number"
+                      value={q.rewardCoins}
+                      onChange={(e) => {
+                        const updated = quests.map((item: any) => item.id === q.id ? { ...item, rewardCoins: parseInt(e.target.value) || 0 } : item);
+                        updateSettings({ questsConfig: updated });
+                      }}
+                      className="w-full bg-zinc-950 border border-white/10 rounded-xl px-3 py-1.5 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-400">Récompense XP</label>
+                    <input
+                      type="number"
+                      value={q.rewardXp}
+                      onChange={(e) => {
+                        const updated = quests.map((item: any) => item.id === q.id ? { ...item, rewardXp: parseInt(e.target.value) || 0 } : item);
+                        updateSettings({ questsConfig: updated });
+                      }}
+                      className="w-full bg-zinc-950 border border-white/10 rounded-xl px-3 py-1.5 text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* SUBTAB 3: CRAFTING */}
+      {activeSubTab === "crafting" && (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h4 className="font-bold text-sm text-white">Recettes d'Artisanat / Crafting</h4>
+              <p className="text-xs text-gray-400">Définissez les objets et rôles que les membres peuvent fabriquer.</p>
+            </div>
+            <button
+              onClick={addRecipe}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 text-black text-xs font-bold hover:bg-amber-400 transition"
+            >
+              <Plus size={14} /> Ajouter une Recette
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {recipes.map((r: any) => (
+              <div key={r.id} className="bg-zinc-900/50 border border-white/5 p-4 rounded-2xl space-y-3">
+                <div className="flex justify-between items-center">
+                  <input
+                    type="text"
+                    value={r.name}
+                    onChange={(e) => {
+                      const updated = recipes.map((item: any) => item.id === r.id ? { ...item, name: e.target.value } : item);
+                      updateSettings({ craftingRecipes: updated });
+                    }}
+                    className="bg-transparent font-bold text-sm text-white border-b border-white/10 focus:outline-none focus:border-amber-500"
+                  />
+                  <button onClick={() => removeRecipe(r.id)} className="text-rose-400 hover:text-rose-300">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-400">Coût en Coins</label>
+                    <input
+                      type="number"
+                      value={r.costCoins}
+                      onChange={(e) => {
+                        const updated = recipes.map((item: any) => item.id === r.id ? { ...item, costCoins: parseInt(e.target.value) || 0 } : item);
+                        updateSettings({ craftingRecipes: updated });
+                      }}
+                      className="w-full bg-zinc-950 border border-white/10 rounded-xl px-3 py-1.5 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-400">Coût en Fragments</label>
+                    <input
+                      type="number"
+                      value={r.costFragments}
+                      onChange={(e) => {
+                        const updated = recipes.map((item: any) => item.id === r.id ? { ...item, costFragments: parseInt(e.target.value) || 0 } : item);
+                        updateSettings({ craftingRecipes: updated });
+                      }}
+                      className="w-full bg-zinc-950 border border-white/10 rounded-xl px-3 py-1.5 text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* SUBTAB 4: DAILY */}
+      {activeSubTab === "daily" && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Récompense Daily (Coins)</label>
+            <input
+              type="number"
+              value={settings.dailyRewardCoins ?? 250}
+              onChange={(e) => updateSettings({ dailyRewardCoins: parseInt(e.target.value) || 0 })}
+              className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Récompense Daily (XP)</label>
+            <input
+              type="number"
+              value={settings.dailyRewardXp ?? 100}
+              onChange={(e) => updateSettings({ dailyRewardXp: parseInt(e.target.value) || 0 })}
+              className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Multiplicateur de Streak</label>
+            <input
+              type="number"
+              step="0.1"
+              value={settings.dailyStreakMultiplier ?? 1.2}
+              onChange={(e) => updateSettings({ dailyStreakMultiplier: parseFloat(e.target.value) || 1.0 })}
+              className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* SUBTAB 5: CASINO */}
+      {activeSubTab === "casino" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Prix pour Tourner la Roue (Coins)</label>
+            <input
+              type="number"
+              value={casino.wheelCost}
+              onChange={(e) => updateSettings({ minigamesConfig: { ...casino, wheelCost: parseInt(e.target.value) || 0 } })}
+              className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">Mise Maximale au Coinflip (Coins)</label>
+            <input
+              type="number"
+              value={casino.coinflipMaxBet}
+              onChange={(e) => updateSettings({ minigamesConfig: { ...casino, coinflipMaxBet: parseInt(e.target.value) || 0 } })}
+              className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
