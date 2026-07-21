@@ -5,6 +5,14 @@ Ce document est mis à jour à chaque fin de tâche pour suivre l'évolution de 
 
 ---
 
+## 🔴 Version 1.7.0
+*Dernière modification : 21 Juillet 2026*
+
+### 🤖 Cœur du Bot & Intégration Espace Membre
+- **[Synchronisation Données Membre]** Intégration de la liaison avec le Dashboard Membre pour la réclamation des daily rewards, le suivi des quêtes, les mini-jeux web et la diffusion en direct du statut vocal et musical.
+
+---
+
 ## 🔴 Version 1.6.7
 *Dernière modification : 11 Juillet 2026*
 

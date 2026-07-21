@@ -2,7 +2,7 @@
 
 import { usePathname, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Settings2, ShieldAlert, Bot, ArrowLeft, ExternalLink, Activity, Shield, Award, FileText, Coins, UserPlus, X } from "lucide-react";
+import { LayoutDashboard, Settings2, ShieldAlert, Bot, ArrowLeft, ExternalLink, Activity, Shield, Award, FileText, Coins, UserPlus, X, Gamepad2, Sparkles, Radio, MessageSquare, Calendar, Flame, Hammer, User, BarChart2, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useServerContext } from "@/contexts/ServerContext";
 import { useSession } from "next-auth/react";
@@ -87,13 +87,24 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     );
   }
 
-  // Filtrage intelligent des menus selon le rôle simulé/réel de l'utilisateur
+  // Menu dynamique adapté selon le rôle
   const menuCategories = [
     {
       title: "GÉNÉRAL",
       visible: true,
       items: [
         { name: "Vue d'ensemble", path: `/dashboard/${serverId}`, icon: <LayoutDashboard size={18} /> },
+        { name: "Profil & Customisation", path: `/dashboard/${serverId}?tab=profile`, icon: <User size={18} /> },
+      ]
+    },
+    {
+      title: "ACTIVITÉ & JEUX",
+      visible: true,
+      items: [
+        { name: "Passe de Combat", path: `/dashboard/${serverId}?tab=battlepass`, icon: <Sparkles size={18} /> },
+        { name: "Quêtes & Daily", path: `/dashboard/${serverId}?tab=quests`, icon: <Flame size={18} /> },
+        { name: "Mini-Jeux & Casino", path: `/dashboard/${serverId}?tab=minigames`, icon: <Gamepad2 size={18} /> },
+        { name: "Crafting & Inventaire", path: `/dashboard/${serverId}?tab=crafting`, icon: <Hammer size={18} /> },
       ]
     },
     {
@@ -113,13 +124,26 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       ]
     },
     {
-      title: "ENGAGEMENT & ECONOMIE",
-      visible: userRole === "owner" || userRole === "server_owner" || userRole === "member",
+      title: "COMMUNAUTÉ & ÉCONOMIE",
+      visible: true,
       items: [
-        { name: "Tickets de Support", path: `/dashboard/${serverId}?tab=tickets`, icon: <FileText size={18} />, hidden: userRole === "member" },
         { name: "Économie & Boutique", path: `/dashboard/${serverId}?tab=economy`, icon: <Coins size={18} /> },
         { name: "Système de Leveling", path: `/dashboard/${serverId}?tab=leveling`, icon: <Award size={18} /> },
-      ].filter(item => !item.hidden)
+        { name: "Classements", path: `/dashboard/${serverId}?tab=leaderboard`, icon: <BarChart2 size={18} /> },
+        { name: "Hub Vocal & Musique", path: `/dashboard/${serverId}?tab=voice`, icon: <Radio size={18} /> },
+        { name: "Suggestions & Idées", path: `/dashboard/${serverId}?tab=suggestions`, icon: <MessageSquare size={18} /> },
+        { name: "Livre d'Or", path: `/dashboard/${serverId}?tab=wall`, icon: <FileText size={18} /> },
+        { name: "Agenda Événements", path: `/dashboard/${serverId}?tab=events`, icon: <Calendar size={18} /> },
+      ]
+    },
+    {
+      title: "ASSISTANCE & IA",
+      visible: true,
+      items: [
+        { name: "Assistant IA Membre", path: `/dashboard/${serverId}?tab=ai_assistant`, icon: <Bot size={18} /> },
+        { name: "Mon Analytique", path: `/dashboard/${serverId}?tab=analytics`, icon: <Activity size={18} /> },
+        { name: "Tickets de Support", path: `/dashboard/${serverId}?tab=tickets`, icon: <HelpCircle size={18} /> },
+      ]
     }
   ].filter(cat => cat.visible);
 

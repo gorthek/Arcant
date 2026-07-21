@@ -78,6 +78,24 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 2.7.0
+*Dernière modification : 21 Juillet 2026*
+
+### 🌐 Espace Membre Suprême (14 Modules Interactifs)
+- **[Studio de Profil & Customisation]** Personnalisation dynamique du thème visuel de profil (6 thèmes), du badge et du titre équipable avec prévisualisation en direct.
+- **[Passe de Combat Saison 1]** Progression au fil de l'activité du membre sur 10 paliers avec récompenses gratuites et déblocages progressifs.
+- **[Quêtes & Daily Rewards]** Bouton de réclamation quotidienne avec streak counter consécutif et système de quêtes hebdomadaires réactives avec jauges de progression.
+- **[Mini-Jeux Web & Casino Virtuel]** Roue de la Fortune interactive et Coinflip 3D avec parité et gestion des coins du serveur.
+- **[Crafting & Inventaire]** Système d'artisanat permettant de fabriquer des rôles et badges rares en combinant des composants, et gestionnaire d'inventaire.
+- **[Hub Vocal Live & Musique]** Visualisation en temps réel des salons vocaux actifs, des membres connectés et de la musique en cours de lecture par le bot.
+- **[Livre d'Or Communautaire]** Mur d'expression interactif pour poster et aimer les dédicaces des membres.
+- **[Assistant IA Membre]** Mini-assistant IA dédié répondant aux questions des utilisateurs sur le serveur et le bot Arcant.
+- **[Analytique & Heatmap Annuelle]** Visualisation de l'engagement annuel style GitHub sur 365 jours.
+- **[Boîte à Suggestions]** Système de proposition d'idées avec votes communautaires (Upvote / Downvote).
+- **[Tickets de Support & Transcripts]** Consultation de ses tickets passés et accès aux transcripts d'assistance.
+
+---
+
 ## 🟢 Version 2.6.0
 *Dernière modification : 14 Juillet 2026*
 
