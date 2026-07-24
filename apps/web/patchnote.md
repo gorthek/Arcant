@@ -148,6 +148,17 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 3.3.0
+*Dernière modification : 24 Juillet 2026*
+
+### 🌐 Expérience Webflow 3D & Interactivité Suprême
+- **[Webflow 3D Interactif]** Intégration d'un visualiseur 3D interactif des pipelines de bots avec `OrbitControls`, faisceaux d'énergie animés et panneau HUD en temps réel.
+- **[Noyau 3D Hero Réactif]** Onde de choc au clic, vitesse d'impulsion accrue et satellites 3D flottants en orbite avec badges tactiles.
+- **[Cartes 3D & Tilt Specular]** Intégration de micro-canvases R3F avec gemmes en verre 3D dans chaque carte de fonctionnalité.
+- **[Stardust Repulsion Physics]** Effet de répulsion magnétique des étoiles d'arrière-plan réactif aux mouvements de la souris.
+
+---
+
 ## 🟢 Version 2.3.0
 *Dernière modification : 14 Juillet 2026*
 

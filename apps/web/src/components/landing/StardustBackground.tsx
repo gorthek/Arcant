@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 export function StardustBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: -1000, y: -1000 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -16,6 +17,8 @@ export function StardustBackground() {
     let particles: {
       x: number;
       y: number;
+      baseX: number;
+      baseY: number;
       size: number;
       speedY: number;
       opacity: number;
@@ -25,6 +28,11 @@ export function StardustBackground() {
 
     let lastWidth = typeof window !== "undefined" ? window.innerWidth : 0;
     let lastHeight = typeof window !== "undefined" ? window.innerHeight : 0;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseRef.current.x = e.clientX;
+      mouseRef.current.y = e.clientY;
+    };
 
     const resize = () => {
       const width = window.innerWidth;
@@ -41,16 +49,20 @@ export function StardustBackground() {
 
     const initParticles = () => {
       particles = [];
-      const numParticles = Math.min(Math.floor((canvas.width * canvas.height) / 15000), 80);
+      const numParticles = Math.min(Math.floor((canvas.width * canvas.height) / 14000), 90);
       for (let i = 0; i < numParticles; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
         particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          size: Math.random() * 2 + 0.5,
-          speedY: -(Math.random() * 0.15 + 0.05), // Slowly drift up
+          x,
+          y,
+          baseX: x,
+          baseY: y,
+          size: Math.random() * 2.2 + 0.6,
+          speedY: -(Math.random() * 0.18 + 0.06), // Slowly drift up
           opacity: Math.random(),
           fadeSpeed: (Math.random() * 0.003 + 0.001) * (Math.random() > 0.5 ? 1 : -1),
-          maxOpacity: Math.random() * 0.4 + 0.1
+          maxOpacity: Math.random() * 0.45 + 0.15
         });
       }
     };
@@ -70,12 +82,31 @@ export function StardustBackground() {
 
         // Update position (drift up)
         p.y += p.speedY;
+        p.baseY += p.speedY;
         if (p.y < 0) {
           p.y = canvas.height;
+          p.baseY = canvas.height;
           p.x = Math.random() * canvas.width;
+          p.baseX = p.x;
         }
 
-        ctx.fillStyle = `rgba(13, 148, 136, ${p.opacity})`; // Teal color with particle opacity
+        // Mouse repulsion physics
+        const dx = mouseRef.current.x - p.x;
+        const dy = mouseRef.current.y - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const maxDist = 120;
+
+        if (dist < maxDist) {
+          const force = (maxDist - dist) / maxDist;
+          const angle = Math.atan2(dy, dx);
+          p.x -= Math.cos(angle) * force * 4;
+          p.y -= Math.sin(angle) * force * 4;
+        } else {
+          // Smooth return to base path
+          p.x += (p.baseX - p.x) * 0.05;
+        }
+
+        ctx.fillStyle = `rgba(20, 184, 166, ${p.opacity})`; // Teal color
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
@@ -85,11 +116,13 @@ export function StardustBackground() {
     };
 
     window.addEventListener("resize", resize);
+    window.addEventListener("mousemove", handleMouseMove);
     resize();
     draw();
 
     return () => {
       window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
@@ -101,3 +134,4 @@ export function StardustBackground() {
     />
   );
 }
+

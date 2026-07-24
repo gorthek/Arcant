@@ -1,5 +1,19 @@
 # Patchnotes Arcant Web
 
+## v3.3.0 (Expérience Webflow 3D & Interactivité Suprême)
+- **Nouveau Webflow 3D Interactif (`Interactive3DWorkflow.tsx`)** :
+  - Intégration d'un visualiseur 3D temps réel du flux d'automatisation (Événement Discord $\rightarrow$ Filtre Anti-Raid $\rightarrow$ Moteur IA $\rightarrow$ Action Bot/Embed).
+  - Faisceaux d'énergie 3D lumineuse avec particules en mouvement entre les nœuds.
+  - Scène 3D orientable et zoomable avec `OrbitControls` et panneau HUD interactif permettant d'inspecter et de simuler le workflow.
+- **Hero 3D Core Interactif (`InteractiveScene.tsx`)** :
+  - Ajout d'interactivité au clic sur le noyau 3D central déclenchant des impulsions d'ondes de choc et accélérant la rotation.
+  - Satellites 3D en orbite (Velthor Bot, Anti-Raid Shield, Custom Engine, 0ms Latency) avec badges interactifs au survol.
+- **Cartes de Fonctionnalités avec Micro-Scènes 3D (`Features.tsx`)** :
+  - Cartes avec effet Tilt 3D réactif à la position de la souris et reflets radiaux.
+  - Intégration de micro-canvases 3D avec gemmes en cristal rotatives personnalisées pour chaque fonctionnalité.
+- **Champ d'Étoiles 3D Réactif à la Souris (`StardustBackground.tsx`)** :
+  - Physique de répulsion magnétique douce repoussant les particules au passage du curseur de l'utilisateur.
+
 ## v3.2.0 (Studio IA & Premium Paywall Update)
 - **Monétisation & Paywall Premium**
   - Ajout du `PremiumLockWrapper` : les fonctionnalités nécessitant un abonnement (ex: IA générative) sont désormais floutées avec un cadenas interactif.
