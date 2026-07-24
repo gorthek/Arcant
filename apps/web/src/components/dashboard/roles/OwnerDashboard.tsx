@@ -6,8 +6,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Image as ImageIcon, Mic, MessageSquare, Server, Zap, Database, Type, PenTool, Layout, FileText, User, Plus, Trash2, Award, Coins, UserPlus, HelpCircle, Activity, Flame, Gamepad2, Hammer } from "lucide-react";
 import ServerVisualEditor from './ServerVisualEditor';
 import { ModuleIA } from './ModuleIA';
+import { MemberDashboard } from './MemberDashboard';
 import { useServerSettings } from "@/hooks/useServerSettings";
 import { PremiumLockWrapper } from "@/components/dashboard/PremiumLockWrapper";
+
+const MEMBER_TABS = [
+  "profile", "battlepass", "quests", "minigames", "crafting",
+  "leaderboard", "voice", "suggestions", "wall", "events",
+  "ai_assistant", "analytics"
+];
 
 export function OwnerDashboard({ serverId }: { serverId: string }) {
   const searchParams = useSearchParams();
@@ -26,6 +33,11 @@ export function OwnerDashboard({ serverId }: { serverId: string }) {
 
   if (isLoading) {
     return <div className="text-amber-500 animate-pulse text-center p-20">Chargement des données du serveur...</div>;
+  }
+
+  // Si un onglet orienté membre est sélectionné (Profil, Passe de combat, Quêtes, Casino...), on affiche le MemberDashboard correspondant
+  if (MEMBER_TABS.includes(activeTab)) {
+    return <MemberDashboard serverId={serverId} />;
   }
 
   return (

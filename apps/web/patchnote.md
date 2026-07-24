@@ -148,6 +148,15 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 3.3.2
+*Dernière modification : 24 Juillet 2026*
+
+### 🌐 Support Total des Onglets Membres sur Dashboard Owner & Admin
+- **[Contenu Intégral Sidebar]** Prise en charge universelle des onglets membres (Profil & Customisation, Passe de combat, Quêtes, Mini-Jeux, Crafting, Classements, Vocal, Suggestions, Livre d'Or, Agenda, IA Membre et Analytique) sur les tableaux de bord des Propriétaires et Admins.
+- **[Affichage Garanti]** Résolution du conteneur vide lors du clic sur les éléments de la sidebar.
+
+---
+
 ## 🟢 Version 3.3.1
 *Dernière modification : 24 Juillet 2026*
 

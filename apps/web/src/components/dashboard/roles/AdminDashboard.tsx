@@ -1,11 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, ShieldAlert, Settings2, Save, Sparkles, AlertTriangle, Mic, Server, Zap, Database, Lock, RefreshCw, User, Activity, FileText, Clock } from "lucide-react";
+import { MemberDashboard } from "./MemberDashboard";
+
+const MEMBER_TABS = [
+  "profile", "battlepass", "quests", "minigames", "crafting",
+  "leaderboard", "voice", "suggestions", "wall", "events",
+  "ai_assistant", "analytics"
+];
 
 export function AdminDashboard({ serverId }: { serverId: string }) {
-  const [activeTab, setActiveTab] = useState("overview");
+  const searchParams = useSearchParams();
+  const urlTab = searchParams.get("tab");
+  const [activeTabState, setActiveTabState] = useState("overview");
+
+  const activeTab = urlTab || activeTabState;
+
+  const setActiveTab = (id: string) => {
+    setActiveTabState(id);
+    const url = new URL(window.location.href);
+    if (id === "overview") {
+      url.searchParams.delete("tab");
+    } else {
+      url.searchParams.set("tab", id);
+    }
+    window.history.pushState({}, '', url.toString());
+  };
+
   const [isSaving, setIsSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -16,6 +40,10 @@ export function AdminDashboard({ serverId }: { serverId: string }) {
   const [logChannelId, setLogChannelId] = useState("");
   const [muteDuration, setMuteDuration] = useState("10m");
   const [blacklistedWordsString, setBlacklistedWordsString] = useState("");
+
+  if (MEMBER_TABS.includes(activeTab)) {
+    return <MemberDashboard serverId={serverId} />;
+  }
 
   useEffect(() => {
     async function loadSettings() {

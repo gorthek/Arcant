@@ -1,5 +1,10 @@
 # Patchnotes Arcant Web
 
+## v3.3.2 (Support Total des Onglets Membres sur Dashboard Owner & Admin)
+- **Affichage des Onglets Membres pour les Fondateurs et Admins** :
+  - Interconnexion entre `OwnerDashboard`, `AdminDashboard` et `MemberDashboard` pour les onglets `profile` (Profil & Customisation), `battlepass` (Passe de Combat), `quests` (Quêtes), `minigames` (Casino & Mini-jeux), `crafting` (Crafting & Inventaire), `leaderboard`, `voice`, `suggestions`, `wall`, `events`, `ai_assistant` et `analytics`.
+  - Élimination complète des conteneurs vides lors de la navigation sur la sidebar.
+
 ## v3.3.1 (Fix Chargement Infini Dashboard Vercel)
 - **Correction des Requêtes API du Dashboard (`OwnerDashboard`, `AdminDashboard`, `MemberDashboard`)** :
   - Suppression des prefixes d'URL `http://localhost:4000` en dur qui provoquaient un blocage Mixed Content (HTTP/HTTPS) et un statut "Chargement des données du serveur..." infini sur Vercel.
