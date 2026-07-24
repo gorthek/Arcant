@@ -99,63 +99,67 @@ function ModuleOverview({ serverId }: { serverId: string }) {
 
   useEffect(() => {
     const fetchAll = async () => {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-      
-      // Fetch structure + stats in parallel
-      const [structRes, statsRes] = await Promise.allSettled([
-        fetch(`${apiUrl}/api/server/${serverId}/structure`),
-        fetch(`${apiUrl}/api/server/${serverId}/stats`)
-      ]);
+      try {
+        // Fetch structure + stats in parallel using relative Next.js API paths
+        const [structRes, statsRes] = await Promise.allSettled([
+          fetch(`/api/server/${serverId}/structure`),
+          fetch(`/api/server/${serverId}/stats`)
+        ]);
 
-      // Handle structure
-      if (structRes.status === 'fulfilled' && structRes.value.ok) {
-        const data = await structRes.value.json();
-        setStructure(data.structure);
-      } else {
-        // Fallback arborescence
-        setStructure({
-          roles: [
-            { name: "@everyone", color: "#99aab5" },
-            { name: "Founder", color: "#e74c3c" },
-            { name: "Lead Developer", color: "#e67e22" },
-            { name: "Admin", color: "#e74c3c" },
-            { name: "Moderator", color: "#2ecc71" },
-            { name: "Support Team", color: "#f1c40f" },
-            { name: "Server Booster", color: "#e74c3c" },
-            { name: "VIP", color: "#9b59b6" },
-            { name: "Verified", color: "#3498db" },
-            { name: "Membre", color: "#99aab5" }
-          ],
-          categories: [
-            { name: "📋 IMPORTANT", channels: [{ name: "announcement", type: "text" }, { name: "rules", type: "text" }] },
-            { name: "💬 CHATTING", channels: [{ name: "general-chat", type: "text" }, { name: "bot-commands", type: "text" }] },
-            { name: "🔊 VOICE", channels: [{ name: "Général", type: "voice" }, { name: "Musique", type: "voice" }] }
-          ]
-        });
+        // Handle structure
+        if (structRes.status === 'fulfilled' && structRes.value.ok) {
+          const data = await structRes.value.json();
+          setStructure(data.structure || null);
+        }
+        
+        if (!structure) {
+          // Fallback arborescence
+          setStructure({
+            roles: [
+              { name: "@everyone", color: "#99aab5" },
+              { name: "Founder", color: "#e74c3c" },
+              { name: "Lead Developer", color: "#e67e22" },
+              { name: "Admin", color: "#e74c3c" },
+              { name: "Moderator", color: "#2ecc71" },
+              { name: "Support Team", color: "#f1c40f" },
+              { name: "Server Booster", color: "#e74c3c" },
+              { name: "VIP", color: "#9b59b6" },
+              { name: "Verified", color: "#3498db" },
+              { name: "Membre", color: "#99aab5" }
+            ],
+            categories: [
+              { name: "📋 IMPORTANT", channels: [{ name: "announcement", type: "text" }, { name: "rules", type: "text" }] },
+              { name: "💬 CHATTING", channels: [{ name: "general-chat", type: "text" }, { name: "bot-commands", type: "text" }] },
+              { name: "🔊 VOICE", channels: [{ name: "Général", type: "voice" }, { name: "Musique", type: "voice" }] }
+            ]
+          });
+        }
+
+        // Handle stats
+        if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
+          const data = await statsRes.value.json();
+          setStats(data);
+        } else {
+          // Fallback stats quand le bot est offline
+          setStats({
+            memberCount: 0,
+            approximatePresenceCount: 0,
+            boostCount: 0,
+            boostTier: 0,
+            rolesCount: 0,
+            textChannels: 0,
+            voiceChannels: 0,
+            totalChannels: 0,
+            botLatency: -1,
+            botOnline: false,
+            _fallback: true
+          });
+        }
+      } catch (err) {
+        console.warn("Erreur chargement données serveur:", err);
+      } finally {
+        setLoading(false);
       }
-
-      // Handle stats
-      if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
-        const data = await statsRes.value.json();
-        setStats(data);
-      } else {
-        // Fallback stats quand le bot est offline
-        setStats({
-          memberCount: 0,
-          approximatePresenceCount: 0,
-          boostCount: 0,
-          boostTier: 0,
-          rolesCount: 0,
-          textChannels: 0,
-          voiceChannels: 0,
-          totalChannels: 0,
-          botLatency: -1,
-          botOnline: false,
-          _fallback: true
-        });
-      }
-
-      setLoading(false);
     };
     fetchAll();
   }, [serverId]);

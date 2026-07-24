@@ -1,5 +1,11 @@
 # Patchnotes Arcant Web
 
+## v3.3.1 (Fix Chargement Infini Dashboard Vercel)
+- **Correction des Requêtes API du Dashboard (`OwnerDashboard`, `AdminDashboard`, `MemberDashboard`)** :
+  - Suppression des prefixes d'URL `http://localhost:4000` en dur qui provoquaient un blocage Mixed Content (HTTP/HTTPS) et un statut "Chargement des données du serveur..." infini sur Vercel.
+  - Conversion vers des routes d'API relatives Next.js (`/api/server/[id]/...`) ultra-rapides et sécurisées.
+  - Ajout d'une gestion `try/catch/finally` garantie pour débloquer le rendu du dashboard même en cas de latence du bot.
+
 ## v3.3.0 (Expérience Webflow 3D & Interactivité Suprême)
 - **Nouveau Webflow 3D Interactif (`Interactive3DWorkflow.tsx`)** :
   - Intégration d'un visualiseur 3D temps réel du flux d'automatisation (Événement Discord $\rightarrow$ Filtre Anti-Raid $\rightarrow$ Moteur IA $\rightarrow$ Action Bot/Embed).

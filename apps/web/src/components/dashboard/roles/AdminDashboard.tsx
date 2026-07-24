@@ -20,8 +20,7 @@ export function AdminDashboard({ serverId }: { serverId: string }) {
   useEffect(() => {
     async function loadSettings() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        const res = await fetch(`${apiUrl}/api/server/${serverId}/settings`);
+        const res = await fetch(`/api/server/${serverId}/settings`);
         if (res.ok) {
           const data = await res.json();
           if (data.settings) {
@@ -45,9 +44,8 @@ export function AdminDashboard({ serverId }: { serverId: string }) {
   const handleSave = async () => {
     setIsSaving(true);
     const blacklistedWords = blacklistedWordsString.split("\n").map(w => w.trim()).filter(w => w.length > 0);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     try {
-      const res = await fetch(`${apiUrl}/api/server/${serverId}/settings`, {
+      const res = await fetch(`/api/server/${serverId}/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ raidMode, antiLink, antiSpamSensitivity, logChannelId, muteDuration, blacklistedWords }),
@@ -178,9 +176,8 @@ function AdminOverview({ serverId }: { serverId: string }) {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       try {
-        const res = await fetch(`${apiUrl}/api/server/${serverId}/stats`);
+        const res = await fetch(`/api/server/${serverId}/stats`);
         if (res.ok) {
           setStats(await res.json());
         } else {

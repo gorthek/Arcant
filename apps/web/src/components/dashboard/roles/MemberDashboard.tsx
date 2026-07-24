@@ -86,8 +86,7 @@ export function MemberDashboard({ serverId }: { serverId: string }) {
   useEffect(() => {
     async function fetchStructure() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        const res = await fetch(`${apiUrl}/api/server/${serverId}/structure`);
+        const res = await fetch(`/api/server/${serverId}/structure`);
         if (res.ok) {
           const data = await res.json();
           setStructure(data.structure);

@@ -148,6 +148,15 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 3.3.1
+*Dernière modification : 24 Juillet 2026*
+
+### 🌐 Fix Chargement Infini Dashboard Vercel
+- **[Résolution Blocage Mixed Content Vercel]** Remplacement des URLs `http://localhost:4000` par des routes relatives `/api/server/[id]/...` et `/api/owner/...` pour corriger le blocage du statut "Chargement des données du serveur...".
+- **[Robuste Fallback]** Intégration de la clause `finally` sur les états de chargement pour garantir l'affichage instantané des panneaux même en cas d'indisponibilité temporaire du bot.
+
+---
+
 ## 🟢 Version 3.3.0
 *Dernière modification : 24 Juillet 2026*
 

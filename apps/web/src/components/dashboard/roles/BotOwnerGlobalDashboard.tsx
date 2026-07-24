@@ -64,10 +64,9 @@ export function BotOwnerGlobalDashboard() {
   const fetchGlobalData = async () => {
     setLoading(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const [statsRes, serversRes] = await Promise.allSettled([
-        fetch(`${apiUrl}/api/owner/db-stats`),
-        fetch(`${apiUrl}/api/owner/servers`)
+        fetch(`/api/owner/db-stats`),
+        fetch(`/api/owner/servers`)
       ]);
       if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
         setStats(await statsRes.value.json());
