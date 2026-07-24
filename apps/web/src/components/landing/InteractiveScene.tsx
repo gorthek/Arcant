@@ -12,16 +12,14 @@ function InteractiveParticleOrb() {
   const groupRef = useRef<THREE.Group>(null);
 
   const mouse = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
-  const isClicked = useRef(false);
   const pulseFactor = useRef(0);
 
-  // Generate outer sphere particle cloud using Fibonacci distribution
-  const { positions, originalPositions, colors, scales } = useMemo(() => {
-    const count = 3500;
+  // Generate outer sphere particle cloud using Fibonacci distribution (Radius ~1.2)
+  const { positions, originalPositions, colors } = useMemo(() => {
+    const count = 3200;
     const pos = new Float32Array(count * 3);
     const origPos = new Float32Array(count * 3);
     const col = new Float32Array(count * 3);
-    const sca = new Float32Array(count);
 
     const colorTeal = new THREE.Color("#2dd4bf");
     const colorEmerald = new THREE.Color("#10b981");
@@ -31,11 +29,12 @@ function InteractiveParticleOrb() {
     const phi = Math.PI * (3 - Math.sqrt(5)); // Golden angle
 
     for (let i = 0; i < count; i++) {
-      const y = 1 - (i / (count - 1)) * 2; // y goes from 1 to -1
+      const y = 1 - (i / (count - 1)) * 2;
       const radiusAtY = Math.sqrt(1 - y * y);
       const theta = phi * i;
 
-      const radius = 1.75 + (Math.random() - 0.5) * 0.15;
+      // Rayon ajusté pour tenir confortablement dans le champ de vision (1.20)
+      const radius = 1.20 + (Math.random() - 0.5) * 0.1;
       const x = Math.cos(theta) * radiusAtY * radius;
       const z = Math.sin(theta) * radiusAtY * radius;
       const py = y * radius;
@@ -48,7 +47,6 @@ function InteractiveParticleOrb() {
       origPos[i * 3 + 1] = py;
       origPos[i * 3 + 2] = z;
 
-      // Color gradient distribution
       const mixRatio = Math.random();
       let particleColor = colorTeal.clone();
       if (mixRatio < 0.35) {
@@ -62,19 +60,17 @@ function InteractiveParticleOrb() {
       col[i * 3] = particleColor.r;
       col[i * 3 + 1] = particleColor.g;
       col[i * 3 + 2] = particleColor.b;
-
-      sca[i] = Math.random() * 0.04 + 0.015;
     }
 
-    return { positions: pos, originalPositions: origPos, colors: col, scales: sca };
+    return { positions: pos, originalPositions: origPos, colors: col };
   }, []);
 
-  // Generate dense inner core particles
+  // Generate dense inner core particles (Radius ~0.6)
   const corePositions = useMemo(() => {
-    const count = 1200;
+    const count = 1000;
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      const r = Math.random() * 0.9;
+      const r = Math.random() * 0.6;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
 
@@ -96,11 +92,7 @@ function InteractiveParticleOrb() {
   }, []);
 
   const handlePointerDown = () => {
-    isClicked.current = true;
     pulseFactor.current = 1.0;
-    setTimeout(() => {
-      isClicked.current = false;
-    }, 600);
   };
 
   useFrame((state, delta) => {
@@ -112,19 +104,18 @@ function InteractiveParticleOrb() {
 
     // Pulse decay
     if (pulseFactor.current > 0) {
-      pulseFactor.current = Math.max(0, pulseFactor.current - delta * 2.0);
+      pulseFactor.current = Math.max(0, pulseFactor.current - delta * 2.2);
     }
 
     // Rotate particle orb & core
     if (pointsRef.current) {
       pointsRef.current.rotation.y = time * 0.15;
-      pointsRef.current.rotation.x = Math.sin(time * 0.1) * 0.2;
+      pointsRef.current.rotation.x = Math.sin(time * 0.1) * 0.15;
 
-      // Particle physics displacement near mouse
       const posAttr = pointsRef.current.geometry.attributes.position;
       const posArray = posAttr.array as Float32Array;
 
-      const mouseVec = new THREE.Vector3(mouse.current.x * 2.5, mouse.current.y * 2.5, 0);
+      const mouseVec = new THREE.Vector3(mouse.current.x * 2.0, mouse.current.y * 2.0, 0);
 
       for (let i = 0; i < posArray.length / 3; i++) {
         const i3 = i * 3;
@@ -133,19 +124,18 @@ function InteractiveParticleOrb() {
         const oz = originalPositions[i3 + 2];
 
         // Organic wave motion
-        const wave = Math.sin(time * 2.5 + ox * 3.0 + oy * 2.0) * 0.06;
+        const wave = Math.sin(time * 2.2 + ox * 2.5 + oy * 2.0) * 0.04;
 
-        // Current particle position in group space
         let px = ox + wave;
         let py = oy + wave;
         let pz = oz + wave;
 
-        // Mouse repulsion / magnetic attraction physics
+        // Mouse repulsion physics
         const pVec = new THREE.Vector3(px, py, pz);
         const dist = pVec.distanceTo(mouseVec);
 
-        if (dist < 1.8) {
-          const pushForce = (1.8 - dist) * 0.45;
+        if (dist < 1.4) {
+          const pushForce = (1.4 - dist) * 0.35;
           const dir = pVec.clone().sub(mouseVec).normalize();
           px += dir.x * pushForce;
           py += dir.y * pushForce;
@@ -154,7 +144,7 @@ function InteractiveParticleOrb() {
 
         // Click shockwave expansion
         if (pulseFactor.current > 0) {
-          const pulsePush = Math.sin(pulseFactor.current * Math.PI) * 0.5;
+          const pulsePush = Math.sin(pulseFactor.current * Math.PI) * 0.35;
           px += ox * pulsePush;
           py += oy * pulsePush;
           pz += oz * pulsePush;
@@ -169,25 +159,24 @@ function InteractiveParticleOrb() {
     }
 
     if (corePointsRef.current) {
-      corePointsRef.current.rotation.y = -time * 0.25;
-      corePointsRef.current.rotation.z = time * 0.15;
+      corePointsRef.current.rotation.y = -time * 0.2;
     }
 
     if (ringRef.current) {
-      ringRef.current.rotation.z = time * 0.3;
-      ringRef.current.rotation.x = Math.PI / 3 + Math.sin(time * 0.5) * 0.1;
+      ringRef.current.rotation.z = time * 0.25;
+      ringRef.current.rotation.x = Math.PI / 3.5 + Math.sin(time * 0.4) * 0.1;
     }
 
-    // Tilt group according to mouse position
+    // Group orientation based on mouse
     if (groupRef.current) {
       groupRef.current.rotation.y = THREE.MathUtils.lerp(
         groupRef.current.rotation.y,
-        mouse.current.x * 0.5,
+        mouse.current.x * 0.35,
         0.05
       );
       groupRef.current.rotation.x = THREE.MathUtils.lerp(
         groupRef.current.rotation.x,
-        -mouse.current.y * 0.5,
+        -mouse.current.y * 0.35,
         0.05
       );
     }
@@ -195,7 +184,7 @@ function InteractiveParticleOrb() {
 
   return (
     <group ref={groupRef} onPointerDown={handlePointerDown}>
-      <Float speed={2} rotationIntensity={0.2} floatIntensity={0.4}>
+      <Float speed={2} rotationIntensity={0.15} floatIntensity={0.3}>
         {/* Outer Interactive Particle Sphere */}
         <points ref={pointsRef}>
           <bufferGeometry>
@@ -209,7 +198,7 @@ function InteractiveParticleOrb() {
             />
           </bufferGeometry>
           <pointsMaterial
-            size={0.045}
+            size={0.038}
             vertexColors
             transparent
             opacity={0.85}
@@ -227,7 +216,7 @@ function InteractiveParticleOrb() {
             />
           </bufferGeometry>
           <pointsMaterial
-            size={0.03}
+            size={0.025}
             color="#2dd4bf"
             transparent
             opacity={0.9}
@@ -236,11 +225,11 @@ function InteractiveParticleOrb() {
           />
         </points>
 
-        {/* Subtle Outer Particle Ring */}
+        {/* Subtle Outer Particle Ring (Radius 1.55) */}
         <points ref={ringRef}>
-          <torusGeometry args={[2.3, 0.08, 16, 100]} />
+          <torusGeometry args={[1.55, 0.05, 16, 90]} />
           <pointsMaterial
-            size={0.025}
+            size={0.022}
             color="#10b981"
             transparent
             opacity={0.4}
@@ -250,7 +239,7 @@ function InteractiveParticleOrb() {
       </Float>
 
       {/* Floating ambient space particles */}
-      <Sparkles count={80} scale={6} size={2} speed={0.7} color="#2dd4bf" />
+      <Sparkles count={50} scale={4.5} size={1.6} speed={0.6} color="#2dd4bf" />
     </group>
   );
 }
@@ -264,26 +253,19 @@ export function InteractiveScene() {
 
   if (!isClient) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-teal-400 font-semibold text-sm">
-        <div className="w-6 h-6 border-2 border-teal-400 border-t-transparent rounded-full animate-spin" />
-        <span>Initialisation Orbe de Particules...</span>
+      <div className="w-full h-full flex items-center justify-center text-teal-400 font-semibold text-xs">
+        Initialisation Orbe 3D...
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full relative group cursor-grab active:cursor-grabbing">
+    <div className="w-full h-full relative group">
       {/* Background glow underneath */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(20,184,166,0.22)_0%,transparent_75%)] pointer-events-none blur-3xl transition-opacity duration-500 group-hover:opacity-100 opacity-75" />
-
-      {/* Interactive badge overlay */}
-      <div className="absolute top-2 right-4 z-30 pointer-events-none bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-teal-500/30 text-xs font-semibold text-teal-300 flex items-center gap-2 shadow-xl">
-        <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping" />
-        <span>Orbe de Particules • Survolez & Cliquez</span>
-      </div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(20,184,166,0.18)_0%,transparent_75%)] pointer-events-none blur-3xl" />
 
       <Canvas
-        camera={{ position: [0, 0, 5.0], fov: 45 }}
+        camera={{ position: [0, 0, 5.8], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
         className="w-full h-full select-none"
         onPointerOver={() => { document.body.style.cursor = "pointer"; }}
@@ -300,5 +282,6 @@ export function InteractiveScene() {
     </div>
   );
 }
+
 
 

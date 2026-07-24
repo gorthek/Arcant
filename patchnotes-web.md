@@ -1,5 +1,10 @@
 # Patchnotes Arcant Web
 
+## v3.4.1 (Élimination du Rognage des Bords 3D & Cadrage Spacieux)
+- **Cadrage 3D & Caméra Optiques Parfaits (`InteractiveScene.tsx` & `Hero.tsx`)** :
+  - Ajustement du rayon de l'Orbe de Particules et de son anneau de 2.3 à 1.55 / 1.20 et recul de la caméra de `Z=5.0` à `Z=5.8` avec un conteneur réhaussé à `550px`.
+  - Élimination intégrale de toute ligne de rognage rectangulaire (`clipping`) sur les 4 côtés : l'orbe flotte désormais de façon 100% infinie, naturelle et transparente sans aucune coupure de bord.
+
 ## v3.4.0 (Orbe de Particules 3D Suprême & Élimination de l'Encombrement Visuel)
 - **Refonte Totale du Hero 3D (`InteractiveScene.tsx`)** :
   - Remplacement complet du noyau solide et des boîtes d'étiquettes HTML encombrantes par une **Orbe de Particules 3D Lumineuse** composée de 3 500+ particules réparties en spirale de Fibonacci.

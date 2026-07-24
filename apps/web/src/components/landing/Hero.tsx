@@ -179,7 +179,7 @@ export function Hero() {
           </div>
 
           {/* Colonne Droite : Scène 3D Interactive */}
-          <div className="lg:col-span-5 h-[380px] sm:h-[450px] lg:h-[500px] w-full relative z-20 flex justify-center items-center">
+          <div className="lg:col-span-5 h-[450px] sm:h-[500px] lg:h-[550px] w-full relative z-20 flex justify-center items-center overflow-visible">
             <InteractiveScene />
           </div>
           

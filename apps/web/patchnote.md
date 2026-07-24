@@ -148,6 +148,15 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 3.4.1
+*Dernière modification : 24 Juillet 2026*
+
+### 🌐 Élimination du Rognage des Bords 3D & Cadrage Spacieux
+- **[Cadrage Optique Parfait]** Recul de la caméra à `Z=5.8` et dimensionnement équilibré de l'orbe (`1.20`) et de l'anneau (`1.55`) pour garantir zéro rognage de bord.
+- **[Conteneur Fluide]** Extension de la hauteur à `550px` avec `overflow-visible` pour un flottement 100% naturel et transparent.
+
+---
+
 ## 🟢 Version 3.4.0
 *Dernière modification : 24 Juillet 2026*
 
