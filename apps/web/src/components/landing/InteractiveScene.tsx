@@ -1,223 +1,256 @@
 "use client";
 
-import React, { useRef, useEffect, useState, Suspense } from "react";
+import React, { useRef, useEffect, useState, useMemo, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { MeshDistortMaterial, Sparkles, Float, Html } from "@react-three/drei";
+import { Float, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
-import { Bot, Shield, Cpu, Zap } from "lucide-react";
 
-function Satellite({ position, icon: Icon, label, color }: { position: [number, number, number]; icon: any; label: string; color: string }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
-
-  useFrame((state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x += delta * 0.8;
-      meshRef.current.rotation.y += delta * 1.2;
-    }
-  });
-
-  return (
-    <Float speed={3} rotationIntensity={1} floatIntensity={1.5} position={position}>
-      <group>
-        <mesh
-          ref={meshRef}
-          onPointerOver={() => setHovered(true)}
-          onPointerOut={() => setHovered(false)}
-          scale={hovered ? 1.3 : 1}
-        >
-          <octahedronGeometry args={[0.3, 0]} />
-          <meshStandardMaterial
-            color={color}
-            wireframe
-            emissive={color}
-            emissiveIntensity={hovered ? 0.8 : 0.3}
-          />
-        </mesh>
-
-        <Html distanceFactor={10} position={[0, 0.45, 0]} center>
-          <div
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border backdrop-blur-md transition-all duration-300 pointer-events-none whitespace-nowrap shadow-lg ${
-              hovered
-                ? "bg-teal-500/30 border-teal-400 text-teal-200 scale-110 shadow-teal-500/50"
-                : "bg-black/60 border-white/20 text-gray-300"
-            }`}
-          >
-            <Icon size={12} className={hovered ? "text-teal-300 animate-spin" : "text-gray-400"} />
-            <span>{label}</span>
-          </div>
-        </Html>
-      </group>
-    </Float>
-  );
-}
-
-function InteractiveCore() {
-  const coreRef = useRef<THREE.Mesh>(null);
-  const outerRef = useRef<THREE.Mesh>(null);
-  const ring1Ref = useRef<THREE.Mesh>(null);
-  const ring2Ref = useRef<THREE.Mesh>(null);
-  const shockwaveRef = useRef<THREE.Mesh>(null);
+function InteractiveParticleOrb() {
+  const pointsRef = useRef<THREE.Points>(null);
+  const corePointsRef = useRef<THREE.Points>(null);
+  const ringRef = useRef<THREE.Points>(null);
   const groupRef = useRef<THREE.Group>(null);
 
-  const [clicked, setClicked] = useState(false);
-  const shockwaveScale = useRef(0);
-  const shockwaveOpacity = useRef(0);
+  const mouse = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
+  const isClicked = useRef(false);
+  const pulseFactor = useRef(0);
 
-  const mouse = useRef({ x: 0, y: 0 });
+  // Generate outer sphere particle cloud using Fibonacci distribution
+  const { positions, originalPositions, colors, scales } = useMemo(() => {
+    const count = 3500;
+    const pos = new Float32Array(count * 3);
+    const origPos = new Float32Array(count * 3);
+    const col = new Float32Array(count * 3);
+    const sca = new Float32Array(count);
+
+    const colorTeal = new THREE.Color("#2dd4bf");
+    const colorEmerald = new THREE.Color("#10b981");
+    const colorCyan = new THREE.Color("#06b6d4");
+    const colorViolet = new THREE.Color("#8b5cf6");
+
+    const phi = Math.PI * (3 - Math.sqrt(5)); // Golden angle
+
+    for (let i = 0; i < count; i++) {
+      const y = 1 - (i / (count - 1)) * 2; // y goes from 1 to -1
+      const radiusAtY = Math.sqrt(1 - y * y);
+      const theta = phi * i;
+
+      const radius = 1.75 + (Math.random() - 0.5) * 0.15;
+      const x = Math.cos(theta) * radiusAtY * radius;
+      const z = Math.sin(theta) * radiusAtY * radius;
+      const py = y * radius;
+
+      pos[i * 3] = x;
+      pos[i * 3 + 1] = py;
+      pos[i * 3 + 2] = z;
+
+      origPos[i * 3] = x;
+      origPos[i * 3 + 1] = py;
+      origPos[i * 3 + 2] = z;
+
+      // Color gradient distribution
+      const mixRatio = Math.random();
+      let particleColor = colorTeal.clone();
+      if (mixRatio < 0.35) {
+        particleColor.lerp(colorEmerald, Math.random());
+      } else if (mixRatio < 0.7) {
+        particleColor.lerp(colorCyan, Math.random());
+      } else {
+        particleColor.lerp(colorViolet, Math.random() * 0.5);
+      }
+
+      col[i * 3] = particleColor.r;
+      col[i * 3 + 1] = particleColor.g;
+      col[i * 3 + 2] = particleColor.b;
+
+      sca[i] = Math.random() * 0.04 + 0.015;
+    }
+
+    return { positions: pos, originalPositions: origPos, colors: col, scales: sca };
+  }, []);
+
+  // Generate dense inner core particles
+  const corePositions = useMemo(() => {
+    const count = 1200;
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const r = Math.random() * 0.9;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      pos[i * 3 + 2] = r * Math.cos(phi);
+    }
+    return pos;
+  }, []);
 
   useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      mouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    const handleMouseMove = (e: MouseEvent) => {
+      mouse.current.targetX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
     };
 
     window.addEventListener("mousemove", handleMouseMove);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  const handleCoreClick = () => {
-    setClicked(true);
-    shockwaveScale.current = 1.0;
-    shockwaveOpacity.current = 0.9;
-    setTimeout(() => setClicked(false), 800);
+  const handlePointerDown = () => {
+    isClicked.current = true;
+    pulseFactor.current = 1.0;
+    setTimeout(() => {
+      isClicked.current = false;
+    }, 600);
   };
 
   useFrame((state, delta) => {
-    const speedMult = clicked ? 3.5 : 1.0;
+    // Smooth lerp for mouse coordinates
+    mouse.current.x = THREE.MathUtils.lerp(mouse.current.x, mouse.current.targetX, 0.08);
+    mouse.current.y = THREE.MathUtils.lerp(mouse.current.y, mouse.current.targetY, 0.08);
 
-    if (coreRef.current) {
-      coreRef.current.rotation.y += delta * 0.15 * speedMult;
-      coreRef.current.rotation.x += delta * 0.08 * speedMult;
+    const time = state.clock.getElapsedTime();
+
+    // Pulse decay
+    if (pulseFactor.current > 0) {
+      pulseFactor.current = Math.max(0, pulseFactor.current - delta * 2.0);
     }
 
-    if (outerRef.current) {
-      outerRef.current.rotation.y -= delta * 0.2 * speedMult;
-      outerRef.current.rotation.z += delta * 0.1 * speedMult;
-    }
+    // Rotate particle orb & core
+    if (pointsRef.current) {
+      pointsRef.current.rotation.y = time * 0.15;
+      pointsRef.current.rotation.x = Math.sin(time * 0.1) * 0.2;
 
-    if (ring1Ref.current) {
-      ring1Ref.current.rotation.x += delta * 0.25;
-      ring1Ref.current.rotation.y += delta * 0.12;
-    }
+      // Particle physics displacement near mouse
+      const posAttr = pointsRef.current.geometry.attributes.position;
+      const posArray = posAttr.array as Float32Array;
 
-    if (ring2Ref.current) {
-      ring2Ref.current.rotation.x -= delta * 0.15;
-      ring2Ref.current.rotation.z += delta * 0.2;
-    }
+      const mouseVec = new THREE.Vector3(mouse.current.x * 2.5, mouse.current.y * 2.5, 0);
 
-    // Shockwave expansion animation
-    if (shockwaveRef.current && shockwaveScale.current > 0) {
-      shockwaveScale.current += delta * 4;
-      shockwaveOpacity.current = Math.max(0, shockwaveOpacity.current - delta * 1.5);
-      shockwaveRef.current.scale.setScalar(shockwaveScale.current);
+      for (let i = 0; i < posArray.length / 3; i++) {
+        const i3 = i * 3;
+        const ox = originalPositions[i3];
+        const oy = originalPositions[i3 + 1];
+        const oz = originalPositions[i3 + 2];
 
-      const mat = shockwaveRef.current.material as THREE.MeshBasicMaterial;
-      if (mat) {
-        mat.opacity = shockwaveOpacity.current;
+        // Organic wave motion
+        const wave = Math.sin(time * 2.5 + ox * 3.0 + oy * 2.0) * 0.06;
+
+        // Current particle position in group space
+        let px = ox + wave;
+        let py = oy + wave;
+        let pz = oz + wave;
+
+        // Mouse repulsion / magnetic attraction physics
+        const pVec = new THREE.Vector3(px, py, pz);
+        const dist = pVec.distanceTo(mouseVec);
+
+        if (dist < 1.8) {
+          const pushForce = (1.8 - dist) * 0.45;
+          const dir = pVec.clone().sub(mouseVec).normalize();
+          px += dir.x * pushForce;
+          py += dir.y * pushForce;
+          pz += dir.z * pushForce;
+        }
+
+        // Click shockwave expansion
+        if (pulseFactor.current > 0) {
+          const pulsePush = Math.sin(pulseFactor.current * Math.PI) * 0.5;
+          px += ox * pulsePush;
+          py += oy * pulsePush;
+          pz += oz * pulsePush;
+        }
+
+        posArray[i3] = px;
+        posArray[i3 + 1] = py;
+        posArray[i3 + 2] = pz;
       }
 
-      if (shockwaveOpacity.current <= 0) {
-        shockwaveScale.current = 0;
-      }
+      posAttr.needsUpdate = true;
     }
 
-    // Smooth lerp following mouse
+    if (corePointsRef.current) {
+      corePointsRef.current.rotation.y = -time * 0.25;
+      corePointsRef.current.rotation.z = time * 0.15;
+    }
+
+    if (ringRef.current) {
+      ringRef.current.rotation.z = time * 0.3;
+      ringRef.current.rotation.x = Math.PI / 3 + Math.sin(time * 0.5) * 0.1;
+    }
+
+    // Tilt group according to mouse position
     if (groupRef.current) {
       groupRef.current.rotation.y = THREE.MathUtils.lerp(
         groupRef.current.rotation.y,
-        mouse.current.x * 0.45,
+        mouse.current.x * 0.5,
         0.05
       );
       groupRef.current.rotation.x = THREE.MathUtils.lerp(
         groupRef.current.rotation.x,
-        -mouse.current.y * 0.45,
+        -mouse.current.y * 0.5,
         0.05
       );
     }
   });
 
   return (
-    <group ref={groupRef}>
-      {/* Satellites 3D en orbite autour du noyau */}
-      <Satellite position={[-2.2, 1.2, 0.5]} icon={Bot} label="Velthor AI Bot" color="#2dd4bf" />
-      <Satellite position={[2.2, -1.0, -0.5]} icon={Shield} label="Anti-Raid Shield" color="#10b981" />
-      <Satellite position={[-1.8, -1.3, 0.8]} icon={Cpu} label="Custom Engine" color="#8b5cf6" />
-      <Satellite position={[1.9, 1.4, -0.6]} icon={Zap} label="0ms Latency" color="#f59e0b" />
-
-      <Float speed={2.5} rotationIntensity={0.4} floatIntensity={0.5}>
-        {/* Noyau central cliquable */}
-        <mesh
-          ref={coreRef}
-          onClick={handleCoreClick}
-          onPointerOver={() => { document.body.style.cursor = "pointer"; }}
-          onPointerOut={() => { document.body.style.cursor = "auto"; }}
-          castShadow
-          receiveShadow
-        >
-          <sphereGeometry args={[1.15, 64, 64]} />
-          <MeshDistortMaterial
-            color={clicked ? "#14b8a6" : "#0f766e"}
-            roughness={0.1}
-            metalness={0.9}
-            distort={clicked ? 0.65 : 0.4}
-            speed={clicked ? 4.5 : 2.0}
+    <group ref={groupRef} onPointerDown={handlePointerDown}>
+      <Float speed={2} rotationIntensity={0.2} floatIntensity={0.4}>
+        {/* Outer Interactive Particle Sphere */}
+        <points ref={pointsRef}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[positions, 3]}
+            />
+            <bufferAttribute
+              attach="attributes-color"
+              args={[colors, 3]}
+            />
+          </bufferGeometry>
+          <pointsMaterial
+            size={0.045}
+            vertexColors
+            transparent
+            opacity={0.85}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
           />
-        </mesh>
+        </points>
 
-        {/* Onde de choc lumineuse au clic */}
-        <mesh ref={shockwaveRef} scale={0}>
-          <ringGeometry args={[1.2, 1.35, 64]} />
-          <meshBasicMaterial
+        {/* Inner Luminous Core */}
+        <points ref={corePointsRef}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[corePositions, 3]}
+            />
+          </bufferGeometry>
+          <pointsMaterial
+            size={0.03}
             color="#2dd4bf"
             transparent
-            opacity={0}
-            side={THREE.DoubleSide}
+            opacity={0.9}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
           />
-        </mesh>
+        </points>
 
-        {/* Grille 3D protectrice */}
-        <mesh ref={outerRef}>
-          <dodecahedronGeometry args={[1.55, 1]} />
-          <meshBasicMaterial
-            color="#2dd4bf"
-            wireframe
-            transparent
-            opacity={clicked ? 0.4 : 0.18}
-          />
-        </mesh>
-
-        {/* Anneau orbital 1 */}
-        <mesh ref={ring1Ref} rotation={[Math.PI / 4, 0, 0]}>
-          <torusGeometry args={[1.95, 0.018, 8, 120]} />
-          <meshBasicMaterial
-            color="#14b8a6"
-            transparent
-            opacity={0.4}
-          />
-        </mesh>
-
-        {/* Anneau orbital 2 */}
-        <mesh ref={ring2Ref} rotation={[0, Math.PI / 4, 0]}>
-          <torusGeometry args={[2.2, 0.012, 8, 120]} />
-          <meshBasicMaterial
+        {/* Subtle Outer Particle Ring */}
+        <points ref={ringRef}>
+          <torusGeometry args={[2.3, 0.08, 16, 100]} />
+          <pointsMaterial
+            size={0.025}
             color="#10b981"
             transparent
-            opacity={0.3}
+            opacity={0.4}
+            blending={THREE.AdditiveBlending}
           />
-        </mesh>
+        </points>
       </Float>
 
-      {/* Nuage de particules 3D */}
-      <Sparkles
-        count={70}
-        scale={5.0}
-        size={2.0}
-        speed={0.8}
-        color="#2dd4bf"
-      />
+      {/* Floating ambient space particles */}
+      <Sparkles count={80} scale={6} size={2} speed={0.7} color="#2dd4bf" />
     </group>
   );
 }
@@ -233,37 +266,39 @@ export function InteractiveScene() {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-teal-400 font-semibold text-sm">
         <div className="w-6 h-6 border-2 border-teal-400 border-t-transparent rounded-full animate-spin" />
-        <span>Initialisation Expérience 3D...</span>
+        <span>Initialisation Orbe de Particules...</span>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full relative group">
-      {/* Glow de fond */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(20,184,166,0.18)_0%,transparent_75%)] pointer-events-none blur-3xl transition-opacity duration-500 group-hover:opacity-100 opacity-70" />
+    <div className="w-full h-full relative group cursor-grab active:cursor-grabbing">
+      {/* Background glow underneath */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(20,184,166,0.22)_0%,transparent_75%)] pointer-events-none blur-3xl transition-opacity duration-500 group-hover:opacity-100 opacity-75" />
 
-      {/* Indication interactive */}
-      <div className="absolute top-2 right-4 z-30 pointer-events-none bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-teal-500/30 text-[11px] font-medium text-teal-300 flex items-center gap-1.5 shadow-lg">
+      {/* Interactive badge overlay */}
+      <div className="absolute top-2 right-4 z-30 pointer-events-none bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-teal-500/30 text-xs font-semibold text-teal-300 flex items-center gap-2 shadow-xl">
         <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping" />
-        <span>3D Interactive • Cliquez sur le noyau</span>
+        <span>Orbe de Particules • Survolez & Cliquez</span>
       </div>
 
       <Canvas
-        camera={{ position: [0, 0, 5.2], fov: 45 }}
+        camera={{ position: [0, 0, 5.0], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
-        className="w-full h-full select-none cursor-pointer"
+        className="w-full h-full select-none"
+        onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+        onPointerOut={() => { document.body.style.cursor = "auto"; }}
       >
         <ambientLight intensity={0.5} />
-        <directionalLight position={[6, 6, 6]} intensity={2.2} color="#2dd4bf" />
-        <pointLight position={[-6, -6, 5]} intensity={1.8} color="#10b981" />
-        <directionalLight position={[-4, 4, -6]} intensity={1.0} color="#8b5cf6" />
-        
+        <pointLight position={[5, 5, 5]} intensity={2.0} color="#2dd4bf" />
+        <pointLight position={[-5, -5, -5]} intensity={1.5} color="#8b5cf6" />
+
         <Suspense fallback={null}>
-          <InteractiveCore />
+          <InteractiveParticleOrb />
         </Suspense>
       </Canvas>
     </div>
   );
 }
+
 

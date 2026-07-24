@@ -1,5 +1,11 @@
 # Patchnotes Arcant Web
 
+## v3.4.0 (Orbe de Particules 3D Suprême & Élimination de l'Encombrement Visuel)
+- **Refonte Totale du Hero 3D (`InteractiveScene.tsx`)** :
+  - Remplacement complet du noyau solide et des boîtes d'étiquettes HTML encombrantes par une **Orbe de Particules 3D Lumineuse** composée de 3 500+ particules réparties en spirale de Fibonacci.
+  - **Physique Interactive au Curseur** : Les particules subissent une déviation dynamique en temps réel au passage de la souris et réagissent avec des vagues d'ondes de choc fluides au clic.
+  - Cœur interne incandescent et anneau orbital de particules scintillantes pour une esthétique épurée, futuriste et ultra-fluide à 60 FPS.
+
 ## v3.3.2 (Support Total des Onglets Membres sur Dashboard Owner & Admin)
 - **Affichage des Onglets Membres pour les Fondateurs et Admins** :
   - Interconnexion entre `OwnerDashboard`, `AdminDashboard` et `MemberDashboard` pour les onglets `profile` (Profil & Customisation), `battlepass` (Passe de Combat), `quests` (Quêtes), `minigames` (Casino & Mini-jeux), `crafting` (Crafting & Inventaire), `leaderboard`, `voice`, `suggestions`, `wall`, `events`, `ai_assistant` et `analytics`.

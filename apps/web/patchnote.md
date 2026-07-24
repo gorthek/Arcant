@@ -148,6 +148,16 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 3.4.0
+*Dernière modification : 24 Juillet 2026*
+
+### 🌐 Orbe de Particules 3D Suprême & Design Épuré
+- **[Orbe de Particules Dynamique]** Remplacement du maillage géométrique solide et des étiquettes HTML flottantes par une sphère de 3 500+ particules lumineuses en mouvement fluide.
+- **[Interaction Physique au Curseur]** Effet de répulsion/déformation magnétique au passage de la souris et onde de choc lors des clics.
+- **[Amélioration des Performances]** Rendu optimisé via buffer attributes et `AdditiveBlending` pour une fluidité absolue.
+
+---
+
 ## 🟢 Version 3.3.2
 *Dernière modification : 24 Juillet 2026*
 
