@@ -15,6 +15,24 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v3.4.2",
+      date: "30 Juillet 2026",
+      title: "Allégement Landing Page & Removal Pipelines 3D",
+      type: "Nettoyage d'Interface",
+      color: "from-teal-500 via-emerald-500 to-cyan-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-950/20",
+      icon: <Sparkles className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Suppression du Visualiseur 3D (Pipelines 3D en Direct)",
+          detail: "Retrait de la section de visualisation 3D des workflows sur la page d'accueil pour accélérer le chargement et purifier la landing page.",
+          files: ["apps/web/src/app/page.tsx"]
+        }
+      ]
+    },
+    {
       version: "v2.3.0",
       date: "11 Juillet 2026",
       title: "Rendu 3D Cosmique Premium & Black Hole Gargantua",

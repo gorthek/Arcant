@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { Hero } from "@/components/landing/Hero";
 import { Features } from "@/components/landing/Features";
 import { Faq } from "@/components/landing/Faq";
@@ -9,18 +8,6 @@ import { Pricing } from "@/components/landing/Pricing";
 import { Footer } from "@/components/landing/Footer";
 import { Divider } from "@/components/landing/Divider";
 import { StardustBackground } from "@/components/landing/StardustBackground";
-
-const Interactive3DWorkflow = dynamic(
-  () => import("@/components/landing/Interactive3DWorkflow").then((mod) => mod.Interactive3DWorkflow),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-[400px] flex items-center justify-center text-teal-400 font-medium">
-        Chargement de l'expérience 3D Workflow...
-      </div>
-    ),
-  }
-);
 
 export default function Home() {
   return (
@@ -32,9 +19,6 @@ export default function Home() {
       <div className="relative z-10 bg-black">
         <Hero />
         <Features />
-        
-        {/* Section Workflow 3D Interactif */}
-        <Interactive3DWorkflow />
         
         {/* Transition Noir -> Gris très foncé */}
         <Divider bottomColorHex="#09090b" />

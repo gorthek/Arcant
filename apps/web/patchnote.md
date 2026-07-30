@@ -148,6 +148,14 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 3.4.2
+*Dernière modification : 30 Juillet 2026*
+
+### 🌐 Allégement de la Landing Page & Nettoyage UI
+- **[Suppression du Visualiseur 3D Pipelines]** Suppression de la section "Visualisez vos Pipelines 3D en Direct" (`Interactive3DWorkflow.tsx`) de la landing page pour une expérience utilisateur plus fluide.
+
+---
+
 ## 🟢 Version 3.4.1
 *Dernière modification : 24 Juillet 2026*
 

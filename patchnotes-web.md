@@ -1,5 +1,9 @@
 # Patchnotes Arcant Web
 
+## v3.4.2 (Suppression du Visualiseur Workflow 3D "Pipelines 3D en Direct")
+- **Clean Interface & Allégement de la Landing Page (`page.tsx`)** :
+  - Suppression complète du composant `Interactive3DWorkflow` ("Visualisez vos Pipelines 3D en Direct") afin d'alléger la page d'accueil et d'offrir un flux de navigation plus direct.
+
 ## v3.4.1 (Élimination du Rognage des Bords 3D & Cadrage Spacieux)
 - **Cadrage 3D & Caméra Optiques Parfaits (`InteractiveScene.tsx` & `Hero.tsx`)** :
   - Ajustement du rayon de l'Orbe de Particules et de son anneau de 2.3 à 1.55 / 1.20 et recul de la caméra de `Z=5.0` à `Z=5.8` avec un conteneur réhaussé à `550px`.
