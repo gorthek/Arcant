@@ -148,6 +148,15 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 3.5.1
+*Dernière modification : 30 Juillet 2026*
+
+### 🌐 Design Angélique Céleste pour la Politique de Confidentialité
+- **[Refonte Visuelle `/privacy`]** Métamorphose de la page RGPD avec un thème divin lumineux : faicseaux de lumière blanche (God Rays), nuages sacrés flottants, particules d'or & perles, et cartes en verre angélique.
+- **[Clarification des Articles]** Mise en valeur des piliers de sécurité : Minimisation des données (Art. 5 RGPD), Chiffrement Séraphique AES-256-GCM, et Droit à l'Oubli.
+
+---
+
 ## 🟢 Version 3.5.0
 *Dernière modification : 30 Juillet 2026*
 

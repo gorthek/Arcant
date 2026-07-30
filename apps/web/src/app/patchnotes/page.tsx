@@ -15,6 +15,24 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v3.5.1",
+      date: "30 Juillet 2026",
+      title: "Design Céleste & Thème Angélique (/privacy)",
+      type: "Mise à Jour Visuelle Majeure",
+      color: "from-amber-200 via-sky-300 to-amber-400",
+      border: "border-amber-300/50",
+      bgHover: "hover:bg-amber-950/20",
+      icon: <Sparkles className="text-amber-300" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Refonte Thème Angélique Divin des Données Privées",
+          detail: "Intégration d'un arrière-plan céleste avec rayons de lumière blanche (God Rays), halos dorés, nuages atmosphériques et verre angélique pour magnifier la Politique de Confidentialité RGPD.",
+          files: ["apps/web/src/app/privacy/page.tsx"]
+        }
+      ]
+    },
+    {
       version: "v3.5.0",
       date: "30 Juillet 2026",
       title: "Cadre Légal & Conditions Générales d'Utilisation (TOS)",

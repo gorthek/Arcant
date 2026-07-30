@@ -1,5 +1,10 @@
 # Patchnotes Arcant Web
 
+## v3.5.1 (Refonte Thème Angélique Divin `/privacy` - Sanctuaire RGPD)
+- **Style Lumineux Céleste & Royaume Divin (`/privacy`)** :
+  - Métamorphose visuelle de la page Politique de Confidentialité dans un thème angélique aux tons d'aube divine, rayons de lumière blanche (God Rays animés), halos d'or et nuages célestes en suspension.
+  - Cartes en verre angélique (`backdrop-blur-2xl`) avec bordures perles & dorées, particules d'étincelles et typographie royale célébrant la pureté du chiffrement AES-256-GCM et du respect du RGPD.
+
 ## v3.5.0 (Cadre Légal Intégral & Conditions Générales d'Utilisation TOS)
 - **Nouvelle Page TOS (`/terms`)** :
   - Déploiement complet des Conditions Générales d'Utilisation & de Service conformes aux lois françaises (LCEN, Code Civil, Code de la Consommation Art. L221-28) et européennes (RGPD UE 2016/679, DSA).
