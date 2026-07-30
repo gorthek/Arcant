@@ -1,5 +1,13 @@
 # Patchnotes Arcant Web
 
+## v3.5.0 (Cadre Légal Intégral & Conditions Générales d'Utilisation TOS)
+- **Nouvelle Page TOS (`/terms`)** :
+  - Déploiement complet des Conditions Générales d'Utilisation & de Service conformes aux lois françaises (LCEN, Code Civil, Code de la Consommation Art. L221-28) et européennes (RGPD UE 2016/679, DSA).
+  - Intégration des règles de conformité Discord Developer Terms of Service, modération des contenus IA, chiffrement militaire AES-256-GCM, renonciation au droit de rétractation numérique, et clauses de limitation de responsabilité.
+  - Interface utilisateur moderne avec sommaire interactif réactif, recherche de clauses dynamiques et option d'impression PDF.
+- **Pages de Confidentialité (`/privacy`) & Contact (`/contact`)** :
+  - Création des pages de Politique de Confidentialité RGPD et de Contact Support pour lier intégralement l'ensemble des liens du Footer.
+
 ## v3.4.2 (Suppression du Visualiseur Workflow 3D "Pipelines 3D en Direct")
 - **Clean Interface & Allégement de la Landing Page (`page.tsx`)** :
   - Suppression complète du composant `Interactive3DWorkflow` ("Visualisez vos Pipelines 3D en Direct") afin d'alléger la page d'accueil et d'offrir un flux de navigation plus direct.

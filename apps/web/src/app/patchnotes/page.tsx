@@ -15,6 +15,30 @@ export default function PatchnotesPage() {
 
   const webPatches = [
     {
+      version: "v3.5.0",
+      date: "30 Juillet 2026",
+      title: "Cadre Légal & Conditions Générales d'Utilisation (TOS)",
+      type: "Mise à Jour Légale & Sécurité",
+      color: "from-teal-500 via-emerald-500 to-cyan-400",
+      border: "border-teal-500/50",
+      bgHover: "hover:bg-teal-950/20",
+      icon: <Sparkles className="text-teal-400" size={24} />,
+      changes: [
+        {
+          type: "feature",
+          text: "Déploiement Complet des TOS & CGU (/terms)",
+          detail: "Création de la page légale d'Arcant avec 10 articles régissant les mentions LCEN, l'accord utilisateur, la conformité Discord Developer TOS, la propriété intellectuelle, le droit de rétractation (L221-28 13°), la sécurité et la modération IA.",
+          files: ["apps/web/src/app/terms/page.tsx"]
+        },
+        {
+          type: "feature",
+          text: "Pages Confidentialité (RGPD) & Support Contact",
+          detail: "Création des routes /privacy et /contact pour garantir la pleine conformité européenne RGPD (UE 2016/679) et offrir un support d'assistance 24/7.",
+          files: ["apps/web/src/app/privacy/page.tsx", "apps/web/src/app/contact/page.tsx"]
+        }
+      ]
+    },
+    {
       version: "v3.4.2",
       date: "30 Juillet 2026",
       title: "Allégement Landing Page & Removal Pipelines 3D",

@@ -148,6 +148,16 @@ L'accès à l'application web s'adapte dynamiquement selon les droits utilisateu
 
 ---
 
+## 🟢 Version 3.5.0
+*Dernière modification : 30 Juillet 2026*
+
+### 🌐 Cadre Légal Intégral & Conditions Générales d'Utilisation (TOS)
+- **[Page TOS Complète `/terms`]** Implémentation d'une page exhaustive de 10 articles couvrant les mentions légales LCEN, le consentement aux CGU, la conformité Discord Developer TOS, la propriété intellectuelle (CPI), l'utilisation éthique des moteurs d'IA, les règles de tarification et d'abonnements, la renonciation au droit de rétractation (Art. L221-28 13°), la sécurité et le chiffrement AES-256-GCM.
+- **[Expérience Utilisateur Moderne]** Module de recherche dynamique en temps réel dans les clauses légales, sommaire sticky réactif et bouton d'impression/exportation au format PDF.
+- **[Pages Confidentialité & Contact]** Ajout des pages dédiées au RGPD (`/privacy`) et au support/contact client (`/contact`).
+
+---
+
 ## 🟢 Version 3.4.2
 *Dernière modification : 30 Juillet 2026*
 
