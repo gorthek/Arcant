@@ -41,3 +41,41 @@ body {
 @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
 .animate-scanline { animation: scanline 4s linear infinite; }
 
+/* ------------------------------------------------------------------ */
+/* ARCANT / EXPERIENCE                                                 */
+/* ------------------------------------------------------------------ */
+
+/* Lenis owns the scroll position on the experience route. Native CSS smooth
+   scrolling fights it — the browser wins, and the result is a stutter that is
+   very hard to attribute. The class is added on mount and removed on unmount,
+   so every other route keeps its current behaviour. */
+html.arcant-lenis {
+  scroll-behavior: auto;
+}
+
+html.arcant-lenis body {
+  /* The experience is its own scroll context; a horizontal overflow here
+     would let a 220vh section introduce a phantom scrollbar. */
+  overflow-x: clip;
+}
+
+@keyframes arcant-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes arcant-scroll-cue {
+  0%   { transform: translateY(-100%); }
+  55%  { transform: translateY(100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* Respect the OS setting at the CSS layer too — the JS path handles the 3D,
+   but decorative loops must stop even before the canvas has mounted. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-scanline,
+  [style*="arcant-spin"],
+  [class*="arcant-scroll-cue"] {
+    animation: none !important;
+  }
+}
+
